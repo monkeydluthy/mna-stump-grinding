@@ -35,16 +35,15 @@ const Reviews = () => {
   const ReviewCard = ({ review, index }) => (
     <div 
       key={index}
+      className="review-card"
       style={{
         background: 'var(--white)',
-        padding: '20px',
+        padding: '25px',
         borderRadius: '12px',
         boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        minWidth: '260px',
+        minWidth: '320px',
         maxWidth: '320px',
-        width: '260px',
-        flexShrink: 0,
-        boxSizing: 'border-box'
+        flexShrink: 0
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
@@ -65,38 +64,55 @@ const Reviews = () => {
   )
 
   return (
-    <section style={{ background: 'var(--white)', overflow: 'hidden', width: '100%' }}>
-      <div className="container" style={{ width: '100%', maxWidth: '100%' }}>
-        <h2 style={{ padding: '0 20px' }}>What Our Customers Say</h2>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '30px',
-          marginTop: '40px',
-          width: '100%',
-          maxWidth: '100%'
-        }}>
-          {/* Google Reviews Carousel */}
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .review-card {
+            min-width: 260px !important;
+            max-width: 260px !important;
+            width: 260px !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+          }
+          .reviews-container {
+            padding: 0 20px !important;
+          }
+          .reviews-header {
+            padding: 0 20px !important;
+            flex-wrap: wrap !important;
+            gap: 15px !important;
+          }
+          .reviews-track {
+            padding: 0 20px !important;
+            gap: 15px !important;
+          }
+        }
+      `}</style>
+      <section style={{ background: 'var(--white)', overflow: 'hidden' }}>
+        <div className="container">
+          <h2>What Our Customers Say</h2>
           <div style={{
-            width: '100%',
-            maxWidth: '100%',
-            background: 'var(--bg-light)',
-            borderRadius: '12px',
-            padding: '30px 0',
-            overflow: 'hidden',
-            margin: '0 auto',
-            boxSizing: 'border-box'
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '30px',
+            marginTop: '40px'
           }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: '30px',
-              padding: '0 20px',
-              flexWrap: 'wrap',
-              gap: '15px'
+            {/* Google Reviews Carousel */}
+            <div className="reviews-container" style={{
+              width: '100%',
+              background: 'var(--bg-light)',
+              borderRadius: '12px',
+              padding: '30px 0',
+              overflow: 'hidden'
             }}>
+              <div className="reviews-header" style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '30px',
+                padding: '0 30px'
+              }}>
               <div>
                 <h3 style={{ marginBottom: '5px' }}>Google Reviews</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -124,13 +140,13 @@ const Reviews = () => {
             <div style={{
               position: 'relative',
               overflow: 'hidden',
-              width: '100%',
-              maxWidth: '100%'
+              width: '100%'
             }}>
               <div className="reviews-track" style={{
                 display: 'flex',
-                gap: '15px',
-                width: 'fit-content'
+                gap: '20px',
+                width: 'fit-content',
+                padding: '0 30px'
               }}>
                 {/* First set of reviews */}
                 {reviews.map((review, index) => (
@@ -146,6 +162,7 @@ const Reviews = () => {
         </div>
       </div>
     </section>
+    </>
   )
 }
 

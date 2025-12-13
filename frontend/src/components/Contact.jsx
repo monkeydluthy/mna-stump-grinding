@@ -13,14 +13,12 @@ const Contact = () => {
           }
         }
       `}</style>
-      <div className="container" style={{ width: '100%', maxWidth: '100%', padding: '0 20px' }}>
+      <div className="container">
         <div className="contact-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '40px',
-          alignItems: 'stretch',
-          width: '100%',
-          maxWidth: '100%'
+          alignItems: 'stretch'
         }}>
           {/* Left side - Contact options */}
           <div style={{
@@ -131,20 +129,16 @@ const Contact = () => {
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            maxWidth: '100%'
+            alignItems: 'center'
           }}>
             <img 
               src="/footer-img.jpg" 
               alt="Contact us" 
               style={{
                 width: '100%',
-                maxWidth: '100%',
                 height: 'auto',
                 borderRadius: '12px',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
-                objectFit: 'cover'
+                boxShadow: '0 8px 16px rgba(0,0,0,0.3)'
               }}
             />
           </div>

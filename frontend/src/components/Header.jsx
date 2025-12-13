@@ -25,7 +25,7 @@ const Header = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '15px 20px'
+          padding: '20px'
         }}>
           <Link to="/" style={{ textDecoration: 'none' }} onClick={closeMobileMenu}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

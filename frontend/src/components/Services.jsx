@@ -33,16 +33,24 @@ const Services = () => {
   ]
 
   return (
-    <section style={{ background: 'var(--bg-light)', width: '100%', overflow: 'hidden' }}>
-      <div className="container" style={{ width: '100%', maxWidth: '100%' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '20px',
-          marginTop: '30px',
-          width: '100%',
-          maxWidth: '100%'
-        }}>
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .services-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+            gap: 20px !important;
+            margin-top: 30px !important;
+          }
+        }
+      `}</style>
+      <section style={{ background: 'var(--bg-light)' }}>
+        <div className="container">
+          <div className="services-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '30px',
+            marginTop: '40px'
+          }}>
           {services.map((service, index) => (
             <div 
               key={index}
@@ -52,10 +60,7 @@ const Services = () => {
                 borderRadius: '12px',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 transition: 'transform 0.3s, box-shadow 0.3s',
-                textAlign: 'center',
-                width: '100%',
-                maxWidth: '100%',
-                boxSizing: 'border-box'
+                textAlign: 'center'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-5px)'
@@ -77,9 +82,10 @@ const Services = () => {
               </p>
             </div>
           ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 

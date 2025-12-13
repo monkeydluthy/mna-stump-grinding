@@ -93,37 +93,57 @@ const PortfolioPage = () => {
   }, [modalOpen, modalImages.length])
 
   return (
-    <div>
-      <Header />
-      <section style={{ padding: '60px 0 40px', background: 'var(--bg-light)' }}>
-        <div className="container" style={{ width: '100%', maxWidth: '100%' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: '20px', fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>Our Work</h1>
-          <p style={{ 
-            textAlign: 'center', 
-            color: 'var(--text-light)',
-            fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
-            maxWidth: '100%',
-            margin: '0 auto 30px',
-            padding: '0 15px'
-          }}>
-            See our professional stump grinding work. Every job is completed with precision and care.
-          </p>
-
-          {portfolioItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px' }}>
-              <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
-                No portfolio items yet. Check back soon!
-              </p>
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-              gap: '20px',
-              width: '100%',
-              maxWidth: '100%',
-              padding: '0 20px'
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .portfolio-section {
+            padding: 60px 0 40px !important;
+          }
+          .portfolio-h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem) !important;
+          }
+          .portfolio-p {
+            font-size: clamp(0.9rem, 3vw, 1.1rem) !important;
+            padding: 0 15px !important;
+            max-width: 100% !important;
+            margin: 0 auto 30px !important;
+          }
+          .portfolio-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+            gap: 20px !important;
+            padding: 0 20px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
+      <div>
+        <Header />
+        <section className="portfolio-section" style={{ padding: '100px 0 80px', background: 'var(--bg-light)' }}>
+          <div className="container">
+            <h1 className="portfolio-h1" style={{ textAlign: 'center', marginBottom: '20px' }}>Our Work</h1>
+            <p className="portfolio-p" style={{ 
+              textAlign: 'center', 
+              color: 'var(--text-light)',
+              fontSize: '1.1rem',
+              maxWidth: '800px',
+              margin: '0 auto 40px'
             }}>
+              See our professional stump grinding work. Every job is completed with precision and care.
+            </p>
+
+            {portfolioItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px' }}>
+                <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
+                  No portfolio items yet. Check back soon!
+                </p>
+              </div>
+            ) : (
+              <div className="portfolio-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '30px'
+              }}>
               {portfolioItems.map((item) => (
                 <div
                   key={item.id}
@@ -133,8 +153,7 @@ const PortfolioPage = () => {
                     overflow: 'hidden',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    width: '100%',
-                    maxWidth: '100%'
+                    cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-5px)'
@@ -257,10 +276,10 @@ const PortfolioPage = () => {
                   )}
                 </div>
               ))}
-            </div>
-          )}
-        </div>
-      </section>
+              </div>
+            )}
+          </div>
+        </section>
 
       {/* Image Gallery Modal */}
       {modalOpen && (
@@ -643,7 +662,8 @@ const PortfolioPage = () => {
           <p>&copy; {new Date().getFullYear()} M&A Stump Grinding. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
 
