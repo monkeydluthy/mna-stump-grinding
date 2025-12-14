@@ -125,7 +125,7 @@ const Reviews = () => {
             box-sizing: border-box !important;
           }
           .reviews-container {
-            padding: 0 20px !important;
+            padding: 50px 20px 30px 20px !important;
           }
           .reviews-header {
             padding: 0 20px !important;
@@ -199,36 +199,32 @@ const Reviews = () => {
               width: '100%',
               background: 'var(--bg-light)',
               borderRadius: '12px',
-              padding: '30px 0',
+              padding: '60px 30px 30px 30px',
               overflow: 'hidden'
             }}>
               <div className="reviews-header" style={{ 
                 display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'space-between', 
-                alignItems: isMobile ? 'flex-start' : 'center',
-                gap: isMobile ? '20px' : '0',
-                marginBottom: '30px',
-                padding: '0 30px'
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '20px',
+                marginBottom: '30px'
               }}>
-                <div style={{ width: '100%' }}>
-                  <h3 style={{ marginBottom: '12px', fontSize: '1.3rem' }}>Google Reviews</h3>
-                  <div style={{ 
-                    display: 'flex', 
-                    flexDirection: isMobile ? 'column' : 'row',
-                    alignItems: isMobile ? 'flex-start' : 'center',
-                    gap: isMobile ? '12px' : '15px',
-                    flexWrap: 'wrap'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>4.9</span>
-                      <div style={{ display: 'flex', gap: '3px' }}>
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} style={{ color: '#FFA500', fontSize: '1.3rem' }}>★</span>
-                        ))}
-                      </div>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%'
+                }}>
+                  <h3 style={{ marginTop: '0', marginBottom: '0', fontSize: '1.3rem', textAlign: 'center' }}>Google Reviews</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>4.9</span>
+                    <div style={{ display: 'flex', gap: '3px' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} style={{ color: '#FFA500', fontSize: '1.3rem' }}>★</span>
+                      ))}
                     </div>
-                    <span style={{ color: 'var(--text-light)', fontSize: '0.95rem' }}>(24 reviews)</span>
                   </div>
                 </div>
                 <a 
