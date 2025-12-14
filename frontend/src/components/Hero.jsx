@@ -17,6 +17,13 @@ const Hero = () => {
           }
           .hero-buttons {
             padding: 0 10px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 12px !important;
+          }
+          .hero-buttons .btn {
+            width: 100% !important;
+            max-width: 280px !important;
           }
         }
       `}</style>
