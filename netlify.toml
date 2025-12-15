@@ -3,12 +3,15 @@
   publish = "frontend/dist"
   functions = "netlify/functions"
 
+# API routes must come BEFORE the catch-all
+# Using force = true to ensure this takes precedence over catch-all
 [[redirects]]
   from = "/api/reviews/google"
   to = "/.netlify/functions/reviews-google"
   status = 200
   force = true
 
+# Catch-all for SPA routing - must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"

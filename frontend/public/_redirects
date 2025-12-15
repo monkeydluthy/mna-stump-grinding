@@ -1,2 +1,5 @@
-/*    /index.html   200
+# API routes - must come before the catch-all
+/api/reviews/google /.netlify/functions/reviews-google 200!
 
+# Catch-all for SPA routing
+/* /index.html 200
