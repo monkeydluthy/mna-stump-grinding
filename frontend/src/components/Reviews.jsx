@@ -1,41 +1,83 @@
 import { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
 
 const Reviews = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [rating, setRating] = useState(4.9)
+  const [totalReviews, setTotalReviews] = useState(24)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const touchStartX = useRef(0)
   const touchEndX = useRef(0)
 
-  const reviews = [
+  // Fetch Google Reviews from backend
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get('/api/reviews/google')
+        if (response.data.reviews && response.data.reviews.length > 0) {
+          setReviews(response.data.reviews)
+          setRating(response.data.rating || 4.9)
+          setTotalReviews(response.data.totalReviews || 24)
+          setError(null)
+        } else {
+          // Fallback to mock reviews if API returns no reviews
+          console.warn('No reviews returned from API, using mock reviews')
+          setReviews(getMockReviews())
+          setError(null)
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err)
+        // Fallback to mock reviews on error
+        setReviews(getMockReviews())
+        setError('Unable to load reviews. Showing sample reviews.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchReviews()
+  }, [])
+
+  // Mock reviews fallback
+  const getMockReviews = () => [
     {
       name: 'Sarah Johnson',
       date: '2 weeks ago',
-      text: 'Excellent service! They removed a large stump from my backyard quickly and professionally. The team was on time, cleaned up everything, and left the area looking great. Highly recommend!'
+      text: 'Excellent service! They removed a large stump from my backyard quickly and professionally. The team was on time, cleaned up everything, and left the area looking great. Highly recommend!',
+      rating: 5
     },
     {
       name: 'Michael Chen',
       date: '1 month ago',
-      text: 'Fast, efficient, and affordable. Had multiple stumps removed and they did an amazing job. The crew was friendly and professional. Will definitely use them again!'
+      text: 'Fast, efficient, and affordable. Had multiple stumps removed and they did an amazing job. The crew was friendly and professional. Will definitely use them again!',
+      rating: 5
     },
     {
       name: 'Jennifer Martinez',
       date: '3 weeks ago',
-      text: 'Outstanding work! They ground down a huge oak stump that was in the way of our new patio. Clean, professional, and reasonably priced. Very happy with the results!'
+      text: 'Outstanding work! They ground down a huge oak stump that was in the way of our new patio. Clean, professional, and reasonably priced. Very happy with the results!',
+      rating: 5
     },
     {
       name: 'David Thompson',
       date: '1 week ago',
-      text: 'Great experience from start to finish. Quick response, fair pricing, and excellent workmanship. They removed three stumps and the yard looks perfect now. Highly professional team!'
+      text: 'Great experience from start to finish. Quick response, fair pricing, and excellent workmanship. They removed three stumps and the yard looks perfect now. Highly professional team!',
+      rating: 5
     },
     {
       name: 'Robert Williams',
       date: '2 months ago',
-      text: 'Top-notch service! Professional, punctual, and thorough. They made quick work of a difficult stump removal. The cleanup was impeccable. Would hire again!'
+      text: 'Top-notch service! Professional, punctual, and thorough. They made quick work of a difficult stump removal. The cleanup was impeccable. Would hire again!',
+      rating: 5
     },
     {
       name: 'Lisa Anderson',
       date: '3 weeks ago',
-      text: 'Amazing results! The stump grinding was done perfectly and the area was left spotless. Great communication throughout the process. Highly satisfied!'
+      text: 'Amazing results! The stump grinding was done perfectly and the area was left spotless. Great communication throughout the process. Highly satisfied!',
+      rating: 5
     }
   ]
 
@@ -59,7 +101,7 @@ const Reviews = () => {
   }
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return
+    if (!touchStartX.current || !touchEndX.current || reviews.length === 0) return
     
     const distance = touchStartX.current - touchEndX.current
     const minSwipeDistance = 50
@@ -80,38 +122,41 @@ const Reviews = () => {
     setCurrentReviewIndex(index)
   }
 
-  const ReviewCard = ({ review, index }) => (
-    <div 
-      key={index}
-      className="review-card"
-      style={{
-        background: 'var(--white)',
-        padding: isMobile ? '25px' : '25px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        minWidth: isMobile ? '100%' : '320px',
-        maxWidth: isMobile ? '100%' : '320px',
-        width: isMobile ? '100%' : '320px',
-        flexShrink: 0,
-        boxSizing: 'border-box'
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-        <div>
-          <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '1.1rem' }}>{review.name}</div>
-          <div style={{ display: 'flex', gap: '2px', marginBottom: '8px' }}>
-            {[...Array(5)].map((_, i) => (
-              <span key={i} style={{ color: '#FFA500', fontSize: '1rem' }}>★</span>
-            ))}
+  const ReviewCard = ({ review, index }) => {
+    const reviewRating = review.rating || 5
+    return (
+      <div 
+        key={index}
+        className="review-card"
+        style={{
+          background: 'var(--white)',
+          padding: isMobile ? '25px' : '25px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          minWidth: isMobile ? '100%' : '320px',
+          maxWidth: isMobile ? '100%' : '320px',
+          width: isMobile ? '100%' : '320px',
+          flexShrink: 0,
+          boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '1.1rem' }}>{review.name}</div>
+            <div style={{ display: 'flex', gap: '2px', marginBottom: '8px' }}>
+              {[...Array(5)].map((_, i) => (
+                <span key={i} style={{ color: i < reviewRating ? '#FFA500' : '#ddd', fontSize: '1rem' }}>★</span>
+              ))}
+            </div>
           </div>
+          <span style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>{review.date}</span>
         </div>
-        <span style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>{review.date}</span>
+        <p style={{ color: 'var(--text-dark)', lineHeight: '1.7', fontSize: '0.95rem' }}>
+          {review.text}
+        </p>
       </div>
-      <p style={{ color: 'var(--text-dark)', lineHeight: '1.7', fontSize: '0.95rem' }}>
-        {review.text}
-      </p>
-    </div>
-  )
+    )
+  }
 
   return (
     <>
@@ -218,17 +263,23 @@ const Reviews = () => {
                   width: '100%'
                 }}>
                   <h3 style={{ marginTop: '0', marginBottom: '0', fontSize: '1.3rem', textAlign: 'center' }}>Google Reviews</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>4.9</span>
-                    <div style={{ display: 'flex', gap: '3px' }}>
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} style={{ color: '#FFA500', fontSize: '1.3rem' }}>★</span>
-                      ))}
+                  {loading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>...</span>
                     </div>
-                  </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>{rating.toFixed(1)}</span>
+                      <div style={{ display: 'flex', gap: '3px' }}>
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} style={{ color: i < Math.round(rating) ? '#FFA500' : '#ddd', fontSize: '1.3rem' }}>★</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <a 
-                  href="https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID"
+                  href={`https://search.google.com/local/writereview?placeid=${import.meta.env.VITE_GOOGLE_PLACE_ID || 'YOUR_PLACE_ID'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-secondary"
@@ -243,111 +294,151 @@ const Reviews = () => {
               </div>
 
             {/* Desktop: Scrolling Container */}
-            <div className="desktop-reviews" style={{
-              position: 'relative',
-              overflow: 'hidden',
-              width: '100%',
-              display: isMobile ? 'none' : 'block'
-            }}>
-              <div className="reviews-track" style={{
-                display: 'flex',
-                gap: '20px',
-                width: 'fit-content',
-                padding: '0 30px'
+            {loading ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px',
+                color: 'var(--text-light)'
               }}>
-                {/* First set of reviews */}
-                {reviews.map((review, index) => (
-                  <ReviewCard key={`first-${index}`} review={review} index={index} />
-                ))}
-                {/* Duplicate set for seamless loop */}
-                {reviews.map((review, index) => (
-                  <ReviewCard key={`second-${index}`} review={review} index={index} />
-                ))}
+                Loading reviews...
               </div>
-            </div>
-
-            {/* Mobile: Swipeable Reviews */}
-            <div 
-              className="mobile-reviews-wrapper"
-              style={{
-                display: isMobile ? 'block' : 'none',
+            ) : reviews.length > 0 ? (
+              <div className="desktop-reviews" style={{
                 position: 'relative',
                 overflow: 'hidden',
                 width: '100%',
-                minHeight: '200px',
-                padding: '0 20px'
-              }}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div 
-                className="mobile-reviews-track"
-                style={{
-                  display: 'flex',
-                  transform: `translateX(-${currentReviewIndex * 100}%)`,
-                  transition: 'transform 0.3s ease',
-                  width: '100%'
-                }}
-              >
-                {reviews.map((review, index) => (
-                  <div 
-                    key={index}
-                    className="mobile-review-slide"
-                    style={{
-                      minWidth: '100%',
-                      maxWidth: '100%',
-                      width: '100%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      padding: '0 10px',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <div style={{
-                      width: '100%',
-                      maxWidth: '100%',
-                      display: 'flex',
-                      justifyContent: 'center'
-                    }}>
-                      <ReviewCard review={review} index={index} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Navigation Dots */}
-              <div className="review-dots" style={{
-                display: isMobile ? 'flex' : 'none',
-                justifyContent: 'center',
-                gap: '8px',
-                marginTop: '20px'
+                display: isMobile ? 'none' : 'block'
               }}>
-                {reviews.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`review-dot ${index === currentReviewIndex ? 'active' : ''}`}
-                    onClick={() => goToReview(index)}
-                    style={{
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      border: 'none',
-                      background: index === currentReviewIndex ? 'var(--primary-color)' : 'rgba(0, 0, 0, 0.2)',
-                      cursor: 'pointer',
-                      transition: 'background 0.3s',
-                      padding: 0
-                    }}
-                    aria-label={`Go to review ${index + 1}`}
-                  />
-                ))}
+                <div className="reviews-track" style={{
+                  display: 'flex',
+                  gap: '20px',
+                  width: 'fit-content',
+                  padding: '0 30px'
+                }}>
+                  {/* First set of reviews */}
+                  {reviews.map((review, index) => (
+                    <ReviewCard key={`first-${index}`} review={review} index={index} />
+                  ))}
+                  {/* Duplicate set for seamless loop */}
+                  {reviews.map((review, index) => (
+                    <ReviewCard key={`second-${index}`} review={review} index={index} />
+                  ))}
+                </div>
               </div>
+            ) : (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px',
+                color: 'var(--text-light)'
+              }}>
+                No reviews available at this time.
+              </div>
+            )}
+
+            {/* Mobile: Swipeable Reviews */}
+            {loading ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px',
+                color: 'var(--text-light)',
+                display: isMobile ? 'block' : 'none'
+              }}>
+                Loading reviews...
+              </div>
+            ) : reviews.length > 0 ? (
+              <div 
+                className="mobile-reviews-wrapper"
+                style={{
+                  display: isMobile ? 'block' : 'none',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  width: '100%',
+                  minHeight: '200px',
+                  padding: '0 20px'
+                }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div 
+                  className="mobile-reviews-track"
+                  style={{
+                    display: 'flex',
+                    transform: `translateX(-${currentReviewIndex * 100}%)`,
+                    transition: 'transform 0.3s ease',
+                    width: '100%'
+                  }}
+                >
+                  {reviews.map((review, index) => (
+                    <div 
+                      key={index}
+                      className="mobile-review-slide"
+                      style={{
+                        minWidth: '100%',
+                        maxWidth: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '0 10px',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <div style={{
+                        width: '100%',
+                        maxWidth: '100%',
+                        display: 'flex',
+                        justifyContent: 'center'
+                      }}>
+                        <ReviewCard review={review} index={index} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Navigation Dots */}
+                {reviews.length > 0 && (
+                  <div className="review-dots" style={{
+                    display: isMobile ? 'flex' : 'none',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '20px'
+                  }}>
+                    {reviews.map((_, index) => (
+                      <button
+                        key={index}
+                        className={`review-dot ${index === currentReviewIndex ? 'active' : ''}`}
+                        onClick={() => goToReview(index)}
+                        style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          background: index === currentReviewIndex ? 'var(--primary-color)' : 'rgba(0, 0, 0, 0.2)',
+                          cursor: 'pointer',
+                          transition: 'background 0.3s',
+                          padding: 0
+                        }}
+                        aria-label={`Go to review ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px',
+                color: 'var(--text-light)',
+                display: isMobile ? 'block' : 'none'
+              }}>
+                No reviews available at this time.
+              </div>
+            )}
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
     </>
   )
 }

@@ -3,6 +3,7 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid')
+const requireAuth = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -73,8 +74,8 @@ router.get('/', (req, res) => {
   }
 })
 
-// Upload single image/video (standalone)
-router.post('/upload', upload.single('file'), (req, res) => {
+// Upload single image/video (standalone) - requires auth
+router.post('/upload', requireAuth, upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' })
@@ -103,8 +104,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
   }
 })
 
-// Upload before/after images
-router.post('/upload-before-after', upload.fields([
+// Upload before/after images - requires auth
+router.post('/upload-before-after', requireAuth, upload.fields([
   { name: 'beforeImage', maxCount: 1 },
   { name: 'afterImage', maxCount: 1 }
 ]), (req, res) => {
@@ -134,8 +135,36 @@ router.post('/upload-before-after', upload.fields([
   }
 })
 
-// Delete portfolio item
-router.delete('/:id', (req, res) => {
+// Upload gallery (multiple images) - requires auth
+router.post('/upload-gallery', requireAuth, upload.array('images', 10), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'At least one image is required' })
+    }
+
+    const portfolio = readPortfolio()
+    const images = req.files.map(file => file.filename)
+    
+    const newItem = {
+      id: uuidv4(),
+      type: 'gallery',
+      images: images,
+      description: req.body.description || '',
+      uploadedAt: new Date().toISOString()
+    }
+
+    portfolio.push(newItem)
+    writePortfolio(portfolio)
+
+    res.json({ message: 'Gallery uploaded successfully', item: newItem })
+  } catch (error) {
+    console.error('Upload error:', error)
+    res.status(500).json({ error: 'Failed to upload gallery' })
+  }
+})
+
+// Delete portfolio item - requires auth
+router.delete('/:id', requireAuth, (req, res) => {
   try {
     const portfolio = readPortfolio()
     const item = portfolio.find(p => p.id === req.params.id)

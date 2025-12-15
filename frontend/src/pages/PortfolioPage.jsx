@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Header from '../components/Header'
 
 const PortfolioPage = () => {
@@ -8,39 +9,47 @@ const PortfolioPage = () => {
   const [modalItem, setModalItem] = useState(null)
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [videoItem, setVideoItem] = useState(null)
+  const [portfolioItems, setPortfolioItems] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Static portfolio items from public folder
-  const portfolioItems = [
-    {
-      id: '1',
-      type: 'gallery',
-      images: [
-        'portfolio-1.jpg',
-        'portfolio-2.jpg',
-        'portfolio-3.jpg',
-        'portfolio-4.jpg'
-      ],
-      description: 'Complete stump grinding project - multiple angles showing our professional work'
-    },
-    {
-      id: '2',
-      type: 'gallery',
-      images: [
-        'portfolio-6.jpg',
-        'portfolio-7.jpg',
-        'portfolio-8.jpg',
-        'portfolio-9.jpg'
-      ],
-      description: 'Professional stump removal project - comprehensive service showcase'
-    },
-    {
-      id: '5',
-      filename: 'portfolio-5.mp4',
-      type: 'standalone',
-      mediaType: 'video',
-      description: 'Stump grinding in action'
+  // Fetch portfolio items from backend
+  useEffect(() => {
+    const fetchPortfolioItems = async () => {
+      try {
+        const response = await axios.get('/api/portfolio')
+        // Transform backend data to match frontend format
+        const transformedItems = response.data.map(item => {
+          if (item.type === 'gallery' && item.images) {
+            return {
+              ...item,
+              images: item.images.map(img => `/api/uploads/${img}`)
+            }
+          } else if (item.type === 'standalone' && item.filename) {
+            return {
+              ...item,
+              filename: `/api/uploads/${item.filename}`
+            }
+          } else if (item.type === 'before-after') {
+            return {
+              ...item,
+              beforeImage: `/api/uploads/${item.beforeImage}`,
+              afterImage: `/api/uploads/${item.afterImage}`
+            }
+          }
+          return item
+        })
+        setPortfolioItems(transformedItems)
+      } catch (error) {
+        console.error('Error fetching portfolio:', error)
+        // Fallback to empty array if API fails
+        setPortfolioItems([])
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+
+    fetchPortfolioItems()
+  }, [])
 
   const openModal = (item) => {
     setModalImages(item.images)
@@ -132,13 +141,19 @@ const PortfolioPage = () => {
               See our professional stump grinding work. Every job is completed with precision and care.
             </p>
 
-            {portfolioItems.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px' }}>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
-                  No portfolio items yet. Check back soon!
-                </p>
-              </div>
-            ) : (
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px' }}>
+              <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
+                Loading portfolio...
+              </p>
+            </div>
+          ) : portfolioItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px' }}>
+              <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
+                No portfolio items yet. Check back soon!
+              </p>
+            </div>
+          ) : (
               <div className="portfolio-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -173,7 +188,7 @@ const PortfolioPage = () => {
                       onClick={() => openModal(item)}
                     >
                       <img 
-                        src={`/${item.images[0]}`}
+                        src={item.images[0]}
                         alt="Project cover"
                         style={{ width: '100%', height: '300px', objectFit: 'cover' }}
                       />
@@ -196,7 +211,7 @@ const PortfolioPage = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                       <div>
                         <img 
-                          src={`/${item.beforeImage}`}
+                          src={item.beforeImage}
                           alt="Before"
                           style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                         />
@@ -209,7 +224,7 @@ const PortfolioPage = () => {
                       </div>
                       <div>
                         <img 
-                          src={`/${item.afterImage}`}
+                          src={item.afterImage}
                           alt="After"
                           style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                         />
@@ -241,7 +256,7 @@ const PortfolioPage = () => {
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         muted
                       >
-                        <source src={`/${item.filename}`} type="video/mp4" />
+                        <source src={item.filename} type="video/mp4" />
                       </video>
                       <div style={{
                         position: 'absolute',
@@ -264,7 +279,7 @@ const PortfolioPage = () => {
                     </div>
                   ) : (
                     <img 
-                      src={`/${item.filename}`}
+                      src={item.filename}
                       alt={item.description || 'Portfolio item'}
                       style={{ width: '100%', height: '300px', objectFit: 'cover' }}
                     />
@@ -422,7 +437,7 @@ const PortfolioPage = () => {
                 margin: '0 auto'
               }}>
                 <img 
-                  src={`/${modalImages[currentImageIndex]}`}
+                  src={modalImages[currentImageIndex]}
                   alt={`Gallery image ${currentImageIndex + 1}`}
                   style={{
                     width: '100%',
@@ -612,21 +627,21 @@ const PortfolioPage = () => {
                 borderRadius: '8px',
                 background: '#000'
               }}>
-                <video
-                  controls
-                  autoPlay
-                  preload="metadata"
-                  playsInline
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '8px'
-                  }}
-                >
-                  <source src={`/${videoItem.filename}`} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                        <video
+                          controls
+                          autoPlay
+                          preload="metadata"
+                          playsInline
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: '8px'
+                          }}
+                        >
+                          <source src={videoItem.filename} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
               </div>
             </div>
 
