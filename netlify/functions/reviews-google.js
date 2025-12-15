@@ -28,6 +28,10 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({ error: 'Method not allowed' })
     }
   }
@@ -35,6 +39,8 @@ exports.handler = async (event, context) => {
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY
     const placeId = process.env.GOOGLE_PLACE_ID
+    
+    console.log('Function called - API Key present:', !!apiKey, 'Place ID:', placeId)
 
     if (!apiKey) {
       return {

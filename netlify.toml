@@ -7,6 +7,7 @@
   from = "/api/reviews/google"
   to = "/.netlify/functions/reviews-google"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"

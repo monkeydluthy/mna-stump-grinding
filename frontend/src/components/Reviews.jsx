@@ -17,12 +17,21 @@ const Reviews = () => {
     const fetchReviews = async () => {
       try {
         setLoading(true)
+        console.log('Fetching reviews from:', '/api/reviews/google')
         const response = await axios.get('/api/reviews/google')
+        console.log('Reviews API response:', response.data)
+        
         if (response.data.reviews && response.data.reviews.length > 0) {
+          console.log('Using real reviews:', response.data.reviews.length)
           setReviews(response.data.reviews)
           setRating(response.data.rating || 4.9)
           setTotalReviews(response.data.totalReviews || 24)
           setError(null)
+        } else if (response.data.error) {
+          // API returned an error response
+          console.error('API returned error:', response.data.error, response.data.message)
+          setReviews(getMockReviews())
+          setError(`Unable to load reviews: ${response.data.message || response.data.error}`)
         } else {
           // Fallback to mock reviews if API returns no reviews
           console.warn('No reviews returned from API, using mock reviews')
@@ -31,9 +40,10 @@ const Reviews = () => {
         }
       } catch (err) {
         console.error('Error fetching reviews:', err)
+        console.error('Error details:', err.response?.data || err.message)
         // Fallback to mock reviews on error
         setReviews(getMockReviews())
-        setError('Unable to load reviews. Showing sample reviews.')
+        setError(`Unable to load reviews: ${err.response?.data?.message || err.message || 'Network error'}`)
       } finally {
         setLoading(false)
       }
