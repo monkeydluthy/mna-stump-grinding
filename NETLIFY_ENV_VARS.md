@@ -1,0 +1,53 @@
+# Netlify Environment Variables Setup
+
+## Required Environment Variables
+
+Add these to your Netlify site dashboard under **Site settings** > **Environment variables**:
+
+### Google Reviews
+
+```
+GOOGLE_PLACES_API_KEY=your_google_places_api_key
+GOOGLE_PLACE_ID=ChIJBZ4H2Z04WQsRdUg8VFxO6Jo
+VITE_GOOGLE_PLACE_ID=ChIJBZ4H2Z04WQsRdUg8VFxO6Jo
+```
+
+### Cloudinary
+
+```
+CLOUDINARY_CLOUD_NAME=dsxjzbf2c
+CLOUDINARY_API_KEY=777983288976867
+CLOUDINARY_API_SECRET=exLJiQc_87pEMGaZY6rQu0NQg4U
+```
+
+### Authentication (JWT Secret)
+
+```
+JWT_SECRET=your_strong_random_secret_key_here
+```
+
+**Important:** Generate a strong random secret for JWT_SECRET. You can use:
+
+- A random string generator
+- Or run: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+
+### Portfolio Data (Optional - for initial data)
+
+```
+PORTFOLIO_DATA=[{"id":"standalone-1765773341022","type":"standalone","mediaType":"video","cloudinaryUrl":"https://res.cloudinary.com/dsxjzbf2c/video/upload/v1765773339/mna-stump-portfolio/portfolio-portfolio-5.mp4","cloudinaryPublicId":"mna-stump-portfolio/portfolio-portfolio-5","description":"Portfolio video","uploadedAt":"2025-12-15T04:35:41.022Z"},{"id":"gallery-1-1765773344927","type":"gallery","images":["https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773336/mna-stump-portfolio/portfolio-portfolio-1.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773336/mna-stump-portfolio/portfolio-portfolio-2.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773337/mna-stump-portfolio/portfolio-portfolio-3.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773338/mna-stump-portfolio/portfolio-portfolio-4.jpg"],"cloudinaryPublicIds":["mna-stump-portfolio/portfolio-portfolio-1","mna-stump-portfolio/portfolio-portfolio-2","mna-stump-portfolio/portfolio-portfolio-3","mna-stump-portfolio/portfolio-portfolio-4"],"description":"Portfolio gallery 1","uploadedAt":"2025-12-15T04:35:44.927Z"},{"id":"gallery-2-1765773344928","type":"gallery","images":["https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773341/mna-stump-portfolio/portfolio-portfolio-6.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773342/mna-stump-portfolio/portfolio-portfolio-7.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773343/mna-stump-portfolio/portfolio-portfolio-8.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773344/mna-stump-portfolio/portfolio-portfolio-9.jpg"],"cloudinaryPublicIds":["mna-stump-portfolio/portfolio-portfolio-6","mna-stump-portfolio/portfolio-portfolio-7","mna-stump-portfolio/portfolio-portfolio-8","mna-stump-portfolio/portfolio-portfolio-9"],"description":"Portfolio gallery 2","uploadedAt":"2025-12-15T04:35:44.928Z"}]
+```
+
+**Note:** The PORTFOLIO_DATA is optional - the function will also read from `portfolio-data.json` file in the functions directory.
+
+## After Setting Variables
+
+1. **Redeploy your site** - Environment variables require a new deploy
+2. **Test the functions:**
+   - Reviews: `https://your-site.netlify.app/api/reviews/google`
+   - Portfolio: `https://your-site.netlify.app/api/portfolio`
+
+## Important Notes
+
+- The portfolio function reads from `portfolio-data.json` which is included in the deployment
+- For production, consider using a database (Upstash Redis, FaunaDB) for portfolio storage
+- The current setup uses file-based storage which works but has limitations

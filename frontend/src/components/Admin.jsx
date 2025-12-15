@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Header from './Header'
+import { getAuthToken, getAuthHeaders, removeAuthToken, fileToBase64 } from '../utils/auth'
 
 const Admin = () => {
   const navigate = useNavigate()
@@ -24,14 +25,23 @@ const Admin = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('/api/auth/check')
+        const token = getAuthToken()
+        if (!token) {
+          navigate('/login')
+          return
+        }
+        const response = await axios.get('/api/auth/check', {
+          headers: getAuthHeaders()
+        })
         if (response.data.authenticated) {
           setUser(response.data.user)
           setCheckingAuth(false)
         } else {
+          removeAuthToken()
           navigate('/login')
         }
       } catch (error) {
+        removeAuthToken()
         navigate('/login')
       }
     }
@@ -71,24 +81,48 @@ const Admin = () => {
     setUploading(true)
     setMessage('')
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('description', description)
-
     try {
-      await axios.post('/api/portfolio/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      // Convert file to base64
+      const base64File = await fileToBase64(file)
+
+      // Upload to Cloudinary via Netlify Function
+      const uploadResponse = await axios.post('/api/upload', {
+        file: base64File,
+        fileName: file.name,
+        fileType: file.type,
+        uploadType: 'standalone',
+        mimeType: file.type
+      }, {
+        headers: getAuthHeaders()
       })
-      setMessage('✅ Upload successful!')
-      setFile(null)
-      setDescription('')
-      e.target.reset()
-      // Refresh portfolio if on manage tab
-      if (activeTab === 'manage') {
-        fetchPortfolioItems()
+
+      if (uploadResponse.data.success) {
+        // Add to portfolio
+        await axios.post('/api/portfolio', {
+          type: 'standalone',
+          cloudinaryUrl: uploadResponse.data.cloudinaryUrl,
+          cloudinaryPublicId: uploadResponse.data.cloudinaryPublicId,
+          mediaType: uploadResponse.data.mediaType,
+          description: description
+        }, {
+          headers: getAuthHeaders()
+        })
+
+        setMessage('✅ Upload successful!')
+        setFile(null)
+        setDescription('')
+        e.target.reset()
+        if (activeTab === 'manage') {
+          fetchPortfolioItems()
+        }
       }
     } catch (error) {
-      setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      if (error.response?.status === 401) {
+        removeAuthToken()
+        navigate('/login')
+      } else {
+        setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      }
     } finally {
       setUploading(false)
     }
@@ -104,25 +138,46 @@ const Admin = () => {
     setUploading(true)
     setMessage('')
 
-    const formData = new FormData()
-    galleryFiles.forEach((file) => {
-      formData.append('images', file)
-    })
-    formData.append('description', description)
-
     try {
-      await axios.post('/api/portfolio/upload-gallery', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      // Convert all files to base64
+      const base64Files = await Promise.all(
+        galleryFiles.map(file => fileToBase64(file))
+      )
+
+      // Upload to Cloudinary via Netlify Function
+      const uploadResponse = await axios.post('/api/upload', {
+        galleryFiles: base64Files,
+        uploadType: 'gallery'
+      }, {
+        headers: getAuthHeaders()
       })
-      setMessage('✅ Gallery uploaded successfully!')
-      setGalleryFiles([])
-      setDescription('')
-      e.target.reset()
-      if (activeTab === 'manage') {
-        fetchPortfolioItems()
+
+      if (uploadResponse.data.success) {
+        // Add to portfolio
+        await axios.post('/api/portfolio', {
+          type: 'gallery',
+          images: uploadResponse.data.images.map(img => img.cloudinaryUrl),
+          cloudinaryPublicIds: uploadResponse.data.images.map(img => img.cloudinaryPublicId),
+          description: description
+        }, {
+          headers: getAuthHeaders()
+        })
+
+        setMessage('✅ Gallery uploaded successfully!')
+        setGalleryFiles([])
+        setDescription('')
+        e.target.reset()
+        if (activeTab === 'manage') {
+          fetchPortfolioItems()
+        }
       }
     } catch (error) {
-      setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      if (error.response?.status === 401) {
+        removeAuthToken()
+        navigate('/login')
+      } else {
+        setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      }
     } finally {
       setUploading(false)
     }
@@ -138,25 +193,49 @@ const Admin = () => {
     setUploading(true)
     setMessage('')
 
-    const formData = new FormData()
-    formData.append('beforeImage', beforeFile)
-    formData.append('afterImage', afterFile)
-    formData.append('description', description)
-
     try {
-      await axios.post('/api/portfolio/upload-before-after', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      // Convert files to base64
+      const beforeBase64 = await fileToBase64(beforeFile)
+      const afterBase64 = await fileToBase64(afterFile)
+
+      // Upload to Cloudinary via Netlify Function
+      const uploadResponse = await axios.post('/api/upload', {
+        beforeImage: beforeBase64,
+        afterImage: afterBase64,
+        uploadType: 'before-after'
+      }, {
+        headers: getAuthHeaders()
       })
-      setMessage('✅ Upload successful!')
-      setBeforeFile(null)
-      setAfterFile(null)
-      setDescription('')
-      e.target.reset()
-      if (activeTab === 'manage') {
-        fetchPortfolioItems()
+
+      if (uploadResponse.data.success) {
+        // Add to portfolio
+        await axios.post('/api/portfolio', {
+          type: 'before-after',
+          beforeImageCloudinaryUrl: uploadResponse.data.beforeImage.cloudinaryUrl,
+          afterImageCloudinaryUrl: uploadResponse.data.afterImage.cloudinaryUrl,
+          beforeImage: uploadResponse.data.beforeImage.cloudinaryPublicId,
+          afterImage: uploadResponse.data.afterImage.cloudinaryPublicId,
+          description: description
+        }, {
+          headers: getAuthHeaders()
+        })
+
+        setMessage('✅ Upload successful!')
+        setBeforeFile(null)
+        setAfterFile(null)
+        setDescription('')
+        e.target.reset()
+        if (activeTab === 'manage') {
+          fetchPortfolioItems()
+        }
       }
     } catch (error) {
-      setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      if (error.response?.status === 401) {
+        removeAuthToken()
+        navigate('/login')
+      } else {
+        setMessage('❌ Upload failed: ' + (error.response?.data?.error || error.message))
+      }
     } finally {
       setUploading(false)
     }
@@ -169,11 +248,14 @@ const Admin = () => {
 
     setDeleting(id)
     try {
-      await axios.delete(`/api/portfolio/${id}`)
+      await axios.delete(`/api/portfolio?id=${id}`, {
+        headers: getAuthHeaders()
+      })
       setMessage('✅ Item deleted successfully!')
       fetchPortfolioItems()
     } catch (error) {
       if (error.response?.status === 401) {
+        removeAuthToken()
         navigate('/login')
       } else {
         setMessage('❌ Delete failed: ' + (error.response?.data?.error || error.message))
@@ -183,14 +265,9 @@ const Admin = () => {
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await axios.post('/api/auth/logout')
-      navigate('/login')
-    } catch (error) {
-      console.error('Logout error:', error)
-      navigate('/login')
-    }
+  const handleLogout = () => {
+    removeAuthToken()
+    navigate('/login')
   }
 
   const clearMessage = () => {

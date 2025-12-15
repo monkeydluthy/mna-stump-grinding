@@ -14,12 +14,19 @@ const Login = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('/api/auth/check')
-        if (response.data.authenticated) {
-          navigate('/admin')
+        const token = localStorage.getItem('authToken')
+        if (token) {
+          const response = await axios.get('/api/auth/check', {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (response.data.authenticated) {
+            navigate('/admin')
+          } else {
+            localStorage.removeItem('authToken')
+          }
         }
       } catch (error) {
-        // Not authenticated, stay on login page
+        localStorage.removeItem('authToken')
       }
     }
     checkAuth()
@@ -36,7 +43,9 @@ const Login = () => {
         password
       })
 
-      if (response.data.success) {
+      if (response.data.success && response.data.token) {
+        // Store JWT token
+        localStorage.setItem('authToken', response.data.token)
         navigate('/admin')
       }
     } catch (error) {

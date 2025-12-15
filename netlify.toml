@@ -11,6 +11,24 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/portfolio"
+  to = "/.netlify/functions/portfolio"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/upload"
+  to = "/.netlify/functions/upload"
+  status = 200
+  force = true
+
 # Catch-all for SPA routing - must be last
 [[redirects]]
   from = "/*"
