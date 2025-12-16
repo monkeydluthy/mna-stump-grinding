@@ -29,6 +29,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/health-check"
+  to = "/.netlify/functions/health-check"
+  status = 200
+  force = true
+
 # Catch-all for SPA routing - must be last
 [[redirects]]
   from = "/*"
