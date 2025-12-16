@@ -18,6 +18,9 @@ const Admin = () => {
   const [portfolioItems, setPortfolioItems] = useState([])
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(null)
+  const [editingItem, setEditingItem] = useState(null)
+  const [editDescription, setEditDescription] = useState('')
+  const [updating, setUpdating] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [user, setUser] = useState(null)
 
@@ -262,6 +265,46 @@ const Admin = () => {
       }
     } finally {
       setDeleting(null)
+    }
+  }
+
+  const handleEdit = (item) => {
+    setEditingItem(item)
+    setEditDescription(item.description || '')
+  }
+
+  const handleCancelEdit = () => {
+    setEditingItem(null)
+    setEditDescription('')
+  }
+
+  const handleUpdate = async (e) => {
+    e.preventDefault()
+    if (!editingItem) return
+
+    setUpdating(true)
+    setMessage('')
+
+    try {
+      await axios.put('/api/portfolio', {
+        id: editingItem.id,
+        description: editDescription
+      }, {
+        headers: getAuthHeaders()
+      })
+      setMessage('✅ Item updated successfully!')
+      setEditingItem(null)
+      setEditDescription('')
+      fetchPortfolioItems()
+    } catch (error) {
+      if (error.response?.status === 401) {
+        removeAuthToken()
+        navigate('/login')
+      } else {
+        setMessage('❌ Update failed: ' + (error.response?.data?.error || error.message))
+      }
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -687,7 +730,7 @@ const Admin = () => {
                     {item.type === 'gallery' && item.images && item.images.length > 0 && (
                       <div style={{ position: 'relative', width: '100%', paddingTop: '100%', overflow: 'hidden' }}>
                         <img
-                          src={`/api/uploads/${item.images[0]}`}
+                          src={item.images[0]}
                           alt={item.description || 'Gallery'}
                           style={{
                             position: 'absolute',
@@ -715,11 +758,11 @@ const Admin = () => {
                         )}
                       </div>
                     )}
-                    {item.type === 'standalone' && item.filename && (
+                    {item.type === 'standalone' && (item.cloudinaryUrl || item.filename) && (
                       <div style={{ position: 'relative', width: '100%', paddingTop: '100%', overflow: 'hidden', background: '#000' }}>
                         {item.mediaType === 'video' ? (
                           <video
-                            src={`/api/uploads/${item.filename}`}
+                            src={item.cloudinaryUrl || item.filename}
                             style={{
                               position: 'absolute',
                               top: 0,
@@ -732,7 +775,7 @@ const Admin = () => {
                           />
                         ) : (
                           <img
-                            src={`/api/uploads/${item.filename}`}
+                            src={item.cloudinaryUrl || item.filename}
                             alt={item.description || 'Portfolio item'}
                             style={{
                               position: 'absolute',
@@ -746,15 +789,15 @@ const Admin = () => {
                         )}
                       </div>
                     )}
-                    {item.type === 'before-after' && item.beforeImage && (
+                    {item.type === 'before-after' && (item.beforeImageCloudinaryUrl || item.beforeImage) && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
                         <img
-                          src={`/api/uploads/${item.beforeImage}`}
+                          src={item.beforeImageCloudinaryUrl || item.beforeImage}
                           alt="Before"
                           style={{ width: '100%', height: '150px', objectFit: 'cover' }}
                         />
                         <img
-                          src={`/api/uploads/${item.afterImage}`}
+                          src={item.afterImageCloudinaryUrl || item.afterImage}
                           alt="After"
                           style={{ width: '100%', height: '150px', objectFit: 'cover' }}
                         />
@@ -795,33 +838,115 @@ const Admin = () => {
                       }}>
                         {new Date(item.uploadedAt).toLocaleDateString()}
                       </div>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        disabled={deleting === item.id}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          background: deleting === item.id ? '#ccc' : '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: deleting === item.id ? 'not-allowed' : 'pointer',
-                          fontWeight: 600,
-                          transition: 'background 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (deleting !== item.id) {
-                            e.target.style.background = '#c82333'
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (deleting !== item.id) {
-                            e.target.style.background = '#dc3545'
-                          }
-                        }}
-                      >
-                        {deleting === item.id ? 'Deleting...' : 'Delete'}
-                      </button>
+                      {editingItem && editingItem.id === item.id ? (
+                        <form onSubmit={handleUpdate}>
+                          <textarea
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            rows="3"
+                            placeholder="Enter description..."
+                            style={{
+                              width: '100%',
+                              padding: '10px',
+                              borderRadius: '8px',
+                              border: '2px solid #ddd',
+                              fontFamily: 'inherit',
+                              resize: 'vertical',
+                              marginBottom: '10px',
+                              boxSizing: 'border-box'
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                              type="submit"
+                              disabled={updating}
+                              style={{
+                                flex: 1,
+                                padding: '10px',
+                                background: updating ? '#ccc' : 'var(--primary-color)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: updating ? 'not-allowed' : 'pointer',
+                                fontWeight: 600,
+                                transition: 'background 0.3s'
+                              }}
+                            >
+                              {updating ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelEdit}
+                              disabled={updating}
+                              style={{
+                                flex: 1,
+                                padding: '10px',
+                                background: '#6c757d',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: updating ? 'not-allowed' : 'pointer',
+                                fontWeight: 600,
+                                transition: 'background 0.3s'
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            onClick={() => handleEdit(item)}
+                            style={{
+                              flex: 1,
+                              padding: '10px',
+                              background: 'var(--primary-color)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontWeight: 600,
+                              transition: 'background 0.3s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = '#2d7a2d'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = 'var(--primary-color)'
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deleting === item.id}
+                            style={{
+                              flex: 1,
+                              padding: '10px',
+                              background: deleting === item.id ? '#ccc' : '#dc3545',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              cursor: deleting === item.id ? 'not-allowed' : 'pointer',
+                              fontWeight: 600,
+                              transition: 'background 0.3s'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (deleting !== item.id) {
+                                e.target.style.background = '#c82333'
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (deleting !== item.id) {
+                                e.target.style.background = '#dc3545'
+                              }
+                            }}
+                          >
+                            {deleting === item.id ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

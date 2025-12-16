@@ -193,6 +193,71 @@ exports.handler = async (event, context) => {
     }
   }
 
+  // PUT - Update item (requires authentication)
+  if (event.httpMethod === 'PUT') {
+    try {
+      // Check authentication
+      const authHeader = event.headers.authorization || event.headers.Authorization
+      const user = verifyToken(authHeader)
+      
+      if (!user) {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ error: 'Unauthorized' })
+        }
+      }
+
+      const body = JSON.parse(event.body || '{}')
+      const { id, description } = body
+
+      if (!id) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Item ID required' })
+        }
+      }
+
+      // Update only the description field
+      const updateData = {}
+      if (description !== undefined) {
+        updateData.description = description
+      }
+
+      const { data, error } = await supabase
+        .from('portfolio_items')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Supabase update error:', error)
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'Failed to update portfolio item', details: error.message })
+        }
+      }
+
+      const transformed = transformPortfolioItem(data)
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ message: 'Item updated successfully', item: transformed })
+      }
+    } catch (error) {
+      console.error('Error updating portfolio item:', error)
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Failed to update portfolio item', details: error.message })
+      }
+    }
+  }
+
   // DELETE - Remove item (requires authentication)
   if (event.httpMethod === 'DELETE') {
     try {
