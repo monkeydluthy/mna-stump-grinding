@@ -34,23 +34,13 @@ JWT_SECRET=your_strong_random_secret_key_here
 ### Supabase (REQUIRED - for portfolio storage)
 
 ```
-SUPABASE_URL=https://zhiwbkmtzohfzwigwisy.supabase.co
-SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaXdia210em9oZnp3aWd3aXN5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTg1MjU1NCwiZXhwIjoyMDgxNDI4NTU0fQ.3rm-TEgG3Lfe_kWm-TaE5QNtqGPUNB8ADsMnGXvxHU0
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_SERVICE_KEY=your_service_role_key_here
 ```
 
-**Note:** Portfolio data is now stored in Supabase automatically. No need for PORTFOLIO_DATA environment variable anymore!
+**Where to get these:** Supabase Dashboard → Project Settings → API. Use the **Project URL** for `SUPABASE_URL` and the **service_role** key (not anon) for `SUPABASE_SERVICE_KEY`. Keep the service key secret.
 
-### Portfolio Data (DEPRECATED - no longer needed with Supabase)
-
-```
-PORTFOLIO_DATA=[{"id":"standalone-1765773341022","type":"standalone","mediaType":"video","cloudinaryUrl":"https://res.cloudinary.com/dsxjzbf2c/video/upload/v1765773339/mna-stump-portfolio/portfolio-portfolio-5.mp4","cloudinaryPublicId":"mna-stump-portfolio/portfolio-portfolio-5","description":"Portfolio video","uploadedAt":"2025-12-15T04:35:41.022Z"},{"id":"gallery-1-1765773344927","type":"gallery","images":["https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773336/mna-stump-portfolio/portfolio-portfolio-1.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773336/mna-stump-portfolio/portfolio-portfolio-2.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773337/mna-stump-portfolio/portfolio-portfolio-3.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773338/mna-stump-portfolio/portfolio-portfolio-4.jpg"],"cloudinaryPublicIds":["mna-stump-portfolio/portfolio-portfolio-1","mna-stump-portfolio/portfolio-portfolio-2","mna-stump-portfolio/portfolio-portfolio-3","mna-stump-portfolio/portfolio-portfolio-4"],"description":"Portfolio gallery 1","uploadedAt":"2025-12-15T04:35:44.927Z"},{"id":"gallery-2-1765773344928","type":"gallery","images":["https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773341/mna-stump-portfolio/portfolio-portfolio-6.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773342/mna-stump-portfolio/portfolio-portfolio-7.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773343/mna-stump-portfolio/portfolio-portfolio-8.jpg","https://res.cloudinary.com/dsxjzbf2c/image/upload/v1765773344/mna-stump-portfolio/portfolio-portfolio-9.jpg"],"cloudinaryPublicIds":["mna-stump-portfolio/portfolio-portfolio-6","mna-stump-portfolio/portfolio-portfolio-7","mna-stump-portfolio/portfolio-portfolio-8","mna-stump-portfolio/portfolio-portfolio-9"],"description":"Portfolio gallery 2","uploadedAt":"2025-12-15T04:35:44.928Z"}]
-```
-
-**IMPORTANT:**
-
-- This is REQUIRED for the portfolio to display on your site
-- The function prioritizes this environment variable over the file
-- When you upload new items, they go to Cloudinary but need to be manually added here (see UPDATE_PORTFOLIO_DATA.md for instructions)
+**Note:** Portfolio data is stored in Supabase. Do **not** set `PORTFOLIO_DATA`; it is deprecated.
 
 ## After Setting Variables
 
@@ -61,6 +51,6 @@ PORTFOLIO_DATA=[{"id":"standalone-1765773341022","type":"standalone","mediaType"
 
 ## Important Notes
 
-- The portfolio function reads from `portfolio-data.json` which is included in the deployment
-- For production, consider using a database (Upstash Redis, FaunaDB) for portfolio storage
-- The current setup uses file-based storage which works but has limitations
+- Portfolio data is stored in Supabase; the `/api/portfolio` function reads from Supabase
+- Images and videos are stored in Cloudinary
+- Do not set `PORTFOLIO_DATA`; it is deprecated

@@ -278,14 +278,24 @@ const Reviews = () => {
                       <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>...</span>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>{rating.toFixed(1)}</span>
-                      <div style={{ display: 'flex', gap: '3px' }}>
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} style={{ color: i < Math.round(rating) ? '#FFA500' : '#ddd', fontSize: '1.3rem' }}>★</span>
-                        ))}
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>{rating.toFixed(1)}</span>
+                        <div style={{ display: 'flex', gap: '3px' }}>
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} style={{ color: i < Math.round(rating) ? '#FFA500' : '#ddd', fontSize: '1.3rem' }}>★</span>
+                          ))}
+                        </div>
+                        <span style={{ fontSize: '1rem', color: 'var(--text-light)', fontWeight: 500 }}>
+                          ({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'} on Google)
+                        </span>
                       </div>
-                    </div>
+                      {reviews.length > 0 && (
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-light)', textAlign: 'center' }}>
+                          Showing our {reviews.length} most recent {reviews.length === 1 ? 'review' : 'reviews'}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
                 <a 

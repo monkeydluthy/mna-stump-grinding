@@ -92,8 +92,8 @@ exports.handler = async (event, context) => {
 
     const placeData = response.data.result
     
-    // Format the reviews data
-    const reviews = (placeData.reviews || []).map(review => ({
+    // Format and filter to 5-star reviews only
+    const allReviews = (placeData.reviews || []).map(review => ({
       name: review.author_name,
       date: formatReviewDate(review.time),
       text: review.text,
@@ -101,6 +101,7 @@ exports.handler = async (event, context) => {
       profilePhoto: review.profile_photo_url || null,
       relativeTime: review.relative_time_description || ''
     }))
+    const reviews = allReviews.filter(r => r.rating === 5)
 
     return {
       statusCode: 200,

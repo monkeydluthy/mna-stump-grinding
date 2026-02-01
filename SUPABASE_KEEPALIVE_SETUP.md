@@ -60,6 +60,7 @@ You'll need to use a free cron service to ping the endpoint periodically. Here a
 After setting up the cron job, you can:
 
 1. **Test the endpoint manually**: Visit `https://your-site.netlify.app/api/health-check` in your browser. You should see:
+
    ```json
    {
      "status": "healthy",
@@ -88,6 +89,7 @@ After setting up the cron job, you can:
 ## Troubleshooting
 
 If the health check fails:
+
 1. Verify your Netlify site is deployed and accessible
 2. Check that `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` are set in Netlify environment variables
 3. Check Netlify function logs for any errors
@@ -96,4 +98,3 @@ If the health check fails:
 ## Alternative: Netlify Scheduled Functions (Paid)
 
 If you're on a paid Netlify plan, you can use Netlify's built-in scheduled functions instead of an external cron service. However, the free cron service approach works perfectly fine and is recommended for free tier users.
-

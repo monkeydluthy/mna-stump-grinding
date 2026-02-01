@@ -131,6 +131,15 @@ Google Places API has a free tier:
 - After free credit: $0.017 per request
 - Reviews are typically fetched once per page load
 
+## Why Only 5 Reviews Show
+
+**Google’s Places API returns at most 5 reviews per place.** There is no way to get more than 5 via the API; this is a fixed limit, not a bug. The site shows:
+
+- **Total count** – The full number of reviews on Google (e.g. “24 reviews on Google”) so you can confirm it matches your Google listing.
+- **“Showing our 5 most recent reviews”** – So visitors know we’re showing the latest 5 that Google provides.
+
+New reviews do appear as they become part of the 5 most recent that Google returns; older ones drop off the list.
+
 ## Fallback Behavior
 
 If the API fails or returns no reviews, the component will automatically fall back to showing mock reviews so your site always displays something.
