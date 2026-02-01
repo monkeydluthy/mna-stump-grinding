@@ -1,72 +1,93 @@
-const { createClient } = require('@supabase/supabase-js')
-const cloudinary = require('cloudinary').v2
-const jwt = require('jsonwebtoken')
+const { createClient } = require('@supabase/supabase-js');
+const cloudinary = require('cloudinary').v2;
+const jwt = require('jsonwebtoken');
 
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-})
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Supabase credentials not configured')
+// Initialize Supabase client (lazy so missing env doesn't crash on load)
+function getSupabase() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return {
+      client: null,
+      error:
+        'Supabase credentials not configured (SUPABASE_URL, SUPABASE_SERVICE_KEY)',
+    };
+  }
+  return { client: createClient(supabaseUrl, supabaseServiceKey), error: null };
 }
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Set CORS headers
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
-}
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+};
 
 // Verify JWT token
 function verifyToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null
+    return null;
   }
-  
+
   try {
-    const token = authHeader.substring(7)
-    const JWT_SECRET = process.env.JWT_SECRET || 'mna-stump-grinding-secret-key-change-in-production'
-    return jwt.verify(token, JWT_SECRET)
+    const token = authHeader.substring(7);
+    const JWT_SECRET =
+      process.env.JWT_SECRET ||
+      'mna-stump-grinding-secret-key-change-in-production';
+    return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return null
+    return null;
   }
 }
 
-// Transform Supabase data to frontend format
+// Transform Supabase data to frontend format (defensive for malformed data)
+function parseJson(value) {
+  if (value == null) return null;
+  if (typeof value === 'object') return value;
+  if (typeof value !== 'string') return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
 function transformPortfolioItem(item) {
+  if (!item || typeof item !== 'object') return null;
   const transformed = {
     id: item.id,
-    type: item.type,
+    type: item.type || 'standalone',
     uploadedAt: item.uploaded_at,
-    description: item.description || ''
-  }
+    description: item.description || '',
+  };
 
   if (item.type === 'gallery') {
-    transformed.images = item.images ? (typeof item.images === 'string' ? JSON.parse(item.images) : item.images) : []
-    transformed.cloudinaryPublicIds = item.cloudinary_public_ids ? (typeof item.cloudinary_public_ids === 'string' ? JSON.parse(item.cloudinary_public_ids) : item.cloudinary_public_ids) : []
+    transformed.images = parseJson(item.images) || [];
+    transformed.cloudinaryPublicIds =
+      parseJson(item.cloudinary_public_ids) || [];
   } else if (item.type === 'before-after') {
-    transformed.beforeImage = item.before_image_cloudinary_url || item.before_image
-    transformed.afterImage = item.after_image_cloudinary_url || item.after_image
-    transformed.beforeImageCloudinaryUrl = item.before_image_cloudinary_url
-    transformed.afterImageCloudinaryUrl = item.after_image_cloudinary_url
+    transformed.beforeImage =
+      item.before_image_cloudinary_url || item.before_image;
+    transformed.afterImage =
+      item.after_image_cloudinary_url || item.after_image;
+    transformed.beforeImageCloudinaryUrl = item.before_image_cloudinary_url;
+    transformed.afterImageCloudinaryUrl = item.after_image_cloudinary_url;
   } else {
-    transformed.cloudinaryUrl = item.cloudinary_url
-    transformed.cloudinaryPublicId = item.cloudinary_public_id
-    transformed.mediaType = item.media_type || 'image'
-    transformed.filename = item.filename || item.cloudinary_url
+    transformed.cloudinaryUrl = item.cloudinary_url;
+    transformed.cloudinaryPublicId = item.cloudinary_public_id;
+    transformed.mediaType = item.media_type || 'image';
+    transformed.filename = item.filename || item.cloudinary_url;
   }
 
-  return transformed
+  return transformed;
 }
 
 exports.handler = async (event, context) => {
@@ -75,42 +96,68 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: ''
-    }
+      body: '',
+    };
   }
 
   // GET - Fetch all portfolio items
   if (event.httpMethod === 'GET') {
     try {
+      const { client: supabase, error: configError } = getSupabase();
+      if (configError || !supabase) {
+        console.error('Portfolio GET:', configError);
+        return {
+          statusCode: 503,
+          headers,
+          body: JSON.stringify({
+            error: 'Portfolio not configured',
+            details: configError,
+          }),
+        };
+      }
+
       const { data, error } = await supabase
         .from('portfolio_items')
         .select('*')
-        .order('uploaded_at', { ascending: false })
+        .order('uploaded_at', { ascending: false });
 
       if (error) {
-        console.error('Supabase error:', error)
+        console.error('Supabase error:', error);
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Failed to fetch portfolio', details: error.message })
-        }
+          body: JSON.stringify({
+            error: 'Failed to fetch portfolio',
+            details: error.message,
+            code: error.code,
+          }),
+        };
       }
 
-      const transformed = (data || []).map(transformPortfolioItem)
-      console.log('GET /api/portfolio - Returning', transformed.length, 'items')
-      
+      const transformed = (data || [])
+        .map(transformPortfolioItem)
+        .filter(Boolean);
+      console.log(
+        'GET /api/portfolio - Returning',
+        transformed.length,
+        'items'
+      );
+
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(transformed)
-      }
+        body: JSON.stringify(transformed),
+      };
     } catch (error) {
-      console.error('Error fetching portfolio:', error)
+      console.error('Error fetching portfolio:', error);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to fetch portfolio', details: error.message })
-      }
+        body: JSON.stringify({
+          error: 'Failed to fetch portfolio',
+          details: error.message,
+        }),
+      };
     }
   }
 
@@ -118,78 +165,113 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === 'POST') {
     try {
       // Check authentication
-      const authHeader = event.headers.authorization || event.headers.Authorization
-      const user = verifyToken(authHeader)
-      
+      const authHeader =
+        event.headers.authorization || event.headers.Authorization;
+      const user = verifyToken(authHeader);
+
       if (!user) {
         return {
           statusCode: 401,
           headers,
-          body: JSON.stringify({ error: 'Unauthorized' })
-        }
+          body: JSON.stringify({ error: 'Unauthorized' }),
+        };
       }
 
-      const body = JSON.parse(event.body || '{}')
-      const { type, cloudinaryUrl, cloudinaryPublicId, description, images, beforeImage, afterImage, beforeImageCloudinaryUrl, afterImageCloudinaryUrl, mediaType } = body
+      const body = JSON.parse(event.body || '{}');
+      const {
+        type,
+        cloudinaryUrl,
+        cloudinaryPublicId,
+        description,
+        images,
+        beforeImage,
+        afterImage,
+        beforeImageCloudinaryUrl,
+        afterImageCloudinaryUrl,
+        mediaType,
+      } = body;
 
       if (!cloudinaryUrl && !images && !beforeImageCloudinaryUrl) {
         return {
           statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'Missing required fields' })
-        }
+          body: JSON.stringify({ error: 'Missing required fields' }),
+        };
+      }
+
+      const { client: supabase, error: configError } = getSupabase();
+      if (configError || !supabase) {
+        return {
+          statusCode: 503,
+          headers,
+          body: JSON.stringify({
+            error: 'Portfolio not configured',
+            details: configError,
+          }),
+        };
       }
 
       const newItem = {
         id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: type || 'standalone',
-        description: description || ''
-      }
+        description: description || '',
+      };
 
       if (type === 'gallery' && images) {
-        newItem.images = JSON.stringify(images)
-        newItem.cloudinary_public_ids = body.cloudinaryPublicIds ? JSON.stringify(body.cloudinaryPublicIds) : null
+        newItem.images = JSON.stringify(images);
+        newItem.cloudinary_public_ids = body.cloudinaryPublicIds
+          ? JSON.stringify(body.cloudinaryPublicIds)
+          : null;
       } else if (type === 'before-after') {
-        newItem.before_image = beforeImage
-        newItem.after_image = afterImage
-        newItem.before_image_cloudinary_url = beforeImageCloudinaryUrl
-        newItem.after_image_cloudinary_url = afterImageCloudinaryUrl
+        newItem.before_image = beforeImage;
+        newItem.after_image = afterImage;
+        newItem.before_image_cloudinary_url = beforeImageCloudinaryUrl;
+        newItem.after_image_cloudinary_url = afterImageCloudinaryUrl;
       } else {
-        newItem.cloudinary_url = cloudinaryUrl
-        newItem.cloudinary_public_id = cloudinaryPublicId
-        newItem.media_type = mediaType || 'image'
-        newItem.filename = cloudinaryUrl
+        newItem.cloudinary_url = cloudinaryUrl;
+        newItem.cloudinary_public_id = cloudinaryPublicId;
+        newItem.media_type = mediaType || 'image';
+        newItem.filename = cloudinaryUrl;
       }
 
       const { data, error } = await supabase
         .from('portfolio_items')
         .insert([newItem])
         .select()
-        .single()
+        .single();
 
       if (error) {
-        console.error('Supabase insert error:', error)
+        console.error('Supabase insert error:', error);
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Failed to add portfolio item', details: error.message })
-        }
+          body: JSON.stringify({
+            error: 'Failed to add portfolio item',
+            details: error.message,
+          }),
+        };
       }
 
-      const transformed = transformPortfolioItem(data)
+      const transformed = transformPortfolioItem(data);
 
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ message: 'Item added successfully', item: transformed })
-      }
+        body: JSON.stringify({
+          message: 'Item added successfully',
+          item: transformed,
+        }),
+      };
     } catch (error) {
-      console.error('Error adding portfolio item:', error)
+      console.error('Error adding portfolio item:', error);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to add portfolio item', details: error.message })
-      }
+        body: JSON.stringify({
+          error: 'Failed to add portfolio item',
+          details: error.message,
+        }),
+      };
     }
   }
 
@@ -197,32 +279,45 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === 'PUT') {
     try {
       // Check authentication
-      const authHeader = event.headers.authorization || event.headers.Authorization
-      const user = verifyToken(authHeader)
-      
+      const authHeader =
+        event.headers.authorization || event.headers.Authorization;
+      const user = verifyToken(authHeader);
+
       if (!user) {
         return {
           statusCode: 401,
           headers,
-          body: JSON.stringify({ error: 'Unauthorized' })
-        }
+          body: JSON.stringify({ error: 'Unauthorized' }),
+        };
       }
 
-      const body = JSON.parse(event.body || '{}')
-      const { id, description } = body
+      const body = JSON.parse(event.body || '{}');
+      const { id, description } = body;
 
       if (!id) {
         return {
           statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'Item ID required' })
-        }
+          body: JSON.stringify({ error: 'Item ID required' }),
+        };
+      }
+
+      const { client: supabase, error: configError } = getSupabase();
+      if (configError || !supabase) {
+        return {
+          statusCode: 503,
+          headers,
+          body: JSON.stringify({
+            error: 'Portfolio not configured',
+            details: configError,
+          }),
+        };
       }
 
       // Update only the description field
-      const updateData = {}
+      const updateData = {};
       if (description !== undefined) {
-        updateData.description = description
+        updateData.description = description;
       }
 
       const { data, error } = await supabase
@@ -230,31 +325,40 @@ exports.handler = async (event, context) => {
         .update(updateData)
         .eq('id', id)
         .select()
-        .single()
+        .single();
 
       if (error) {
-        console.error('Supabase update error:', error)
+        console.error('Supabase update error:', error);
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Failed to update portfolio item', details: error.message })
-        }
+          body: JSON.stringify({
+            error: 'Failed to update portfolio item',
+            details: error.message,
+          }),
+        };
       }
 
-      const transformed = transformPortfolioItem(data)
+      const transformed = transformPortfolioItem(data);
 
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ message: 'Item updated successfully', item: transformed })
-      }
+        body: JSON.stringify({
+          message: 'Item updated successfully',
+          item: transformed,
+        }),
+      };
     } catch (error) {
-      console.error('Error updating portfolio item:', error)
+      console.error('Error updating portfolio item:', error);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to update portfolio item', details: error.message })
-      }
+        body: JSON.stringify({
+          error: 'Failed to update portfolio item',
+          details: error.message,
+        }),
+      };
     }
   }
 
@@ -262,25 +366,38 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === 'DELETE') {
     try {
       // Check authentication
-      const authHeader = event.headers.authorization || event.headers.Authorization
-      const user = verifyToken(authHeader)
-      
+      const authHeader =
+        event.headers.authorization || event.headers.Authorization;
+      const user = verifyToken(authHeader);
+
       if (!user) {
         return {
           statusCode: 401,
           headers,
-          body: JSON.stringify({ error: 'Unauthorized' })
-        }
+          body: JSON.stringify({ error: 'Unauthorized' }),
+        };
       }
 
-      const { id } = event.queryStringParameters || {}
+      const { id } = event.queryStringParameters || {};
 
       if (!id) {
         return {
           statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'Item ID required' })
-        }
+          body: JSON.stringify({ error: 'Item ID required' }),
+        };
+      }
+
+      const { client: supabase, error: configError } = getSupabase();
+      if (configError || !supabase) {
+        return {
+          statusCode: 503,
+          headers,
+          body: JSON.stringify({
+            error: 'Portfolio not configured',
+            details: configError,
+          }),
+        };
       }
 
       // Get item first to get Cloudinary public IDs
@@ -288,36 +405,37 @@ exports.handler = async (event, context) => {
         .from('portfolio_items')
         .select('*')
         .eq('id', id)
-        .single()
+        .single();
 
       if (fetchError || !item) {
         return {
           statusCode: 404,
           headers,
-          body: JSON.stringify({ error: 'Item not found' })
-        }
+          body: JSON.stringify({ error: 'Item not found' }),
+        };
       }
 
       // Delete from Cloudinary if public ID exists
       if (item.cloudinary_public_id) {
         try {
-          await cloudinary.uploader.destroy(item.cloudinary_public_id)
+          await cloudinary.uploader.destroy(item.cloudinary_public_id);
         } catch (cloudinaryError) {
-          console.error('Error deleting from Cloudinary:', cloudinaryError)
+          console.error('Error deleting from Cloudinary:', cloudinaryError);
         }
       }
 
       // Delete multiple images if gallery
       if (item.cloudinary_public_ids) {
-        const publicIds = typeof item.cloudinary_public_ids === 'string' 
-          ? JSON.parse(item.cloudinary_public_ids) 
-          : item.cloudinary_public_ids
-        
+        const publicIds =
+          typeof item.cloudinary_public_ids === 'string'
+            ? JSON.parse(item.cloudinary_public_ids)
+            : item.cloudinary_public_ids;
+
         for (const publicId of publicIds) {
           try {
-            await cloudinary.uploader.destroy(publicId)
+            await cloudinary.uploader.destroy(publicId);
           } catch (cloudinaryError) {
-            console.error('Error deleting from Cloudinary:', cloudinaryError)
+            console.error('Error deleting from Cloudinary:', cloudinaryError);
           }
         }
       }
@@ -326,35 +444,41 @@ exports.handler = async (event, context) => {
       const { error: deleteError } = await supabase
         .from('portfolio_items')
         .delete()
-        .eq('id', id)
+        .eq('id', id);
 
       if (deleteError) {
-        console.error('Supabase delete error:', deleteError)
+        console.error('Supabase delete error:', deleteError);
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Failed to delete portfolio item', details: deleteError.message })
-        }
+          body: JSON.stringify({
+            error: 'Failed to delete portfolio item',
+            details: deleteError.message,
+          }),
+        };
       }
 
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ message: 'Item deleted successfully' })
-      }
+        body: JSON.stringify({ message: 'Item deleted successfully' }),
+      };
     } catch (error) {
-      console.error('Error deleting portfolio item:', error)
+      console.error('Error deleting portfolio item:', error);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Failed to delete portfolio item', details: error.message })
-      }
+        body: JSON.stringify({
+          error: 'Failed to delete portfolio item',
+          details: error.message,
+        }),
+      };
     }
   }
 
   return {
     statusCode: 405,
     headers,
-    body: JSON.stringify({ error: 'Method not allowed' })
-  }
-}
+    body: JSON.stringify({ error: 'Method not allowed' }),
+  };
+};

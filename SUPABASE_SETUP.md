@@ -24,10 +24,10 @@
 
 Go to Netlify dashboard > Site settings > Environment variables and add:
 
-```
-SUPABASE_URL=https://zhiwbkmtzohfzwigwisy.supabase.co
-SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaXdia210em9oZnp3aWd3aXN5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTg1MjU1NCwiZXhwIjoyMDgxNDI4NTU0fQ.3rm-TEgG3Lfe_kWm-TaE5QNtqGPUNB8ADsMnGXvxHU0
-```
+- **SUPABASE_URL** – From Supabase: Project Settings → API → Project URL
+- **SUPABASE_SERVICE_KEY** – From Supabase: Project Settings → API → `service_role` key (not anon)
+
+Use your project’s values; never commit these to the repo.
 
 ## Step 4: Redeploy
 
@@ -51,14 +51,18 @@ SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 ## Troubleshooting
 
 ### "relation 'portfolio_items' does not exist"
+
 - Make sure you ran the SQL setup script in Step 1
 
-### "Failed to fetch portfolio"
-- Check that SUPABASE_URL and SUPABASE_SERVICE_KEY are set in Netlify
-- Check the function logs in Netlify dashboard
+### "Failed to fetch portfolio" or portfolio not loading
+
+- **Env vars:** In Netlify → Site settings → Environment variables, confirm `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` are set and have no typos. Redeploy after changing env vars.
+- **Project paused:** On the free tier, Supabase can pause after inactivity. Hit `/api/health-check` or wait a minute and reload; ensure the keep-alive cron is set up (see SUPABASE_KEEPALIVE_SETUP.md).
+- **Logs:** Netlify → Functions → portfolio → View logs. A 503 with "Portfolio not configured" means env vars are missing; a 500 with a message is usually a Supabase error (e.g. table missing, wrong key).
+- **Browser:** Open DevTools → Network, call `/api/portfolio`, and check the response body for `details` to see the exact error.
 
 ### Items not showing
+
 - Verify data exists in Supabase: Go to Table Editor > portfolio_items
 - Check browser console for errors
 - Check Netlify function logs
-
