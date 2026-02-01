@@ -16,6 +16,8 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 - [ ] `CLOUDINARY_API_SECRET` - `exLJiQc_87pEMGaZY6rQu0NQg4U`
 - [ ] `SUPABASE_URL` - `https://zhiwbkmtzohfzwigwisy.supabase.co`
 - [ ] `SUPABASE_SERVICE_KEY` - Your service role key
+- [ ] `ADMIN_PASSWORD` - Admin panel password (never commit to repo)
+- [ ] `ALLOWED_EMAILS` - Comma-separated allowed emails (e.g. `nickperna@mnastumpgrinding.com,luthdigitalconsult@gmail.com`)
 - [ ] `JWT_SECRET` - A strong random secret (generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
 
 **Note:** After adding/updating environment variables, you MUST redeploy for them to take effect.
@@ -29,6 +31,7 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 ## ✅ Features Checklist
 
 ### Home Page
+
 - [ ] Logo displays correctly
 - [ ] Facebook link works
 - [ ] Google Reviews section displays (mock reviews for now)
@@ -37,6 +40,7 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 - [ ] All buttons (Call, Text, Email) work
 
 ### Portfolio Page
+
 - [ ] Portfolio items load from Supabase
 - [ ] Images display correctly (using Cloudinary URLs)
 - [ ] Gallery modals work (click to view multiple images)
@@ -45,8 +49,8 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 - [ ] No horizontal overflow on mobile
 
 ### Admin Panel
-- [ ] Can log in with: `luthdigitalconsult@gmail.com` or `nickperna@mnastumpgrinding.com`
-- [ ] Password: `bigpern555!`
+
+- [ ] Can log in with an email from `ALLOWED_EMAILS` and the `ADMIN_PASSWORD` set in Netlify
 - [ ] Can upload standalone images/videos
 - [ ] Can upload before/after images
 - [ ] Can upload gallery (multiple images)
@@ -56,6 +60,7 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 - [ ] Items save to Supabase successfully
 
 ### Mobile Responsiveness
+
 - [ ] Hamburger menu works on mobile
 - [ ] Mobile menu overlay displays correctly
 - [ ] Reviews are swipeable on mobile
@@ -66,6 +71,7 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 ## ✅ Testing Checklist
 
 ### Before Deployment
+
 - [ ] Test locally: `cd frontend && npm run dev`
 - [ ] Test admin login locally
 - [ ] Test uploading a portfolio item locally
@@ -73,6 +79,7 @@ Make sure ALL of these are set in Netlify under **Site settings** > **Environmen
 - [ ] Test deleting a portfolio item locally
 
 ### After Deployment
+
 - [ ] Home page loads correctly
 - [ ] Portfolio page loads and displays items
 - [ ] Admin login works
@@ -122,6 +129,7 @@ These are nice-to-haves but not required:
 ## 🚀 Deployment Steps
 
 1. **Push to Git** (if using Git deployment)
+
    ```bash
    git add .
    git commit -m "Ready for deployment"
@@ -129,6 +137,7 @@ These are nice-to-haves but not required:
    ```
 
 2. **Or Deploy via Netlify CLI**
+
    ```bash
    netlify deploy --prod
    ```
@@ -152,17 +161,21 @@ These are nice-to-haves but not required:
 If something doesn't work after deployment:
 
 1. **Check Netlify Function Logs:**
+
    - Go to Netlify Dashboard > Functions > View logs
 
 2. **Check Environment Variables:**
+
    - Verify all variables are set correctly
    - Remember: Changes require a redeploy
 
 3. **Check Browser Console:**
+
    - Look for JavaScript errors
    - Check Network tab for failed API calls
 
 4. **Test Endpoints Directly:**
+
    - Visit the API endpoints in your browser
    - Check for error messages
 
@@ -173,4 +186,3 @@ If something doesn't work after deployment:
 ---
 
 **You're ready to deploy when all checkboxes above are checked!** ✅
-

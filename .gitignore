@@ -7,10 +7,12 @@ backend/node_modules/
 frontend/dist/
 frontend/build/
 
-# Environment variables
+# Environment variables and backups (never commit secrets)
 .env
 .env.local
 .env.production
+.env.bak
+*.env.bak
 
 # Uploads
 backend/uploads/
