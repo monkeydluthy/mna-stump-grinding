@@ -92,8 +92,10 @@ exports.handler = async (event, context) => {
 
     const placeData = response.data.result
     
-    // Format and filter to 5-star reviews only
-    const allReviews = (placeData.reviews || []).map(review => ({
+    // Sort by time descending (newest first), then format and filter to 5-star only
+    const rawReviews = (placeData.reviews || []).slice()
+    rawReviews.sort((a, b) => (b.time || 0) - (a.time || 0))
+    const allReviews = rawReviews.map(review => ({
       name: review.author_name,
       date: formatReviewDate(review.time),
       text: review.text,
