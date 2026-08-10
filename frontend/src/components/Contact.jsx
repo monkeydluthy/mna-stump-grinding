@@ -133,7 +133,11 @@ const Contact = () => {
           }}>
             <img 
               src="/footer-img.jpg" 
-              alt="Contact us" 
+              alt="Contact us"
+              width={900}
+              height={1125}
+              loading="lazy"
+              decoding="async"
               style={{
                 width: '100%',
                 height: 'auto',

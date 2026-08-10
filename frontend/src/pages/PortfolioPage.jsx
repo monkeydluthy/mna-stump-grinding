@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
+import { optimizeImageUrl } from '../utils/images';
 
 const PortfolioPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -219,8 +220,12 @@ const PortfolioPage = () => {
                         onClick={() => openModal(item)}
                       >
                         <img
-                          src={item.images[0]}
+                          src={optimizeImageUrl(item.images[0], { width: 800 })}
                           alt="Project cover"
+                          width={800}
+                          height={300}
+                          loading="lazy"
+                          decoding="async"
                           style={{
                             width: '100%',
                             height: '300px',
@@ -254,8 +259,12 @@ const PortfolioPage = () => {
                       >
                         <div>
                           <img
-                            src={item.beforeImage}
+                            src={optimizeImageUrl(item.beforeImage, { width: 600 })}
                             alt="Before"
+                            width={600}
+                            height={250}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: '100%',
                               height: '250px',
@@ -275,8 +284,12 @@ const PortfolioPage = () => {
                         </div>
                         <div>
                           <img
-                            src={item.afterImage}
+                            src={optimizeImageUrl(item.afterImage, { width: 600 })}
                             alt="After"
+                            width={600}
+                            height={250}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: '100%',
                               height: '250px',
@@ -344,8 +357,12 @@ const PortfolioPage = () => {
                       </div>
                     ) : (
                       <img
-                        src={item.filename}
+                        src={optimizeImageUrl(item.filename, { width: 800 })}
                         alt={item.description || 'Portfolio item'}
+                        width={800}
+                        height={300}
+                        loading="lazy"
+                        decoding="async"
                         style={{
                           width: '100%',
                           height: '300px',
@@ -523,8 +540,11 @@ const PortfolioPage = () => {
                   }}
                 >
                   <img
-                    src={modalImages[currentImageIndex]}
+                    src={optimizeImageUrl(modalImages[currentImageIndex], { width: 1200 })}
                     alt={`Gallery image ${currentImageIndex + 1}`}
+                    width={600}
+                    height={600}
+                    decoding="async"
                     style={{
                       width: '100%',
                       height: '100%',

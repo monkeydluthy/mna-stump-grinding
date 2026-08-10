@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Admin / auth — no indexing
+Disallow: /admin
+Disallow: /login
+
+Sitemap: https://mnastumpgrinding.com/sitemap.xml

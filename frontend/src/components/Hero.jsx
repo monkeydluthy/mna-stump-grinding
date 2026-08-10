@@ -2,9 +2,36 @@ const Hero = () => {
   return (
     <>
       <style>{`
+        .hero-section {
+          position: relative;
+          color: var(--white);
+          padding: 80px 20px;
+          text-align: center;
+          overflow: hidden;
+          min-height: 420px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hero-bg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          z-index: 0;
+        }
+        .hero-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: 1;
+        }
         @media (max-width: 768px) {
           .hero-section {
             padding: 60px 0 !important;
+            min-height: 360px;
           }
           .hero-h1 {
             font-size: clamp(1.8rem, 5vw, 3rem) !important;
@@ -27,26 +54,17 @@ const Hero = () => {
           }
         }
       `}</style>
-      <section className="hero-section" style={{
-        backgroundImage: 'url(/stump-header.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        position: 'relative',
-        color: 'var(--white)',
-        padding: '80px 20px',
-        textAlign: 'center'
-      }}>
-        {/* Overlay for better text readability */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.4)',
-          zIndex: 1
-        }}></div>
+      <section className="hero-section">
+        <img
+          className="hero-bg"
+          src="/stump-header.jpg"
+          alt=""
+          width={1920}
+          height={960}
+          fetchPriority="high"
+          decoding="async"
+        />
+        <div className="hero-overlay" aria-hidden="true" />
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <h1 className="hero-h1" style={{ color: 'var(--white)', marginBottom: '20px', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
             Professional Stump Grinding Services
@@ -80,4 +98,3 @@ const Hero = () => {
 }
 
 export default Hero
-

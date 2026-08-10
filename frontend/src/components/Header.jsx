@@ -31,7 +31,10 @@ const Header = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <img 
                 src="/logo-clear.png" 
-                alt="M&A Stump Grinding Logo" 
+                alt="M&A Stump Grinding Logo"
+                width={78}
+                height={80}
+                decoding="async"
                 style={{ 
                   height: '80px', 
                   width: 'auto',
@@ -96,7 +99,10 @@ const Header = () => {
             >
               <img 
                 src="/facebook.png" 
-                alt="Facebook" 
+                alt="Facebook"
+                width={32}
+                height={32}
+                decoding="async"
                 style={{ 
                   height: '32px', 
                   width: '32px'
@@ -299,7 +305,11 @@ const Header = () => {
             >
               <img 
                 src="/facebook.png" 
-                alt="Facebook" 
+                alt=""
+                width={24}
+                height={24}
+                loading="lazy"
+                decoding="async"
                 style={{ 
                   height: '24px', 
                   width: '24px'
