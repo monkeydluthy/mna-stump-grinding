@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
 import SeoHead from '../components/SeoHead';
+import Footer from '../components/Footer';
 import { optimizeImageUrl } from '../utils/images';
 
 const PortfolioPage = () => {
@@ -809,21 +810,7 @@ const PortfolioPage = () => {
           </div>
         )}
 
-        <footer
-          style={{
-            background: 'var(--text-dark)',
-            color: 'var(--white)',
-            padding: '40px 0',
-            textAlign: 'center',
-          }}
-        >
-          <div className="container">
-            <p>
-              &copy; {new Date().getFullYear()} M&A Stump Grinding. All rights
-              reserved.
-            </p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );
