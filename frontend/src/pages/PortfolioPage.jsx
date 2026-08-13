@@ -3,7 +3,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import SeoHead from '../components/SeoHead';
 import Footer from '../components/Footer';
-import { optimizeImageUrl } from '../utils/images';
+import { optimizeImageUrl, portfolioAltText } from '../utils/images';
 
 const PortfolioPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -227,7 +227,7 @@ const PortfolioPage = () => {
                       >
                         <img
                           src={optimizeImageUrl(item.images[0], { width: 800 })}
-                          alt="Project cover"
+                          alt={portfolioAltText({ kind: 'gallery', description: item.description })}
                           width={800}
                           height={300}
                           loading="lazy"
@@ -266,7 +266,7 @@ const PortfolioPage = () => {
                         <div>
                           <img
                             src={optimizeImageUrl(item.beforeImage, { width: 600 })}
-                            alt="Before"
+                            alt={portfolioAltText({ kind: 'before', description: item.description })}
                             width={600}
                             height={250}
                             loading="lazy"
@@ -291,7 +291,7 @@ const PortfolioPage = () => {
                         <div>
                           <img
                             src={optimizeImageUrl(item.afterImage, { width: 600 })}
-                            alt="After"
+                            alt={portfolioAltText({ kind: 'after', description: item.description })}
                             width={600}
                             height={250}
                             loading="lazy"
@@ -331,12 +331,13 @@ const PortfolioPage = () => {
                         <video
                           preload="metadata"
                           playsInline
+                          muted
+                          aria-label={portfolioAltText({ kind: 'video', description: item.description })}
                           style={{
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
                           }}
-                          muted
                         >
                           <source src={item.filename} type="video/mp4" />
                         </video>
@@ -364,7 +365,7 @@ const PortfolioPage = () => {
                     ) : (
                       <img
                         src={optimizeImageUrl(item.filename, { width: 800 })}
-                        alt={item.description || 'Portfolio item'}
+                        alt={portfolioAltText({ kind: 'standalone', description: item.description })}
                         width={800}
                         height={300}
                         loading="lazy"
@@ -547,7 +548,12 @@ const PortfolioPage = () => {
                 >
                   <img
                     src={optimizeImageUrl(modalImages[currentImageIndex], { width: 1200 })}
-                    alt={`Gallery image ${currentImageIndex + 1}`}
+                    alt={portfolioAltText({
+                      kind: 'gallery-modal',
+                      description: modalItem?.description,
+                      index: currentImageIndex + 1,
+                      total: modalImages.length,
+                    })}
                     width={600}
                     height={600}
                     decoding="async"
@@ -769,6 +775,7 @@ const PortfolioPage = () => {
                     autoPlay
                     preload="metadata"
                     playsInline
+                    aria-label={portfolioAltText({ kind: 'video', description: videoItem?.description })}
                     style={{
                       width: '100%',
                       height: '100%',

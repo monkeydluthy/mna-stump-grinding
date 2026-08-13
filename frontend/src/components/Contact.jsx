@@ -145,7 +145,7 @@ const Contact = () => {
           }}>
             <img 
               src="/footer-img.jpg" 
-              alt="Contact us"
+              alt="Stump grinding equipment and cleanup work by M&A Stump Grinding in Tampa, FL"
               width={900}
               height={1125}
               loading="lazy"
