@@ -67,7 +67,7 @@ const Hero = () => {
         <div className="hero-overlay" aria-hidden="true" />
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <h1 className="hero-h1" style={{ color: 'var(--white)', marginBottom: '20px', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-            Professional Stump Grinding Services
+            Professional Stump Grinding Services in Tampa, FL
           </h1>
           <p className="hero-p" style={{ 
             fontSize: '1.25rem', 

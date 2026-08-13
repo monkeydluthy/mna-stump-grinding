@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
+import SeoHead from '../components/SeoHead';
 import { optimizeImageUrl } from '../utils/images';
 
 const PortfolioPage = () => {
@@ -143,6 +144,10 @@ const PortfolioPage = () => {
       `}</style>
       <div>
         <Header />
+        <SeoHead
+          title="Portfolio | M&A Stump Grinding in Tampa, FL"
+          description="See professional stump grinding and removal work by M&A Stump Grinding in Tampa, FL. Before-and-after results from residential and commercial jobs."
+        />
         <section
           className="portfolio-section"
           style={{ padding: '100px 0 80px', background: 'var(--bg-light)' }}
@@ -152,7 +157,7 @@ const PortfolioPage = () => {
               className="portfolio-h1"
               style={{ textAlign: 'center', marginBottom: '20px' }}
             >
-              Our Work
+              Our Stump Grinding Work in Tampa, FL
             </h1>
             <p
               className="portfolio-p"

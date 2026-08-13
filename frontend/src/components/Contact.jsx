@@ -14,6 +14,18 @@ const Contact = () => {
         }
       `}</style>
       <div className="container">
+        <h2 style={{ textAlign: 'center', marginBottom: '12px', color: 'var(--white)' }}>
+          Contact Us in Tampa, FL
+        </h2>
+        <p style={{
+          textAlign: 'center',
+          opacity: 0.95,
+          maxWidth: '700px',
+          margin: '0 auto 40px',
+          lineHeight: 1.6
+        }}>
+          Ready for stump grinding or removal? Call, text, or email — we serve Tampa and the surrounding Tampa Bay area.
+        </p>
         <div className="contact-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',

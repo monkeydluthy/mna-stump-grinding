@@ -45,6 +45,16 @@ const Services = () => {
       `}</style>
       <section style={{ background: 'var(--bg-light)' }}>
         <div className="container">
+          <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Our Services</h2>
+          <p style={{
+            textAlign: 'center',
+            color: 'var(--text-light)',
+            maxWidth: '700px',
+            margin: '0 auto 10px',
+            lineHeight: 1.6
+          }}>
+            Professional stump grinding and removal for homes and businesses across Tampa, FL.
+          </p>
           <div className="services-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
