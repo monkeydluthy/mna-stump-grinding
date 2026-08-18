@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Header from './Header'
+import AdminAnalytics from './AdminAnalytics'
 import { getAuthToken, getAuthHeaders, removeAuthToken, fileToBase64 } from '../utils/auth'
 
 const Admin = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('upload') // 'upload' or 'manage'
+  const [activeTab, setActiveTab] = useState('analytics') // 'analytics', 'upload', or 'manage'
   const [uploadType, setUploadType] = useState('standalone')
   const [file, setFile] = useState(null)
   const [galleryFiles, setGalleryFiles] = useState([])
@@ -382,39 +383,21 @@ const Admin = () => {
                 </span>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexShrink: 0 }}>
-              <a
-                href="https://analytics.google.com/analytics/web/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-                style={{
-                  textDecoration: 'none',
-                  background: 'var(--primary-color)',
-                  color: 'var(--white)',
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  marginTop: '5px'
-                }}
-              >
-                View Analytics
-              </a>
-              <button
-                onClick={handleLogout}
-                className="btn admin-logout-btn"
-                style={{
-                  background: 'var(--text-light)',
-                  color: 'var(--white)',
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  alignSelf: 'flex-start',
-                  marginTop: '5px',
-                  flexShrink: 0
-                }}
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="btn admin-logout-btn"
+              style={{
+                background: 'var(--text-light)',
+                color: 'var(--white)',
+                padding: '10px 20px',
+                fontSize: '14px',
+                alignSelf: 'flex-start',
+                marginTop: '5px',
+                flexShrink: 0
+              }}
+            >
+              Logout
+            </button>
           </div>
 
         {/* Tabs */}
@@ -422,8 +405,28 @@ const Admin = () => {
           display: 'flex',
           gap: '10px',
           marginBottom: '30px',
-          borderBottom: '2px solid #e0e0e0'
+          borderBottom: '2px solid #e0e0e0',
+          flexWrap: 'wrap'
         }}>
+          <button
+            onClick={() => {
+              setActiveTab('analytics')
+              clearMessage()
+            }}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              background: 'transparent',
+              borderBottom: activeTab === 'analytics' ? '3px solid var(--primary-color)' : '3px solid transparent',
+              color: activeTab === 'analytics' ? 'var(--primary-color)' : 'var(--text-light)',
+              fontWeight: activeTab === 'analytics' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '16px',
+              transition: 'all 0.3s'
+            }}
+          >
+            Analytics
+          </button>
           <button
             onClick={() => {
               setActiveTab('upload')
@@ -492,6 +495,13 @@ const Admin = () => {
               ×
             </button>
           </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <AdminAnalytics onUnauthorized={() => {
+            removeAuthToken()
+            navigate('/login')
+          }} />
         )}
 
         {/* Upload Tab */}

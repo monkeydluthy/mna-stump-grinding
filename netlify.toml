@@ -35,6 +35,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/analytics"
+  to = "/.netlify/functions/analytics"
+  status = 200
+  force = true
+
 # Catch-all for SPA routing - must be last
 # Static files (robots.txt, sitemap.xml, assets) are served first when they exist
 # because this rule does not use force.

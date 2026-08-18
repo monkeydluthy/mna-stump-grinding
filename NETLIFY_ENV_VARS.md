@@ -54,6 +54,16 @@ SUPABASE_SERVICE_KEY=your_service_role_key_here
 
 **Note:** Portfolio data is stored in Supabase. Do **not** set `PORTFOLIO_DATA`; it is deprecated.
 
+### Admin analytics (optional — for /admin Analytics tab)
+
+```
+GA4_PROPERTY_ID=your_numeric_property_id
+GA4_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+GA4_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n
+```
+
+See **GA4_ADMIN_SETUP.md** for how to create the service account. Tracking on the public site does **not** need these; they are only for showing numbers in admin.
+
 ## After Setting Variables
 
 1. **Redeploy your site** - Environment variables require a new deploy

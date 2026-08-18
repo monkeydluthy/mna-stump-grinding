@@ -4,6 +4,7 @@
 /api/auth/* /.netlify/functions/auth 200!
 /api/upload /.netlify/functions/upload 200!
 /api/health-check /.netlify/functions/health-check 200!
+/api/analytics /.netlify/functions/analytics 200!
 
 # Catch-all for SPA routing (static files like robots.txt / sitemap.xml are served first)
 /* /index.html 200

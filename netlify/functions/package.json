@@ -6,7 +6,8 @@
     "axios": "^1.6.2",
     "cloudinary": "^1.41.0",
     "jsonwebtoken": "^9.0.2",
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "@google-analytics/data": "^4.12.1"
   }
 }
 
