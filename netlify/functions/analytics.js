@@ -31,6 +31,64 @@ function metricValue(row, index = 0) {
   return Number(row?.metricValues?.[index]?.value || 0)
 }
 
+function normalizePrivateKey(raw) {
+  let key = (raw || '').trim()
+  if (!key) return ''
+
+  if (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1).trim()
+  }
+
+  if (key.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(key)
+      if (parsed.private_key) key = String(parsed.private_key)
+      if (parsed.client_email && !process.env.GA4_CLIENT_EMAIL) {
+        process.env.GA4_CLIENT_EMAIL = parsed.client_email
+      }
+    } catch {
+      // not JSON
+    }
+  }
+
+  key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim()
+
+  if (!key.includes('BEGIN PRIVATE KEY')) {
+    try {
+      const decoded = Buffer.from(key, 'base64').toString('utf8')
+      if (decoded.includes('BEGIN PRIVATE KEY')) {
+        key = decoded.replace(/\\n/g, '\n').trim()
+      }
+    } catch {
+      // leave as-is
+    }
+  }
+
+  return key
+}
+
+function getGa4Credentials() {
+  const propertyId = (process.env.GA4_PROPERTY_ID || '').trim()
+  let clientEmail = (process.env.GA4_CLIENT_EMAIL || '').trim()
+  let privateKey = normalizePrivateKey(process.env.GA4_PRIVATE_KEY)
+
+  const jsonBlob = (process.env.GA4_SERVICE_ACCOUNT_JSON || '').trim()
+  if (jsonBlob) {
+    try {
+      const parsed = JSON.parse(jsonBlob)
+      clientEmail = clientEmail || parsed.client_email
+      privateKey = privateKey || normalizePrivateKey(parsed.private_key)
+    } catch {
+      // ignore
+    }
+  }
+
+  return { propertyId, clientEmail, privateKey }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' }
@@ -45,9 +103,7 @@ exports.handler = async (event) => {
     return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) }
   }
 
-  const propertyId = process.env.GA4_PROPERTY_ID
-  const clientEmail = process.env.GA4_CLIENT_EMAIL
-  const privateKey = (process.env.GA4_PRIVATE_KEY || '').replace(/\\n/g, '\n')
+  const { propertyId, clientEmail, privateKey } = getGa4Credentials()
 
   if (!propertyId || !clientEmail || !privateKey) {
     return {
@@ -60,9 +116,22 @@ exports.handler = async (event) => {
     }
   }
 
+  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        configured: true,
+        error: 'Failed to load analytics',
+        details: 'GA4_PRIVATE_KEY is not a valid PEM key. Paste the private_key value from the JSON file without surrounding quotes.'
+      })
+    }
+  }
+
   try {
     const client = new BetaAnalyticsDataClient({
       credentials: {
+        type: 'service_account',
         client_email: clientEmail,
         private_key: privateKey
       }

@@ -36,13 +36,30 @@ Copy **Property ID** (a number like `123456789`). This is **not** the stream ID 
 ```
 GA4_PROPERTY_ID=123456789
 GA4_CLIENT_EMAIL=mna-stump-analytics@YOUR_PROJECT.iam.gserviceaccount.com
-GA4_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n....\n-----END PRIVATE KEY-----\n
+GA4_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----
+....
+-----END PRIVATE KEY-----
 ```
 
-Keep the `\n` characters in `GA4_PRIVATE_KEY` (or paste the key with real line breaks). Then **redeploy**.
+How to paste `GA4_PRIVATE_KEY` (this is the usual failure):
+
+1. Open the downloaded JSON file.
+2. Copy **only** the `private_key` string — the block that starts with `-----BEGIN PRIVATE KEY-----`.
+3. **Do not** include the wrapping double quotes.
+4. In Netlify, paste it in the value box. Either:
+   - Keep the `\n` characters from the JSON, or
+   - Use real line breaks (Netlify’s multiline editor is best).
+
+Wrong: `"-----BEGIN PRIVATE KEY-----\nMIIE..."` (quotes included)  
+Right: `-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n`
+
+`GA4_CLIENT_EMAIL` must match `client_email` in the same JSON file.
+
+Then **redeploy**.
 
 ## 5. Check the admin page
 
 Log in to `/admin` → **Analytics**. You should see last-30-day totals and top pages.
 
-If the page says reporting is not configured, one of the three variables is missing. If it errors, the service account likely does not have Viewer access, or the Property ID is wrong.
+If you see **UNAUTHENTICATED**, the private key or client email is wrong/malformed — re-paste from the JSON as above.  
+If you see **PERMISSION_DENIED**, the service account is missing Viewer on the GA4 property, or the Property ID is wrong.
