@@ -382,21 +382,39 @@ const Admin = () => {
                 </span>
               )}
             </div>
-            <button
-              onClick={handleLogout}
-              className="btn admin-logout-btn"
-              style={{
-                background: 'var(--text-light)',
-                color: 'var(--white)',
-                padding: '10px 20px',
-                fontSize: '14px',
-                alignSelf: 'flex-start',
-                marginTop: '5px',
-                flexShrink: 0
-              }}
-            >
-              Logout
-            </button>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexShrink: 0 }}>
+              <a
+                href="https://analytics.google.com/analytics/web/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn"
+                style={{
+                  textDecoration: 'none',
+                  background: 'var(--primary-color)',
+                  color: 'var(--white)',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  marginTop: '5px'
+                }}
+              >
+                View Analytics
+              </a>
+              <button
+                onClick={handleLogout}
+                className="btn admin-logout-btn"
+                style={{
+                  background: 'var(--text-light)',
+                  color: 'var(--white)',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  alignSelf: 'flex-start',
+                  marginTop: '5px',
+                  flexShrink: 0
+                }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
         {/* Tabs */}
