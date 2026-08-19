@@ -40,6 +40,7 @@ const Admin = () => {
         if (response.data.authenticated) {
           setUser(response.data.user)
           setCheckingAuth(false)
+          fetchPortfolioItems(true)
         } else {
           removeAuthToken()
           navigate('/login')
@@ -59,19 +60,19 @@ const Admin = () => {
     }
   }, [activeTab])
 
-  const fetchPortfolioItems = async () => {
-    setLoading(true)
+  const fetchPortfolioItems = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const response = await axios.get('/api/portfolio')
-      setPortfolioItems(response.data)
+      setPortfolioItems(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
       if (error.response?.status === 401) {
         navigate('/login')
-      } else {
+      } else if (!silent) {
         setMessage('Failed to load portfolio items: ' + (error.response?.data?.error || error.message))
       }
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -116,9 +117,7 @@ const Admin = () => {
         setFile(null)
         setDescription('')
         e.target.reset()
-        if (activeTab === 'manage') {
-          fetchPortfolioItems()
-        }
+        fetchPortfolioItems(true)
       }
     } catch (error) {
       if (error.response?.status === 401) {
@@ -171,9 +170,7 @@ const Admin = () => {
         setGalleryFiles([])
         setDescription('')
         e.target.reset()
-        if (activeTab === 'manage') {
-          fetchPortfolioItems()
-        }
+        fetchPortfolioItems(true)
       }
     } catch (error) {
       if (error.response?.status === 401) {
@@ -229,9 +226,7 @@ const Admin = () => {
         setAfterFile(null)
         setDescription('')
         e.target.reset()
-        if (activeTab === 'manage') {
-          fetchPortfolioItems()
-        }
+        fetchPortfolioItems(true)
       }
     } catch (error) {
       if (error.response?.status === 401) {
