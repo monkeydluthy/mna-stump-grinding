@@ -51,7 +51,7 @@ export const localBusinessSchema = {
       name: 'Tampa Bay',
     },
   ],
-  sameAs: [BUSINESS.facebookUrl],
+  sameAs: [BUSINESS.facebookUrl, BUSINESS.instagramUrl],
   description:
     'Professional stump grinding and stump removal serving Tampa, FL and the surrounding Tampa Bay area. Licensed and insured.',
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BUSINESS } from '../data/business'
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -85,7 +86,7 @@ const Header = () => {
               Portfolio
             </Link>
             <a 
-              href="https://www.facebook.com/mnastumpgrinding/"
+              href={BUSINESS.facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={{ 
@@ -110,7 +111,32 @@ const Header = () => {
               />
             </a>
             <a 
-              href="tel:+18133255306" 
+              href={BUSINESS.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ 
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'transform 0.3s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <img 
+                src="/instagram.png" 
+                alt="Instagram"
+                width={32}
+                height={32}
+                decoding="async"
+                style={{ 
+                  height: '32px', 
+                  width: '32px'
+                }}
+              />
+            </a>
+            <a 
+              href={`tel:${BUSINESS.phoneE164}`}
               className="btn btn-primary"
               style={{ textDecoration: 'none' }}
             >
@@ -272,7 +298,7 @@ const Header = () => {
               Portfolio
             </Link>
             <a 
-              href="https://www.facebook.com/mnastumpgrinding/"
+              href={BUSINESS.facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={closeMobileMenu}
@@ -318,7 +344,53 @@ const Header = () => {
               Facebook
             </a>
             <a 
-              href="tel:+18133255306" 
+              href={BUSINESS.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMobileMenu}
+              style={{
+                background: 'var(--primary-color)',
+                padding: '20px 40px',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                color: 'var(--white)',
+                fontSize: '1.2rem',
+                fontWeight: 600,
+                width: '100%',
+                maxWidth: '300px',
+                textAlign: 'center',
+                transition: 'all 0.3s',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--secondary-color)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--primary-color)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <img 
+                src="/instagram.png" 
+                alt=""
+                width={24}
+                height={24}
+                loading="lazy"
+                decoding="async"
+                style={{ 
+                  height: '24px', 
+                  width: '24px'
+                }}
+              />
+              Instagram
+            </a>
+            <a 
+              href={`tel:${BUSINESS.phoneE164}`}
               onClick={closeMobileMenu}
               className="btn btn-primary"
               style={{

@@ -18,4 +18,5 @@ export const BUSINESS = {
   /** Service area for copy / schema */
   serviceArea: 'Tampa, FL and the surrounding Tampa Bay area',
   facebookUrl: 'https://www.facebook.com/mnastumpgrinding/',
+  instagramUrl: 'https://www.instagram.com/mnastumpgrinding/',
 }
