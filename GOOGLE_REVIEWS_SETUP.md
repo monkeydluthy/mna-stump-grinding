@@ -133,12 +133,14 @@ Google Places API has a free tier:
 
 ## Why Only 5 Reviews Show
 
-**Google’s Places API returns at most 5 reviews per place.** There is no way to get more than 5 via the API; this is a fixed limit, not a bug. The site shows:
+**Google’s Places API returns at most 5 reviews per place.** We request them with `reviews_sort=newest` so those 5 are the **most recent**, not Google’s default “most relevant / top” set. The site also filters to **5-star only**, so if some of the newest 5 aren’t 5-star, you’ll see fewer than 5 on the page.
+
+The site shows:
 
 - **Total count** – The full number of reviews on Google (e.g. “24 reviews on Google”) so you can confirm it matches your Google listing.
-- **“Showing our 5 most recent reviews”** – So visitors know we’re showing the latest 5 that Google provides.
+- **“Showing our X most recent reviews”** – The newest 5-star reviews from that API response.
 
-New reviews do appear as they become part of the 5 most recent that Google returns; older ones drop off the list.
+There is still no way to fetch more than 5 reviews via this API.
 
 ## Fallback Behavior
 

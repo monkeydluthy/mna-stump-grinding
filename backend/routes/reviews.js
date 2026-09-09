@@ -24,7 +24,7 @@ router.get('/google', async (req, res) => {
     }
 
     // First, get place details to get the rating
-    const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&key=${apiKey}`
+    const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&reviews_sort=newest&key=${apiKey}`
     
     const response = await axios.get(placeDetailsUrl)
     

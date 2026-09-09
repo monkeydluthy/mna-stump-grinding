@@ -70,8 +70,8 @@ exports.handler = async (event, context) => {
       }
     }
 
-    // Get place details to get the rating and reviews
-    const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&key=${apiKey}`
+    // Get place details — reviews_sort=newest so we get the 5 most recent (default is most_relevant)
+    const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&reviews_sort=newest&key=${apiKey}`
     
     const response = await axios.get(placeDetailsUrl)
     
