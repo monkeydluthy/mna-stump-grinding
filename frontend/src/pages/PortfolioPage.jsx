@@ -592,30 +592,34 @@ const PortfolioPage = () => {
                 <div
                   style={{
                     width: '100%',
-                    maxWidth: 'min(90vw, 600px)',
-                    aspectRatio: '1 / 1',
+                    maxWidth: 'min(92vw, 1100px)',
+                    maxHeight: 'min(70vh, 800px)',
                     position: 'relative',
-                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     borderRadius: '8px',
                     background: '#fff',
                     margin: '0 auto',
+                    overflow: 'hidden',
                   }}
                 >
                   <img
-                    src={optimizeImageUrl(modalImages[currentImageIndex], { width: 1200 })}
+                    src={optimizeImageUrl(modalImages[currentImageIndex], { width: 1600 })}
                     alt={portfolioAltText({
                       kind: 'gallery-modal',
                       description: modalItem?.description,
                       index: currentImageIndex + 1,
                       total: modalImages.length,
                     })}
-                    width={600}
-                    height={600}
                     decoding="async"
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
+                      display: 'block',
+                      maxWidth: '100%',
+                      maxHeight: 'min(70vh, 800px)',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
                       borderRadius: '8px',
                     }}
                   />
