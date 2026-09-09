@@ -22,26 +22,46 @@ const LOCATION = 'Tampa, FL'
 
 /**
  * Descriptive alt text for portfolio media: service + location, not generic labels.
+ * Prefers the item description when present so each photo has unique alt text.
  */
 export function portfolioAltText({ kind, description, index, total } = {}) {
   const detail = typeof description === 'string' ? description.trim() : ''
-  const withDetail = (base) => (detail ? `${base}: ${detail}` : base)
+
+  // Prefer unique job descriptions when available (best for SEO + accessibility)
+  if (detail) {
+    switch (kind) {
+      case 'before':
+        return `Before stump grinding in ${LOCATION}: ${detail}`
+      case 'after':
+        return `After stump grinding in ${LOCATION}: ${detail}`
+      case 'gallery-modal': {
+        const n = index && total ? ` (photo ${index} of ${total})` : ''
+        return `Stump grinding in ${LOCATION}${n}: ${detail}`
+      }
+      case 'video':
+        return `Stump grinding video in ${LOCATION}: ${detail}`
+      case 'gallery':
+      case 'standalone':
+      default:
+        return `Stump grinding in ${LOCATION}: ${detail}`
+    }
+  }
 
   switch (kind) {
     case 'before':
-      return withDetail(`Before stump grinding in ${LOCATION}`)
+      return `Before stump grinding in ${LOCATION}`
     case 'after':
-      return withDetail(`After stump grinding in ${LOCATION}`)
+      return `After stump grinding in ${LOCATION}`
     case 'gallery':
-      return withDetail(`Stump grinding project gallery in ${LOCATION}`)
+      return `Stump grinding project gallery in ${LOCATION}`
     case 'gallery-modal': {
       const n = index && total ? ` photo ${index} of ${total}` : ''
-      return withDetail(`Stump grinding${n} in ${LOCATION}`)
+      return `Stump grinding${n} in ${LOCATION}`
     }
     case 'video':
-      return withDetail(`Stump grinding video in ${LOCATION}`)
+      return `Stump grinding video in ${LOCATION}`
     case 'standalone':
     default:
-      return withDetail(`Stump grinding work in ${LOCATION}`)
+      return `Stump grinding work in ${LOCATION}`
   }
 }

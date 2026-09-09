@@ -64,12 +64,17 @@ const PortfolioPage = () => {
     fetchPortfolioItems();
   }, []);
 
-  const openModal = (item) => {
-    setModalImages(item.images);
-    setModalItem(item);
-    setCurrentImageIndex(0);
-    setModalOpen(true);
+  const openModal = (item, images, startIndex = 0) => {
+    const list = (images || item.images || []).filter(Boolean)
+    if (list.length === 0) return
+    setModalImages(list)
+    setModalItem(item)
+    setCurrentImageIndex(startIndex)
+    setModalOpen(true)
   };
+
+  const getStandaloneUrl = (item) =>
+    item.cloudinaryUrl || item.filename || null
 
   const closeModal = () => {
     setModalOpen(false);
@@ -223,7 +228,16 @@ const PortfolioPage = () => {
                           position: 'relative',
                           cursor: 'pointer',
                         }}
-                        onClick={() => openModal(item)}
+                        onClick={() => openModal(item, item.images)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            openModal(item, item.images)
+                          }
+                        }}
+                        aria-label={portfolioAltText({ kind: 'gallery', description: item.description })}
                       >
                         <img
                           src={optimizeImageUrl(item.images[0], { width: 800 })}
@@ -238,22 +252,24 @@ const PortfolioPage = () => {
                             objectFit: 'cover',
                           }}
                         />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '15px',
-                            right: '15px',
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            color: 'white',
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            fontSize: '1rem',
-                            fontWeight: 600,
-                            backdropFilter: 'blur(10px)',
-                          }}
-                        >
-                          +{item.images.length - 1}
-                        </div>
+                        {item.images.length > 1 && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '15px',
+                              right: '15px',
+                              background: 'rgba(0, 0, 0, 0.7)',
+                              color: 'white',
+                              padding: '8px 16px',
+                              borderRadius: '20px',
+                              fontSize: '1rem',
+                              fontWeight: 600,
+                              backdropFilter: 'blur(10px)',
+                            }}
+                          >
+                            +{item.images.length - 1}
+                          </div>
+                        )}
                       </div>
                     ) : item.type === 'before-after' ? (
                       <div
@@ -261,7 +277,20 @@ const PortfolioPage = () => {
                           display: 'grid',
                           gridTemplateColumns: '1fr 1fr',
                           gap: '2px',
+                          cursor: 'pointer',
                         }}
+                        onClick={() =>
+                          openModal(item, [item.beforeImage, item.afterImage].filter(Boolean))
+                        }
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            openModal(item, [item.beforeImage, item.afterImage].filter(Boolean))
+                          }
+                        }}
+                        aria-label={portfolioAltText({ kind: 'standalone', description: item.description })}
                       >
                         <div>
                           <img
@@ -327,12 +356,20 @@ const PortfolioPage = () => {
                           justifyContent: 'center',
                         }}
                         onClick={() => openVideoModal(item)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            openVideoModal(item)
+                          }
+                        }}
+                        aria-label={portfolioAltText({ kind: 'video', description: item.description })}
                       >
                         <video
                           preload="metadata"
                           playsInline
                           muted
-                          aria-label={portfolioAltText({ kind: 'video', description: item.description })}
                           style={{
                             width: '100%',
                             height: '100%',
@@ -363,19 +400,37 @@ const PortfolioPage = () => {
                         </div>
                       </div>
                     ) : (
-                      <img
-                        src={optimizeImageUrl(item.filename, { width: 800 })}
-                        alt={portfolioAltText({ kind: 'standalone', description: item.description })}
-                        width={800}
-                        height={300}
-                        loading="lazy"
-                        decoding="async"
-                        style={{
-                          width: '100%',
-                          height: '300px',
-                          objectFit: 'cover',
+                      <div
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          const url = getStandaloneUrl(item)
+                          if (url) openModal(item, [url])
                         }}
-                      />
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            const url = getStandaloneUrl(item)
+                            if (url) openModal(item, [url])
+                          }
+                        }}
+                        aria-label={portfolioAltText({ kind: 'standalone', description: item.description })}
+                      >
+                        <img
+                          src={optimizeImageUrl(getStandaloneUrl(item), { width: 800 })}
+                          alt={portfolioAltText({ kind: 'standalone', description: item.description })}
+                          width={800}
+                          height={300}
+                          loading="lazy"
+                          decoding="async"
+                          style={{
+                            width: '100%',
+                            height: '300px',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      </div>
                     )}
                     {item.description && (
                       <div style={{ padding: '20px' }}>
