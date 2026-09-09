@@ -3,7 +3,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import SeoHead from '../components/SeoHead';
 import Footer from '../components/Footer';
-import { optimizeImageUrl, portfolioAltText } from '../utils/images';
+import { thumbUrl, lightboxUrl, portfolioAltText } from '../utils/images';
 
 const PortfolioPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -123,6 +123,26 @@ const PortfolioPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [modalOpen, modalImages.length]);
 
+  // Prefetch active + adjacent lightbox images (not the whole gallery on mount)
+  useEffect(() => {
+    if (!modalOpen || modalImages.length === 0) return
+
+    const indices = [currentImageIndex]
+    if (modalImages.length > 1) {
+      indices.push((currentImageIndex + 1) % modalImages.length)
+      indices.push(
+        (currentImageIndex - 1 + modalImages.length) % modalImages.length
+      )
+    }
+
+    indices.forEach((i) => {
+      const src = lightboxUrl(modalImages[i])
+      if (!src) return
+      const img = new Image()
+      img.src = src
+    })
+  }, [modalOpen, modalImages, currentImageIndex])
+
   return (
     <>
       <style>{`
@@ -240,7 +260,7 @@ const PortfolioPage = () => {
                         aria-label={portfolioAltText({ kind: 'gallery', description: item.description })}
                       >
                         <img
-                          src={optimizeImageUrl(item.images[0], { width: 800 })}
+                          src={thumbUrl(item.images[0])}
                           alt={portfolioAltText({ kind: 'gallery', description: item.description })}
                           width={800}
                           height={300}
@@ -294,7 +314,7 @@ const PortfolioPage = () => {
                       >
                         <div>
                           <img
-                            src={optimizeImageUrl(item.beforeImage, { width: 600 })}
+                            src={thumbUrl(item.beforeImage)}
                             alt={portfolioAltText({ kind: 'before', description: item.description })}
                             width={600}
                             height={250}
@@ -319,7 +339,7 @@ const PortfolioPage = () => {
                         </div>
                         <div>
                           <img
-                            src={optimizeImageUrl(item.afterImage, { width: 600 })}
+                            src={thumbUrl(item.afterImage)}
                             alt={portfolioAltText({ kind: 'after', description: item.description })}
                             width={600}
                             height={250}
@@ -418,7 +438,7 @@ const PortfolioPage = () => {
                         aria-label={portfolioAltText({ kind: 'standalone', description: item.description })}
                       >
                         <img
-                          src={optimizeImageUrl(getStandaloneUrl(item), { width: 800 })}
+                          src={thumbUrl(getStandaloneUrl(item))}
                           alt={portfolioAltText({ kind: 'standalone', description: item.description })}
                           width={800}
                           height={300}
@@ -599,13 +619,37 @@ const PortfolioPage = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '8px',
-                    background: '#fff',
+                    background: '#f0f0f0',
                     margin: '0 auto',
                     overflow: 'hidden',
+                    minHeight: '200px',
                   }}
                 >
+                  {/* Instant placeholder from cached grid thumb */}
                   <img
-                    src={optimizeImageUrl(modalImages[currentImageIndex], { width: 1600 })}
+                    src={thumbUrl(modalImages[currentImageIndex])}
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      margin: 'auto',
+                      display: 'block',
+                      maxWidth: '100%',
+                      maxHeight: 'min(70vh, 800px)',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      filter: 'blur(8px)',
+                      transform: 'scale(1.05)',
+                      opacity: 0.85,
+                    }}
+                  />
+                  {/* Sharp lightbox image — only active slide */}
+                  <img
+                    key={modalImages[currentImageIndex]}
+                    src={lightboxUrl(modalImages[currentImageIndex])}
                     alt={portfolioAltText({
                       kind: 'gallery-modal',
                       description: modalItem?.description,
@@ -613,7 +657,9 @@ const PortfolioPage = () => {
                       total: modalImages.length,
                     })}
                     decoding="async"
+                    fetchPriority="high"
                     style={{
+                      position: 'relative',
                       display: 'block',
                       maxWidth: '100%',
                       maxHeight: 'min(70vh, 800px)',
@@ -621,6 +667,7 @@ const PortfolioPage = () => {
                       height: 'auto',
                       objectFit: 'contain',
                       borderRadius: '8px',
+                      zIndex: 1,
                     }}
                   />
                 </div>

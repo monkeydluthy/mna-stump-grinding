@@ -2,20 +2,46 @@
  * Optimize Cloudinary delivery URLs (format/quality/size).
  * Non-Cloudinary URLs are returned unchanged.
  */
-export function optimizeImageUrl(url, { width = 800, height } = {}) {
+export function optimizeImageUrl(url, { width = 800, quality = 'auto' } = {}) {
   if (!url || typeof url !== 'string') return url
   if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) {
     return url
   }
-  // Avoid double-transforming
-  if (/\/upload\/[^/]*f_auto/.test(url) || /\/upload\/f_auto/.test(url)) {
-    return url
+
+  const match = url.match(
+    /^(https?:\/\/res\.cloudinary\.com\/[^/]+\/(?:image|video)\/upload\/)(.+)$/
+  )
+  if (!match) return url
+
+  const [, prefix, rest] = match
+  const segments = rest.split('/')
+  // Drop existing transform segments so we can request a different size
+  while (segments.length) {
+    const s = segments[0]
+    if (/^v\d+$/.test(s)) break
+    if (
+      s.includes(',') ||
+      /^(f_|q_|w_|h_|c_|dpr_|fl_|e_|b_|g_|x_|y_|so_|du_)/.test(s)
+    ) {
+      segments.shift()
+      continue
+    }
+    break
   }
 
-  const transforms = ['f_auto', 'q_auto', `w_${width}`, 'c_limit']
-  if (height) transforms.push(`h_${height}`)
+  const base = `${prefix}${segments.join('/')}`
+  const transforms = [`f_auto`, `q_${quality}`, `w_${width}`, 'c_limit']
+  return base.replace('/upload/', `/upload/${transforms.join(',')}/`)
+}
 
-  return url.replace('/upload/', `/upload/${transforms.join(',')}/`)
+/** Grid / card thumbnails — small & fast */
+export function thumbUrl(url) {
+  return optimizeImageUrl(url, { width: 480, quality: 'auto' })
+}
+
+/** Lightbox full view — capped sharpness without multi‑MB downloads */
+export function lightboxUrl(url) {
+  return optimizeImageUrl(url, { width: 1200, quality: 'auto:good' })
 }
 
 const LOCATION = 'Tampa, FL'
@@ -27,7 +53,6 @@ const LOCATION = 'Tampa, FL'
 export function portfolioAltText({ kind, description, index, total } = {}) {
   const detail = typeof description === 'string' ? description.trim() : ''
 
-  // Prefer unique job descriptions when available (best for SEO + accessibility)
   if (detail) {
     switch (kind) {
       case 'before':
