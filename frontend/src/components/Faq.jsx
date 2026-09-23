@@ -2,19 +2,6 @@ import { useState } from 'react'
 import { FAQS } from '../data/faqs'
 import { BUSINESS } from '../data/business'
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQS.map((faq) => ({
-    '@type': 'Question',
-    name: faq.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: faq.answer,
-    },
-  })),
-}
-
 const Faq = () => {
   const [openIndex, setOpenIndex] = useState(0)
 
@@ -24,10 +11,6 @@ const Faq = () => {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
       <style>{`
         @media (max-width: 768px) {
           .faq-grid {

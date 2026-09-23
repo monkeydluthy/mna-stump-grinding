@@ -1,4 +1,4 @@
-/** Homepage FAQs — keep answers in sync with FAQPage schema in Faq.jsx */
+/** Homepage FAQs — single source for visible accordion + FAQPage JSON-LD (injected into index.html at build via vite.config.js) */
 export const FAQS = [
   {
     question: 'Where do you offer stump grinding in the Tampa area?',
@@ -41,3 +41,19 @@ export const FAQS = [
       'Yes. M&A Stump Grinding is fully licensed and insured for stump removal and grinding work in Florida. You get professional service and peace of mind on every job.',
   },
 ]
+
+/** FAQPage JSON-LD built from FAQS so schema text always matches the visible Q&A */
+export function buildFaqPageSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
