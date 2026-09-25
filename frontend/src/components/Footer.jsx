@@ -38,6 +38,17 @@ const Footer = () => {
         <p style={{ marginTop: '8px', opacity: 0.8 }}>
           Licensed & Insured | Serving {BUSINESS.serviceArea}
         </p>
+        <p style={{ marginTop: '8px', opacity: 0.7, fontSize: '0.9rem' }}>
+          Site by{' '}
+          <a
+            href="https://digitaldynamicsolution.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'underline' }}
+          >
+            DDS
+          </a>
+        </p>
       </div>
     </footer>
   )
