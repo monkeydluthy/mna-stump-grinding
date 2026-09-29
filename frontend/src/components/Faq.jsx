@@ -82,6 +82,7 @@ const Faq = () => {
               </p>
               <a
                 href={`tel:${BUSINESS.phoneE164}`}
+                data-link-location="faq"
                 className="btn btn-primary"
                 style={{ textDecoration: 'none' }}
               >

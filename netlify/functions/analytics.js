@@ -159,7 +159,7 @@ exports.handler = async (event) => {
           filter: {
             fieldName: 'eventName',
             inListFilter: {
-              values: ['click_call', 'click_text', 'click_email']
+              values: ['click_call', 'click_to_call', 'click_text', 'click_email']
             }
           }
         }
@@ -175,7 +175,7 @@ exports.handler = async (event) => {
     ])
 
     const totalsRow = totalsRes[0]?.rows?.[0]
-    const eventCounts = { click_call: 0, click_text: 0, click_email: 0 }
+    const eventCounts = { click_call: 0, click_to_call: 0, click_text: 0, click_email: 0 }
     for (const row of eventsRes[0]?.rows || []) {
       const name = row.dimensionValues?.[0]?.value
       if (name && Object.prototype.hasOwnProperty.call(eventCounts, name)) {
@@ -198,7 +198,7 @@ exports.handler = async (event) => {
         sessions: metricValue(totalsRow, 1),
         users: metricValue(totalsRow, 2),
         avgSession: formatDuration(metricValue(totalsRow, 3)),
-        phoneCalls: eventCounts.click_call,
+        phoneCalls: eventCounts.click_call + eventCounts.click_to_call,
         textClicks: eventCounts.click_text,
         emailClicks: eventCounts.click_email,
         topPages

@@ -81,13 +81,13 @@ const Hero = () => {
             Fast, reliable, and affordable service you can trust.
           </p>
           <div className="hero-buttons" style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="tel:+18133255306" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+          <a href="tel:+18133255306" data-link-location="hero" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             📞 Call Now
           </a>
-          <a href="sms:+18133255306" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+          <a href="sms:+18133255306" data-link-location="hero" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             💬 Text Us
           </a>
-          <a href="mailto:nickperna@mnastumpgrinding.com" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+          <a href="mailto:nickperna@mnastumpgrinding.com" data-link-location="hero" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             ✉️ Email
           </a>
         </div>

@@ -25,6 +25,7 @@ const Footer = () => {
         <p style={{ opacity: 0.9, marginBottom: '4px' }}>
           <a
             href={`tel:${BUSINESS.phoneE164}`}
+            data-link-location="footer"
             style={{ color: 'inherit', textDecoration: 'underline' }}
           >
             {BUSINESS.phoneDisplay}

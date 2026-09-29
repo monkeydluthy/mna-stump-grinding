@@ -42,6 +42,7 @@ const Contact = () => {
           }}>
             <a 
               href="tel:+18133255306"
+              data-link-location="contact"
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 backdropFilter: 'blur(10px)',
@@ -74,6 +75,7 @@ const Contact = () => {
 
             <a 
               href="sms:+18133255306"
+              data-link-location="contact"
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 backdropFilter: 'blur(10px)',
@@ -106,6 +108,7 @@ const Contact = () => {
 
             <a 
               href="mailto:nickperna@mnastumpgrinding.com"
+              data-link-location="contact"
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 backdropFilter: 'blur(10px)',

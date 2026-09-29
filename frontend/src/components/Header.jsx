@@ -137,6 +137,7 @@ const Header = () => {
             </a>
             <a 
               href={`tel:${BUSINESS.phoneE164}`}
+              data-link-location="header"
               className="btn btn-primary"
               style={{ textDecoration: 'none' }}
             >
@@ -391,6 +392,7 @@ const Header = () => {
             </a>
             <a 
               href={`tel:${BUSINESS.phoneE164}`}
+              data-link-location="header"
               onClick={closeMobileMenu}
               className="btn btn-primary"
               style={{
