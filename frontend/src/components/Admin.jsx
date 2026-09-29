@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Header from './Header'
+import SeoHead from './SeoHead'
 import AdminAnalytics from './AdminAnalytics'
 import { getAuthToken, getAuthHeaders, removeAuthToken, fileToBase64 } from '../utils/auth'
 
@@ -316,6 +317,7 @@ const Admin = () => {
   if (checkingAuth) {
     return (
       <div>
+        <SeoHead title="Admin | M&A Stump Grinding" robots="noindex" />
         <Header />
         <div style={{
           textAlign: 'center',
@@ -330,6 +332,7 @@ const Admin = () => {
 
   return (
     <>
+      <SeoHead title="Admin | M&A Stump Grinding" robots="noindex" />
       <style>{`
         @media (max-width: 768px) {
           .admin-header {

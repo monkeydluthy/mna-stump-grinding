@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 
 /**
- * Sets document title and meta description for the current route.
- * Keeps SPA pages aligned with the static tags in index.html.
+ * Sets document title, meta description, and optional robots directive.
+ * Removes a robots tag it did not request so private-route noindex does not
+ * stick after a client-side navigation to a public page.
  */
-const SeoHead = ({ title, description }) => {
+const SeoHead = ({ title, description, robots }) => {
   useEffect(() => {
     if (title) {
       document.title = title
@@ -19,7 +20,23 @@ const SeoHead = ({ title, description }) => {
       }
       meta.setAttribute('content', description)
     }
-  }, [title, description])
+
+    let robotsMeta = document.querySelector('meta[name="robots"]')
+    if (robots) {
+      if (!robotsMeta) {
+        robotsMeta = document.createElement('meta')
+        robotsMeta.setAttribute('name', 'robots')
+        document.head.appendChild(robotsMeta)
+      }
+      robotsMeta.setAttribute('content', robots)
+    } else if (robotsMeta) {
+      robotsMeta.remove()
+    }
+
+    return () => {
+      document.querySelector('meta[name="robots"]')?.remove()
+    }
+  }, [title, description, robots])
 
   return null
 }

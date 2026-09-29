@@ -6,5 +6,12 @@
 /api/health-check /.netlify/functions/health-check 200!
 /api/analytics /.netlify/functions/analytics 200!
 
-# Catch-all for SPA routing (static files like robots.txt / sitemap.xml are served first)
-/* /index.html 200
+# Known SPA routes
+/              /index.html  200
+/portfolio     /index.html  200
+/login         /index.html  200
+/admin         /index.html  200
+/admin/*       /index.html  200
+
+# Everything else is a real 404
+/*             /404.html    404
