@@ -55,15 +55,23 @@ const Hero = () => {
         }
       `}</style>
       <section className="hero-section">
-        <img
-          className="hero-bg"
-          src="/stump-header.jpg"
-          alt=""
-          width={1920}
-          height={960}
-          fetchPriority="high"
-          decoding="async"
-        />
+        <picture>
+          <source
+            type="image/webp"
+            media="(max-width: 768px)"
+            srcSet="/stump-header-960.webp"
+          />
+          <source type="image/webp" srcSet="/stump-header-1280.webp" />
+          <img
+            className="hero-bg"
+            src="/stump-header-1280.jpg"
+            alt=""
+            width={1280}
+            height={640}
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         <div className="hero-overlay" aria-hidden="true" />
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <h1 className="hero-h1" style={{ color: 'var(--white)', marginBottom: '20px', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>

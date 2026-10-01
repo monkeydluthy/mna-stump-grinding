@@ -3,7 +3,7 @@
   publish = "frontend/dist"
   functions = "netlify/functions"
 
-# Long-lived cache for hashed Vite assets and self-hosted fonts
+# Long-lived cache for hashed Vite assets, self-hosted fonts, and hero images
 [[headers]]
   for = "/assets/*"
   [headers.values]
@@ -11,6 +11,11 @@
 
 [[headers]]
   for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/stump-header*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 

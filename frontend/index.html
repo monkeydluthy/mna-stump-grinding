@@ -45,7 +45,23 @@
     </script>
     <link rel="icon" type="image/png" href="/logo-clear.png" />
     <link rel="apple-touch-icon" href="/logo-clear.png" />
-    <link rel="preload" as="image" href="/stump-header.jpg" fetchpriority="high" />
+    <!-- Preload the mobile WebP hero so LCP can paint before React mounts -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/stump-header-960.webp"
+      fetchpriority="high"
+      media="(max-width: 768px)"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/stump-header-1280.webp"
+      fetchpriority="high"
+      media="(min-width: 769px)"
+    />
     <link
       rel="preload"
       as="font"
@@ -54,9 +70,140 @@
       crossorigin
     />
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <style>
+      /* Critical hero shell — paints LCP before JS/CSS bundle */
+      #critical-hero.hero-section {
+        position: relative;
+        color: #fff;
+        padding: 80px 20px;
+        text-align: center;
+        overflow: hidden;
+        min-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        background: #1a1a1a;
+      }
+      #critical-hero .hero-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        z-index: 0;
+      }
+      #critical-hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+      }
+      #critical-hero .container {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      #critical-hero h1 {
+        color: #fff;
+        margin: 0 0 20px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 700;
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        line-height: 1.2;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      #critical-hero .hero-p {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        margin: 0 auto 40px;
+        max-width: 800px;
+        opacity: 0.95;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      }
+      #critical-hero .hero-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      #critical-hero .btn {
+        display: inline-block;
+        padding: 14px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        background: #f5a623;
+        color: #fff;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      @media (max-width: 768px) {
+        #critical-hero.hero-section {
+          padding: 60px 0;
+          min-height: 360px;
+        }
+        #critical-hero h1,
+        #critical-hero .hero-p {
+          padding: 0 10px;
+        }
+        #critical-hero .hero-buttons {
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          padding: 0 10px;
+        }
+        #critical-hero .btn {
+          width: 100%;
+          max-width: 280px;
+          padding: 12px 18px;
+          font-size: 14px;
+          box-sizing: border-box;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static critical hero: paints before React replaces #root -->
+      <section id="critical-hero" class="hero-section" aria-hidden="true">
+        <picture>
+          <source
+            type="image/webp"
+            media="(max-width: 768px)"
+            srcset="/stump-header-960.webp"
+          />
+          <source type="image/webp" srcset="/stump-header-1280.webp" />
+          <img
+            class="hero-bg"
+            src="/stump-header-1280.jpg"
+            alt=""
+            width="1280"
+            height="640"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+        <div class="hero-overlay"></div>
+        <div class="container">
+          <h1>Professional Stump Grinding Services in Tampa, FL</h1>
+          <p class="hero-p">
+            Expert stump removal that clears the way for your next project.
+            Fast, reliable, and affordable service you can trust.
+          </p>
+          <div class="hero-buttons">
+            <a href="tel:+18133255306" class="btn">📞 Call Now</a>
+            <a href="sms:+18133255306" class="btn">💬 Text Us</a>
+            <a href="mailto:nickperna@mnastumpgrinding.com" class="btn">✉️ Email</a>
+          </div>
+        </div>
+      </section>
+    </div>
     <script type="module" src="/src/index.jsx"></script>
   </body>
 </html>
