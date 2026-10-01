@@ -3,6 +3,17 @@
   publish = "frontend/dist"
   functions = "netlify/functions"
 
+# Long-lived cache for hashed Vite assets and self-hosted fonts
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Apex host consolidation — keep in sync with frontend/public/_redirects
 # www → non-www (GBP Website field). Path + query string are preserved.
 [[redirects]]
