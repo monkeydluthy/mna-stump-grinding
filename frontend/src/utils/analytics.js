@@ -1,12 +1,12 @@
 export const GA_MEASUREMENT_ID = 'G-47EDHHMP3S'
 
+let gaScriptScheduled = false
+
 export function isPublicPath(pathname) {
   return pathname !== '/admin' && pathname !== '/login' && !pathname.startsWith('/admin/')
 }
 
-export function ensureGaLoaded() {
-  if (typeof window === 'undefined') return
-  if (!isPublicPath(window.location.pathname)) return
+function installGtagStub() {
   if (typeof window.gtag === 'function') return
 
   window.dataLayer = window.dataLayer || []
@@ -15,11 +15,49 @@ export function ensureGaLoaded() {
   }
   window.gtag('js', new Date())
   window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false })
+}
+
+function injectGtagScript() {
+  if (typeof document === 'undefined') return
+  if (document.getElementById('ga-gtag-js')) return
 
   const script = document.createElement('script')
+  script.id = 'ga-gtag-js'
   script.async = true
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
   document.head.appendChild(script)
+}
+
+function scheduleGtagScript() {
+  if (gaScriptScheduled) return
+  gaScriptScheduled = true
+
+  const run = () => {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(() => injectGtagScript(), { timeout: 4000 })
+    } else {
+      setTimeout(injectGtagScript, 1)
+    }
+  }
+
+  if (document.readyState === 'complete') {
+    run()
+  } else {
+    window.addEventListener('load', run, { once: true })
+  }
+}
+
+/**
+ * Installs a cheap dataLayer stub immediately (so click_to_call can queue),
+ * but defers the real gtag.js download until window load + idle time so it
+ * does not compete with LCP on the main thread.
+ */
+export function ensureGaLoaded() {
+  if (typeof window === 'undefined') return
+  if (!isPublicPath(window.location.pathname)) return
+
+  installGtagStub()
+  scheduleGtagScript()
 }
 
 export function trackEvent(name, params = {}) {
@@ -42,7 +80,7 @@ function linkLocation(link) {
   if (explicit) return explicit
   if (link.closest('header, .mobile-menu-overlay')) return 'header'
   if (link.closest('footer')) return 'footer'
-  if (link.closest('.hero-section')) return 'hero'
+  if (link.closest('.hero-section, #critical-hero')) return 'hero'
   if (link.closest('.faq-intro')) return 'faq'
   return 'page'
 }

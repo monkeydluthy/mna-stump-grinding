@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/Header';
 import SeoHead from '../components/SeoHead';
 import Footer from '../components/Footer';
 import { thumbUrl, lightboxUrl, portfolioAltText } from '../utils/images';
@@ -169,7 +168,6 @@ const PortfolioPage = () => {
         }
       `}</style>
       <div>
-        <Header />
         <SeoHead
           title="Portfolio | M&A Stump Grinding in Tampa, FL"
           description="See professional stump grinding and removal work by M&A Stump Grinding in Tampa, FL. Before-and-after results from residential and commercial jobs."

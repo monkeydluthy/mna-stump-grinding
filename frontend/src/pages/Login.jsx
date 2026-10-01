@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import Header from '../components/Header'
 import SeoHead from '../components/SeoHead'
 
 const Login = () => {
@@ -59,7 +58,6 @@ const Login = () => {
   return (
     <div>
       <SeoHead title="Admin Login | M&A Stump Grinding" robots="noindex" />
-      <Header />
       <div style={{
         maxWidth: '500px',
         margin: '80px auto',

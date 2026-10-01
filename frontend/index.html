@@ -71,7 +71,7 @@
     />
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <style>
-      /* Critical hero shell — paints LCP before JS/CSS bundle */
+      /* Critical hero — outside #root; React never remounts this LCP node */
       #critical-hero.hero-section {
         position: relative;
         color: #fff;
@@ -84,6 +84,9 @@
         justify-content: center;
         margin: 0;
         background: #1a1a1a;
+      }
+      #critical-hero[hidden] {
+        display: none !important;
       }
       #critical-hero .hero-bg {
         position: absolute;
@@ -169,41 +172,44 @@
     </style>
   </head>
   <body>
-    <div id="root">
-      <!-- Static critical hero: paints before React replaces #root -->
-      <section id="critical-hero" class="hero-section" aria-hidden="true">
-        <picture>
-          <source
-            type="image/webp"
-            media="(max-width: 768px)"
-            srcset="/stump-header-960.webp"
-          />
-          <source type="image/webp" srcset="/stump-header-1280.webp" />
-          <img
-            class="hero-bg"
-            src="/stump-header-1280.jpg"
-            alt=""
-            width="1280"
-            height="640"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </picture>
-        <div class="hero-overlay"></div>
-        <div class="container">
-          <h1>Professional Stump Grinding Services in Tampa, FL</h1>
-          <p class="hero-p">
-            Expert stump removal that clears the way for your next project.
-            Fast, reliable, and affordable service you can trust.
-          </p>
-          <div class="hero-buttons">
-            <a href="tel:+18133255306" class="btn">📞 Call Now</a>
-            <a href="sms:+18133255306" class="btn">💬 Text Us</a>
-            <a href="mailto:nickperna@mnastumpgrinding.com" class="btn">✉️ Email</a>
-          </div>
+    <!-- Header mounts here via React portal — above the stable hero -->
+    <div id="site-header-root"></div>
+
+    <!-- Stable LCP hero: never inside React's #root, never remounted -->
+    <section id="critical-hero" class="hero-section">
+      <picture>
+        <source
+          type="image/webp"
+          media="(max-width: 768px)"
+          srcset="/stump-header-960.webp"
+        />
+        <source type="image/webp" srcset="/stump-header-1280.webp" />
+        <img
+          class="hero-bg"
+          src="/stump-header-1280.jpg"
+          alt=""
+          width="1280"
+          height="640"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="container">
+        <h1>Professional Stump Grinding Services in Tampa, FL</h1>
+        <p class="hero-p">
+          Expert stump removal that clears the way for your next project.
+          Fast, reliable, and affordable service you can trust.
+        </p>
+        <div class="hero-buttons">
+          <a href="tel:+18133255306" data-link-location="hero" class="btn">📞 Call Now</a>
+          <a href="sms:+18133255306" data-link-location="hero" class="btn">💬 Text Us</a>
+          <a href="mailto:nickperna@mnastumpgrinding.com" data-link-location="hero" class="btn">✉️ Email</a>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <div id="root"></div>
     <script type="module" src="/src/index.jsx"></script>
   </body>
 </html>
