@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
+import { BUSINESS } from '../data/business'
 
 /**
- * Sets document title, meta description, and optional robots directive.
- * Removes a robots tag it did not request so private-route noindex does not
- * stick after a client-side navigation to a public page.
+ * Sets document title, meta description, optional robots, and a fixed canonical.
+ * Canonical always points at the GBP Website URL (non-www, no query params),
+ * including on UTM-tagged loads and client-side navigations.
  */
 const SeoHead = ({ title, description, robots }) => {
   useEffect(() => {
@@ -32,6 +33,14 @@ const SeoHead = ({ title, description, robots }) => {
     } else if (robotsMeta) {
       robotsMeta.remove()
     }
+
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
+    }
+    canonical.setAttribute('href', BUSINESS.canonicalUrl)
 
     return () => {
       document.querySelector('meta[name="robots"]')?.remove()

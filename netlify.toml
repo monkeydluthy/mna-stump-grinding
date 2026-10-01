@@ -3,6 +3,14 @@
   publish = "frontend/dist"
   functions = "netlify/functions"
 
+# Apex host consolidation — keep in sync with frontend/public/_redirects
+# www → non-www (GBP Website field). Path + query string are preserved.
+[[redirects]]
+  from = "https://www.mnastumpgrinding.com/*"
+  to = "https://mnastumpgrinding.com/:splat"
+  status = 301
+  force = true
+
 # API routes must come BEFORE the catch-all
 # Using force = true to ensure this takes precedence over catch-all
 [[redirects]]
@@ -72,4 +80,3 @@
   from = "/*"
   to = "/404.html"
   status = 404
-

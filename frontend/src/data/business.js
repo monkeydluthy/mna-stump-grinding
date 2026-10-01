@@ -6,6 +6,8 @@ export const BUSINESS = {
   phoneE164: '+18133255306',
   email: 'nickperna@mnastumpgrinding.com',
   url: 'https://mnastumpgrinding.com',
+  /** GBP Website field / preferred host — always non-www, no query string */
+  canonicalUrl: 'https://mnastumpgrinding.com/',
   streetAddress: '9511 Fieldview Cir',
   addressLocality: 'Thonotosassa',
   addressRegion: 'FL',

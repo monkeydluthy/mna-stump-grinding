@@ -1,3 +1,7 @@
+# Apex host consolidation — keep in sync with [[redirects]] in netlify.toml
+# www → non-www (GBP Website field). Path + query string are preserved.
+https://www.mnastumpgrinding.com/*  https://mnastumpgrinding.com/:splat  301!
+
 # API routes - must come before the catch-all
 /api/reviews/google /.netlify/functions/reviews-google 200!
 /api/portfolio /.netlify/functions/portfolio 200!
