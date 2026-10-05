@@ -96,7 +96,7 @@ async function sendLeadEmail(lead) {
     const { error } = await resend.emails.send({
       from: 'M&A Stump Grinding Leads <leads@mnastumpgrinding.com>',
       to: ['nickperna@mnastumpgrinding.com'],
-      cc: ['luthdigitalconsult@gmail.com'],
+      cc: ['luthdigitalconsult@gmail.com', 'mnastumpgrinding@gmail.com'],
       subject,
       text: lines.join('\n'),
     })
