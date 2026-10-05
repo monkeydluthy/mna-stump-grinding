@@ -1,3 +1,5 @@
+import LeadForm from './LeadForm'
+
 const Contact = () => {
   return (
     <section style={{
@@ -24,7 +26,8 @@ const Contact = () => {
           margin: '0 auto 40px',
           lineHeight: 1.6
         }}>
-          Ready for stump grinding or removal? Call, text, or email — we serve Tampa and the surrounding Tampa Bay area.
+          Ready for stump grinding or removal? Call, text, email, or request a quote below —
+          we serve Tampa and the surrounding Tampa Bay area.
         </p>
         <div className="contact-grid" style={{
           display: 'grid',
@@ -140,26 +143,9 @@ const Contact = () => {
             </a>
           </div>
 
-          {/* Right side - Image */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-            <img 
-              src="/footer-img.jpg" 
-              alt="Stump grinding equipment and cleanup work by M&A Stump Grinding in Tampa, FL"
-              width={900}
-              height={1125}
-              loading="lazy"
-              decoding="async"
-              style={{
-                width: '100%',
-                height: 'auto',
-                borderRadius: '12px',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.3)'
-              }}
-            />
+          {/* Right side - lead form (additional path alongside call/text/email) */}
+          <div>
+            <LeadForm />
           </div>
         </div>
       </div>
@@ -168,4 +154,3 @@ const Contact = () => {
 }
 
 export default Contact
-

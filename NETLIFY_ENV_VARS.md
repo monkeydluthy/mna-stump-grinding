@@ -64,6 +64,14 @@ GA4_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n
 
 See **GA4_ADMIN_SETUP.md** for how to create the service account. Tracking on the public site does **not** need these; they are only for showing numbers in admin.
 
+### Resend (REQUIRED — for lead form email alerts)
+
+```
+RESEND_API_KEY=re_xxxxxxxx
+```
+
+Used by `/api/leads` to email new quote requests to `nickperna@mnastumpgrinding.com` from `leads@mnastumpgrinding.com`. The sending domain must be verified in Resend.
+
 ## After Setting Variables
 
 1. **Redeploy your site** - Environment variables require a new deploy

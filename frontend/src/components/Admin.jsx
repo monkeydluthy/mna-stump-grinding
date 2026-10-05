@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import SeoHead from './SeoHead'
 import AdminAnalytics from './AdminAnalytics'
+import AdminLeads from './AdminLeads'
 import { getAuthToken, getAuthHeaders, removeAuthToken, fileToBase64 } from '../utils/auth'
 
 const Admin = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('analytics') // 'analytics', 'upload', or 'manage'
+  const [activeTab, setActiveTab] = useState('analytics') // 'analytics', 'leads', 'upload', or 'manage'
   const [uploadType, setUploadType] = useState('standalone')
   const [file, setFile] = useState(null)
   const [galleryFiles, setGalleryFiles] = useState([])
@@ -424,6 +425,25 @@ const Admin = () => {
           </button>
           <button
             onClick={() => {
+              setActiveTab('leads')
+              clearMessage()
+            }}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              background: 'transparent',
+              borderBottom: activeTab === 'leads' ? '3px solid var(--primary-color)' : '3px solid transparent',
+              color: activeTab === 'leads' ? 'var(--primary-color)' : 'var(--text-light)',
+              fontWeight: activeTab === 'leads' ? 600 : 400,
+              cursor: 'pointer',
+              fontSize: '16px',
+              transition: 'all 0.3s'
+            }}
+          >
+            Leads
+          </button>
+          <button
+            onClick={() => {
               setActiveTab('upload')
               clearMessage()
             }}
@@ -494,6 +514,13 @@ const Admin = () => {
 
         {activeTab === 'analytics' && (
           <AdminAnalytics onUnauthorized={() => {
+            removeAuthToken()
+            navigate('/login')
+          }} />
+        )}
+
+        {activeTab === 'leads' && (
+          <AdminLeads onUnauthorized={() => {
             removeAuthToken()
             navigate('/login')
           }} />

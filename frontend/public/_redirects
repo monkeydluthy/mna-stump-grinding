@@ -9,6 +9,8 @@ https://www.mnastumpgrinding.com/*  https://mnastumpgrinding.com/:splat  301!
 /api/upload /.netlify/functions/upload 200!
 /api/health-check /.netlify/functions/health-check 200!
 /api/analytics /.netlify/functions/analytics 200!
+/api/leads /.netlify/functions/leads 200!
+/api/leads/* /.netlify/functions/leads 200!
 
 # Known SPA routes
 /              /index.html  200

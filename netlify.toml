@@ -65,6 +65,18 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/leads"
+  to = "/.netlify/functions/leads"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/leads/*"
+  to = "/.netlify/functions/leads"
+  status = 200
+  force = true
+
 # Known SPA routes. Static files are served first because these rules are not forced.
 [[redirects]]
   from = "/"
