@@ -13,14 +13,7 @@ const Footer = () => {
       <div className="container">
         <p style={{ fontWeight: 600, marginBottom: '8px' }}>{BUSINESS.name}</p>
         <p style={{ opacity: 0.9, marginBottom: '4px' }}>
-          <a
-            href={`https://maps.google.com/?q=${encodeURIComponent(BUSINESS.addressFull)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit', textDecoration: 'underline' }}
-          >
-            {BUSINESS.addressFull}
-          </a>
+          {BUSINESS.serviceAreaTagline}
         </p>
         <p style={{ opacity: 0.9, marginBottom: '4px' }}>
           <a
