@@ -1,4 +1,4 @@
-/** Canonical service-area cities by county — single source for footer pills, admin tagging, etc. */
+/** Canonical service-area cities by county — single source for footer, schema areaServed, admin tagging. */
 export const SERVICE_AREA_BY_COUNTY = [
   {
     name: 'Hillsborough',
@@ -38,7 +38,7 @@ export const SERVICE_AREA_BY_COUNTY = [
   },
 ]
 
-/** Flat list in county order — footer pills / display */
+/** Flat list in county order — footer / display */
 export const SERVICE_AREA_CITIES = SERVICE_AREA_BY_COUNTY.flatMap((c) => c.cities)
 
 /** Alphabetical — admin dropdowns / tagging */

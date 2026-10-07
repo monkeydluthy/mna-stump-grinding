@@ -1,63 +1,13 @@
 import { useEffect } from 'react'
-import { BUSINESS } from '../data/business'
+import { buildLocalBusinessSchema } from '../data/localBusinessSchema'
 
-export const localBusinessSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  '@id': `${BUSINESS.url}/#business`,
-  name: BUSINESS.name,
-  url: BUSINESS.url,
-  telephone: BUSINESS.phoneE164,
-  email: BUSINESS.email,
-  image: `${BUSINESS.url}/logo-clear.png`,
-  priceRange: '$$',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: BUSINESS.addressLocality,
-    addressRegion: BUSINESS.addressRegion,
-    addressCountry: BUSINESS.addressCountry,
-  },
-  openingHoursSpecification: [
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday',
-      ],
-      opens: '00:00',
-      closes: '23:59',
-    },
-  ],
-  areaServed: [
-    {
-      '@type': 'City',
-      name: 'Tampa',
-      containedInPlace: { '@type': 'State', name: 'Florida' },
-    },
-    {
-      '@type': 'City',
-      name: 'Thonotosassa',
-      containedInPlace: { '@type': 'State', name: 'Florida' },
-    },
-    {
-      '@type': 'AdministrativeArea',
-      name: 'Tampa Bay',
-    },
-  ],
-  sameAs: [BUSINESS.facebookUrl, BUSINESS.instagramUrl],
-  description:
-    'Professional stump grinding and stump removal serving Tampa, FL and the surrounding Tampa Bay area. Licensed and insured.',
-}
+export const localBusinessSchema = buildLocalBusinessSchema()
 
 const SCRIPT_ID = 'local-business-jsonld'
 
 /**
  * Injects LocalBusiness JSON-LD into <head> once (name, phone, address, hours, service area).
+ * Static HTML also gets the same schema via vite transformIndexHtml.
  */
 const LocalBusinessJsonLd = () => {
   useEffect(() => {

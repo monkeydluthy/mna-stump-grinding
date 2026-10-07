@@ -55,45 +55,64 @@ const Footer = () => {
             style={{
               fontSize: '0.85rem',
               opacity: 0.75,
-              margin: '0 0 16px',
+              margin: '0 0 14px',
               fontWeight: 500,
             }}
           >
             including:
           </p>
-          <ul
+          <nav
+            aria-label={`Service area cities across ${SERVICE_AREA_BY_COUNTY.map((c) => c.name).join(', ')}`}
             style={{
-              listStyle: 'none',
-              margin: 0,
-              padding: 0,
               display: 'flex',
               flexWrap: 'wrap',
               justifyContent: 'center',
-              gap: '12px 14px',
-              maxWidth: '920px',
-              marginInline: 'auto',
+              alignItems: 'baseline',
+              rowGap: '6px',
+              columnGap: '0',
+              width: '100%',
+              fontSize: '0.875rem',
+              lineHeight: 1.55,
+              opacity: 0.92,
             }}
-            aria-label={`Service area cities across ${SERVICE_AREA_BY_COUNTY.map((c) => c.name).join(', ')}`}
           >
-            {SERVICE_AREA_CITIES.map((city) => (
-              <li
+            {SERVICE_AREA_CITIES.map((city, index) => (
+              <span
                 key={city}
                 style={{
-                  background: '#c8d9b8',
-                  color: '#1a2e0f',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  lineHeight: 1.2,
-                  padding: '11px 18px',
-                  borderRadius: '999px',
-                  border: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'baseline',
                   whiteSpace: 'nowrap',
                 }}
               >
-                {city}
-              </li>
+                {index > 0 && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      padding: '0 0.4em',
+                      opacity: 0.45,
+                      userSelect: 'none',
+                    }}
+                  >
+                    ·
+                  </span>
+                )}
+                <a
+                  href="/"
+                  data-link-location="footer-service-area"
+                  style={{
+                    color: 'inherit',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px',
+                    textDecorationColor: 'rgba(255,255,255,0.35)',
+                    fontWeight: 400,
+                  }}
+                >
+                  {city}
+                </a>
+              </span>
             ))}
-          </ul>
+          </nav>
         </div>
 
         <p style={{ marginTop: '32px', opacity: 0.8 }}>
