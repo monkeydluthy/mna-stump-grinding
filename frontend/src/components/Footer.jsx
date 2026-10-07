@@ -1,4 +1,9 @@
 import { BUSINESS } from '../data/business'
+import {
+  SERVICE_AREA_BY_COUNTY,
+  SERVICE_AREA_CITIES,
+  SERVICE_AREA_HEADLINE,
+} from '../data/serviceCities'
 
 const Footer = () => {
   return (
@@ -6,7 +11,7 @@ const Footer = () => {
       style={{
         background: 'var(--text-dark)',
         color: 'var(--white)',
-        padding: '40px 0',
+        padding: '48px 0 40px',
         textAlign: 'center',
       }}
     >
@@ -26,7 +31,72 @@ const Footer = () => {
           {' · '}
           {BUSINESS.hoursDisplay}
         </p>
-        <p style={{ marginTop: '16px', opacity: 0.8 }}>
+
+        <div
+          className="footer-service-area"
+          style={{
+            marginTop: '36px',
+            paddingTop: '28px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+          }}
+        >
+          <p
+            style={{
+              fontWeight: 700,
+              fontSize: 'clamp(1.05rem, 2.8vw, 1.25rem)',
+              lineHeight: 1.35,
+              margin: '0 0 10px',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {SERVICE_AREA_HEADLINE}
+          </p>
+          <p
+            style={{
+              fontSize: '0.85rem',
+              opacity: 0.75,
+              margin: '0 0 16px',
+              fontWeight: 500,
+            }}
+          >
+            including:
+          </p>
+          <ul
+            style={{
+              listStyle: 'none',
+              margin: 0,
+              padding: 0,
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '12px 14px',
+              maxWidth: '920px',
+              marginInline: 'auto',
+            }}
+            aria-label={`Service area cities across ${SERVICE_AREA_BY_COUNTY.map((c) => c.name).join(', ')}`}
+          >
+            {SERVICE_AREA_CITIES.map((city) => (
+              <li
+                key={city}
+                style={{
+                  background: '#c8d9b8',
+                  color: '#1a2e0f',
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  lineHeight: 1.2,
+                  padding: '11px 18px',
+                  borderRadius: '999px',
+                  border: 'none',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {city}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p style={{ marginTop: '32px', opacity: 0.8 }}>
           &copy; {new Date().getFullYear()} {BUSINESS.name}. All rights reserved.
         </p>
         <p style={{ marginTop: '8px', opacity: 0.8 }}>
