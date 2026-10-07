@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS portfolio_items (
   before_image_cloudinary_url TEXT,
   after_image_cloudinary_url TEXT,
   description TEXT,
+  width INT,
+  height INT,
+  poster_url TEXT,
+  alt_text TEXT,
+  city TEXT,
   uploaded_at TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

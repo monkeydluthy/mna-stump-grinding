@@ -41,6 +41,8 @@ async function uploadToCloudinary(base64Data, options = {}) {
       ? base64Data 
       : `data:${options.mimeType || 'image/jpeg'};base64,${base64Data}`
     
+    // Media is stored on Cloudinary (not Supabase Storage). CDN caching is
+    // long-lived by default; client-side WebP compress keeps payloads small.
     const uploadOptions = {
       folder: 'mna-stump-portfolio',
       resource_type: options.resource_type || 'auto',
@@ -92,7 +94,18 @@ exports.handler = async (event, context) => {
 
   try {
     const body = JSON.parse(event.body || '{}')
-    const { file, fileName, fileType, uploadType, description, beforeImage, afterImage, galleryFiles } = body
+    const {
+      file,
+      fileName,
+      fileType,
+      uploadType,
+      description,
+      beforeImage,
+      afterImage,
+      beforeMimeType,
+      afterMimeType,
+      galleryFiles
+    } = body
 
     // Upload standalone file
     if (uploadType === 'standalone') {
@@ -140,13 +153,13 @@ exports.handler = async (event, context) => {
 
       const beforeResult = await uploadToCloudinary(beforeImage, {
         resource_type: 'image',
-        mimeType: 'image/jpeg',
+        mimeType: beforeMimeType || 'image/webp',
         public_id: `portfolio-before-${Date.now()}`
       })
 
       const afterResult = await uploadToCloudinary(afterImage, {
         resource_type: 'image',
-        mimeType: 'image/jpeg',
+        mimeType: afterMimeType || 'image/webp',
         public_id: `portfolio-after-${Date.now()}`
       })
 
@@ -177,13 +190,17 @@ exports.handler = async (event, context) => {
         }
       }
 
-      const uploadPromises = galleryFiles.map((fileData, index) => 
-        uploadToCloudinary(fileData, {
+      const uploadPromises = galleryFiles.map((fileData, index) => {
+        const payload =
+          typeof fileData === 'string' ? fileData : fileData?.data
+        const mimeType =
+          (typeof fileData === 'object' && fileData?.mimeType) || 'image/webp'
+        return uploadToCloudinary(payload, {
           resource_type: 'image',
-          mimeType: 'image/jpeg',
+          mimeType,
           public_id: `portfolio-gallery-${Date.now()}-${index}`
         })
-      )
+      })
 
       const results = await Promise.all(uploadPromises)
 

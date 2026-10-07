@@ -67,6 +67,11 @@ function transformPortfolioItem(item) {
     type: item.type || 'standalone',
     uploadedAt: item.uploaded_at,
     description: item.description || '',
+    width: item.width ?? null,
+    height: item.height ?? null,
+    posterUrl: item.poster_url || null,
+    altText: item.alt_text || '',
+    city: item.city || null,
   };
 
   if (item.type === 'gallery') {
@@ -189,6 +194,11 @@ exports.handler = async (event, context) => {
         beforeImageCloudinaryUrl,
         afterImageCloudinaryUrl,
         mediaType,
+        width,
+        height,
+        posterUrl,
+        altText,
+        city,
       } = body;
 
       if (!cloudinaryUrl && !images && !beforeImageCloudinaryUrl) {
@@ -211,10 +221,26 @@ exports.handler = async (event, context) => {
         };
       }
 
+      const trimmedCity =
+        typeof city === 'string' && city.trim() ? city.trim() : null;
+      const trimmedAlt =
+        typeof altText === 'string' && altText.trim()
+          ? altText.trim()
+          : typeof description === 'string' && description.trim()
+            ? description.trim()
+            : trimmedCity
+              ? `Stump grinding job in ${trimmedCity}, FL`
+              : 'Stump grinding work in the Tampa Bay area';
+
       const newItem = {
         id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: type || 'standalone',
         description: description || '',
+        width: Number.isFinite(Number(width)) ? Number(width) : null,
+        height: Number.isFinite(Number(height)) ? Number(height) : null,
+        poster_url: posterUrl || null,
+        alt_text: trimmedAlt,
+        city: trimmedCity,
       };
 
       if (type === 'gallery' && images) {
@@ -292,7 +318,7 @@ exports.handler = async (event, context) => {
       }
 
       const body = JSON.parse(event.body || '{}');
-      const { id, description } = body;
+      const { id, description, altText, city, width, height, posterUrl } = body;
 
       if (!id) {
         return {
@@ -314,10 +340,32 @@ exports.handler = async (event, context) => {
         };
       }
 
-      // Update only the description field
       const updateData = {};
       if (description !== undefined) {
         updateData.description = description;
+      }
+      if (altText !== undefined) {
+        updateData.alt_text =
+          typeof altText === 'string' && altText.trim()
+            ? altText.trim()
+            : null;
+      }
+      if (city !== undefined) {
+        updateData.city =
+          typeof city === 'string' && city.trim() ? city.trim() : null;
+      }
+      if (width !== undefined) {
+        updateData.width = Number.isFinite(Number(width))
+          ? Number(width)
+          : null;
+      }
+      if (height !== undefined) {
+        updateData.height = Number.isFinite(Number(height))
+          ? Number(height)
+          : null;
+      }
+      if (posterUrl !== undefined) {
+        updateData.poster_url = posterUrl || null;
       }
 
       const { data, error } = await supabase

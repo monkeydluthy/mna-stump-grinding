@@ -5,6 +5,20 @@ import SeoHead from './SeoHead'
 import AdminAnalytics from './AdminAnalytics'
 import AdminLeads from './AdminLeads'
 import { getAuthToken, getAuthHeaders, removeAuthToken, fileToBase64 } from '../utils/auth'
+import { SERVICE_CITIES } from '../data/serviceCities'
+import {
+  compressImageForUpload,
+  defaultPortfolioAltText,
+  cloudinaryVideoPosterUrl,
+} from '../utils/imageCompress'
+
+const fieldStyle = {
+  width: '100%',
+  padding: '10px',
+  borderRadius: '8px',
+  border: '2px solid #ddd',
+  fontFamily: 'inherit',
+}
 
 const Admin = () => {
   const navigate = useNavigate()
@@ -15,6 +29,8 @@ const Admin = () => {
   const [beforeFile, setBeforeFile] = useState(null)
   const [afterFile, setAfterFile] = useState(null)
   const [description, setDescription] = useState('')
+  const [city, setCity] = useState('')
+  const [altText, setAltText] = useState('')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
   const [portfolioItems, setPortfolioItems] = useState([])
@@ -22,9 +38,21 @@ const Admin = () => {
   const [deleting, setDeleting] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
   const [editDescription, setEditDescription] = useState('')
+  const [editCity, setEditCity] = useState('')
+  const [editAltText, setEditAltText] = useState('')
   const [updating, setUpdating] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [user, setUser] = useState(null)
+
+  const resetMetaFields = () => {
+    setDescription('')
+    setCity('')
+    setAltText('')
+  }
+
+  const resolvedAltText = () =>
+    (altText && altText.trim()) ||
+    defaultPortfolioAltText({ title: description, city })
 
   // Check authentication on mount
   useEffect(() => {
@@ -88,35 +116,51 @@ const Admin = () => {
     setMessage('')
 
     try {
-      // Convert file to base64
-      const base64File = await fileToBase64(file)
+      const compressed = await compressImageForUpload(file)
+      const uploadFile = compressed.file
+      const base64File = await fileToBase64(uploadFile)
 
-      // Upload to Cloudinary via Netlify Function
       const uploadResponse = await axios.post('/api/upload', {
         file: base64File,
-        fileName: file.name,
-        fileType: file.type,
+        fileName: uploadFile.name,
+        fileType: uploadFile.type,
         uploadType: 'standalone',
-        mimeType: file.type
+        mimeType: uploadFile.type
       }, {
         headers: getAuthHeaders()
       })
 
       if (uploadResponse.data.success) {
-        // Add to portfolio
+        const isVideo = uploadResponse.data.mediaType === 'video'
+        const width = compressed.width ?? uploadResponse.data.width ?? null
+        const height = compressed.height ?? uploadResponse.data.height ?? null
+        const posterUrl = isVideo
+          ? cloudinaryVideoPosterUrl(uploadResponse.data.cloudinaryUrl)
+          : null
+
         await axios.post('/api/portfolio', {
           type: 'standalone',
           cloudinaryUrl: uploadResponse.data.cloudinaryUrl,
           cloudinaryPublicId: uploadResponse.data.cloudinaryPublicId,
           mediaType: uploadResponse.data.mediaType,
-          description: description
+          description,
+          city: city || null,
+          altText: resolvedAltText(),
+          width,
+          height,
+          posterUrl,
         }, {
           headers: getAuthHeaders()
         })
 
-        setMessage('✅ Upload successful!')
+        const sizeKb = Math.round(uploadFile.size / 1024)
+        setMessage(
+          compressed.compressed
+            ? `✅ Upload successful! Compressed to ~${sizeKb}KB WebP (${width}×${height}).`
+            : '✅ Upload successful!'
+        )
         setFile(null)
-        setDescription('')
+        resetMetaFields()
         e.target.reset()
         fetchPortfolioItems(true)
       }
@@ -143,12 +187,16 @@ const Admin = () => {
     setMessage('')
 
     try {
-      // Convert all files to base64
+      const compressedBatch = await Promise.all(
+        galleryFiles.map((f) => compressImageForUpload(f))
+      )
       const base64Files = await Promise.all(
-        galleryFiles.map(file => fileToBase64(file))
+        compressedBatch.map(async ({ file: f }) => ({
+          data: await fileToBase64(f),
+          mimeType: f.type || 'image/webp',
+        }))
       )
 
-      // Upload to Cloudinary via Netlify Function
       const uploadResponse = await axios.post('/api/upload', {
         galleryFiles: base64Files,
         uploadType: 'gallery'
@@ -157,19 +205,23 @@ const Admin = () => {
       })
 
       if (uploadResponse.data.success) {
-        // Add to portfolio
+        const first = compressedBatch[0]
         await axios.post('/api/portfolio', {
           type: 'gallery',
           images: uploadResponse.data.images.map(img => img.cloudinaryUrl),
           cloudinaryPublicIds: uploadResponse.data.images.map(img => img.cloudinaryPublicId),
-          description: description
+          description,
+          city: city || null,
+          altText: resolvedAltText(),
+          width: first?.width ?? uploadResponse.data.images[0]?.width ?? null,
+          height: first?.height ?? uploadResponse.data.images[0]?.height ?? null,
         }, {
           headers: getAuthHeaders()
         })
 
         setMessage('✅ Gallery uploaded successfully!')
         setGalleryFiles([])
-        setDescription('')
+        resetMetaFields()
         e.target.reset()
         fetchPortfolioItems(true)
       }
@@ -196,28 +248,33 @@ const Admin = () => {
     setMessage('')
 
     try {
-      // Convert files to base64
-      const beforeBase64 = await fileToBase64(beforeFile)
-      const afterBase64 = await fileToBase64(afterFile)
+      const beforeCompressed = await compressImageForUpload(beforeFile)
+      const afterCompressed = await compressImageForUpload(afterFile)
+      const beforeBase64 = await fileToBase64(beforeCompressed.file)
+      const afterBase64 = await fileToBase64(afterCompressed.file)
 
-      // Upload to Cloudinary via Netlify Function
       const uploadResponse = await axios.post('/api/upload', {
         beforeImage: beforeBase64,
         afterImage: afterBase64,
+        beforeMimeType: beforeCompressed.file.type || 'image/webp',
+        afterMimeType: afterCompressed.file.type || 'image/webp',
         uploadType: 'before-after'
       }, {
         headers: getAuthHeaders()
       })
 
       if (uploadResponse.data.success) {
-        // Add to portfolio
         await axios.post('/api/portfolio', {
           type: 'before-after',
           beforeImageCloudinaryUrl: uploadResponse.data.beforeImage.cloudinaryUrl,
           afterImageCloudinaryUrl: uploadResponse.data.afterImage.cloudinaryUrl,
           beforeImage: uploadResponse.data.beforeImage.cloudinaryPublicId,
           afterImage: uploadResponse.data.afterImage.cloudinaryPublicId,
-          description: description
+          description,
+          city: city || null,
+          altText: resolvedAltText(),
+          width: beforeCompressed.width,
+          height: beforeCompressed.height,
         }, {
           headers: getAuthHeaders()
         })
@@ -225,7 +282,7 @@ const Admin = () => {
         setMessage('✅ Upload successful!')
         setBeforeFile(null)
         setAfterFile(null)
-        setDescription('')
+        resetMetaFields()
         e.target.reset()
         fetchPortfolioItems(true)
       }
@@ -268,11 +325,15 @@ const Admin = () => {
   const handleEdit = (item) => {
     setEditingItem(item)
     setEditDescription(item.description || '')
+    setEditCity(item.city || '')
+    setEditAltText(item.altText || '')
   }
 
   const handleCancelEdit = () => {
     setEditingItem(null)
     setEditDescription('')
+    setEditCity('')
+    setEditAltText('')
   }
 
   const handleUpdate = async (e) => {
@@ -283,15 +344,19 @@ const Admin = () => {
     setMessage('')
 
     try {
+      const nextAlt =
+        (editAltText && editAltText.trim()) ||
+        defaultPortfolioAltText({ title: editDescription, city: editCity })
       await axios.put('/api/portfolio', {
         id: editingItem.id,
-        description: editDescription
+        description: editDescription,
+        city: editCity || null,
+        altText: nextAlt,
       }, {
         headers: getAuthHeaders()
       })
       setMessage('✅ Item updated successfully!')
-      setEditingItem(null)
-      setEditDescription('')
+      handleCancelEdit()
       fetchPortfolioItems()
     } catch (error) {
       if (error.response?.status === 401) {
@@ -304,6 +369,50 @@ const Admin = () => {
       setUpdating(false)
     }
   }
+
+  const metaFields = (
+    <>
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
+          City (optional — only if this job was there):
+        </label>
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          style={fieldStyle}
+        >
+          <option value="">— Leave blank —</option>
+          {SERVICE_CITIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
+          Description (optional):
+        </label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows="3"
+          placeholder="Describe this project..."
+          style={{ ...fieldStyle, resize: 'vertical' }}
+        />
+      </div>
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
+          Alt text (optional — defaults from description / city):
+        </label>
+        <input
+          type="text"
+          value={altText}
+          onChange={(e) => setAltText(e.target.value)}
+          placeholder={defaultPortfolioAltText({ title: description, city })}
+          style={fieldStyle}
+        />
+      </div>
+    </>
+  )
 
   const handleLogout = () => {
     removeAuthToken()
@@ -580,25 +689,7 @@ const Admin = () => {
                     }}
                   />
                 </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
-                    Description (optional):
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows="3"
-                    placeholder="Describe this project..."
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
+                {metaFields}
                 <button
                   type="submit"
                   disabled={uploading}
@@ -622,12 +713,7 @@ const Admin = () => {
                     multiple
                     onChange={(e) => setGalleryFiles(Array.from(e.target.files))}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd'
-                    }}
+                    style={fieldStyle}
                   />
                   {galleryFiles.length > 0 && (
                     <p style={{ marginTop: '10px', color: 'var(--text-light)', fontSize: '14px' }}>
@@ -635,25 +721,7 @@ const Admin = () => {
                     </p>
                   )}
                 </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
-                    Description (optional):
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows="3"
-                    placeholder="Describe this gallery project..."
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
+                {metaFields}
                 <button
                   type="submit"
                   disabled={uploading}
@@ -676,12 +744,7 @@ const Admin = () => {
                     accept="image/*"
                     onChange={(e) => setBeforeFile(e.target.files[0])}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd'
-                    }}
+                    style={fieldStyle}
                   />
                 </div>
                 <div style={{ marginBottom: '20px' }}>
@@ -693,33 +756,10 @@ const Admin = () => {
                     accept="image/*"
                     onChange={(e) => setAfterFile(e.target.files[0])}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd'
-                    }}
+                    style={fieldStyle}
                   />
                 </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600 }}>
-                    Description (optional):
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows="3"
-                    placeholder="Describe this before/after project..."
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #ddd',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    }}
-                  />
-                </div>
+                {metaFields}
                 <button
                   type="submit"
                   disabled={uploading}
@@ -813,6 +853,8 @@ const Admin = () => {
                         {item.mediaType === 'video' ? (
                           <video
                             src={item.cloudinaryUrl || item.filename}
+                            poster={item.posterUrl || cloudinaryVideoPosterUrl(item.cloudinaryUrl || item.filename) || undefined}
+                            preload="none"
                             style={{
                               position: 'absolute',
                               top: 0,
@@ -826,7 +868,9 @@ const Admin = () => {
                         ) : (
                           <img
                             src={item.cloudinaryUrl || item.filename}
-                            alt={item.description || 'Portfolio item'}
+                            alt={item.altText || item.description || 'Portfolio item'}
+                            width={item.width || undefined}
+                            height={item.height || undefined}
                             style={{
                               position: 'absolute',
                               top: 0,
@@ -870,6 +914,16 @@ const Admin = () => {
                           }}>
                             {item.type === 'gallery' ? 'Gallery' : item.type === 'before-after' ? 'Before/After' : item.mediaType || 'Image'}
                           </div>
+                          {item.city && (
+                            <p style={{
+                              color: 'var(--primary-color)',
+                              fontSize: '0.85rem',
+                              margin: '0 0 4px',
+                              fontWeight: 600
+                            }}>
+                              {item.city}, FL
+                            </p>
+                          )}
                           {item.description && (
                             <p style={{
                               color: 'var(--text-dark)',
@@ -877,6 +931,15 @@ const Admin = () => {
                               margin: 0
                             }}>
                               {item.description}
+                            </p>
+                          )}
+                          {item.altText && (
+                            <p style={{
+                              color: 'var(--text-light)',
+                              fontSize: '0.8rem',
+                              margin: '6px 0 0'
+                            }}>
+                              Alt: {item.altText}
                             </p>
                           )}
                         </div>
@@ -887,21 +950,43 @@ const Admin = () => {
                         marginBottom: '15px'
                       }}>
                         {new Date(item.uploadedAt).toLocaleDateString()}
+                        {item.width && item.height ? ` · ${item.width}×${item.height}` : ''}
                       </div>
                       {editingItem && editingItem.id === item.id ? (
                         <form onSubmit={handleUpdate}>
+                          <select
+                            value={editCity}
+                            onChange={(e) => setEditCity(e.target.value)}
+                            style={{
+                              ...fieldStyle,
+                              marginBottom: '10px',
+                              boxSizing: 'border-box'
+                            }}
+                          >
+                            <option value="">— City (optional) —</option>
+                            {SERVICE_CITIES.map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
                           <textarea
                             value={editDescription}
                             onChange={(e) => setEditDescription(e.target.value)}
                             rows="3"
                             placeholder="Enter description..."
                             style={{
-                              width: '100%',
-                              padding: '10px',
-                              borderRadius: '8px',
-                              border: '2px solid #ddd',
-                              fontFamily: 'inherit',
+                              ...fieldStyle,
                               resize: 'vertical',
+                              marginBottom: '10px',
+                              boxSizing: 'border-box'
+                            }}
+                          />
+                          <input
+                            type="text"
+                            value={editAltText}
+                            onChange={(e) => setEditAltText(e.target.value)}
+                            placeholder="Alt text"
+                            style={{
+                              ...fieldStyle,
                               marginBottom: '10px',
                               boxSizing: 'border-box'
                             }}

@@ -3,6 +3,16 @@ import axios from 'axios';
 import SeoHead from '../components/SeoHead';
 import Footer from '../components/Footer';
 import { thumbUrl, lightboxUrl, portfolioAltText } from '../utils/images';
+import { cloudinaryVideoPosterUrl } from '../utils/imageCompress';
+
+const itemAlt = (item, kind, extras = {}) =>
+  portfolioAltText({
+    kind,
+    description: item?.description,
+    altText: item?.altText,
+    city: item?.city,
+    ...extras,
+  })
 
 const PortfolioPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -255,13 +265,13 @@ const PortfolioPage = () => {
                             openModal(item, item.images)
                           }
                         }}
-                        aria-label={portfolioAltText({ kind: 'gallery', description: item.description })}
+                        aria-label={itemAlt(item, 'gallery')}
                       >
                         <img
                           src={thumbUrl(item.images[0])}
-                          alt={portfolioAltText({ kind: 'gallery', description: item.description })}
-                          width={800}
-                          height={300}
+                          alt={itemAlt(item, 'gallery')}
+                          width={item.width || 800}
+                          height={item.height || 300}
                           loading="lazy"
                           decoding="async"
                           style={{
@@ -308,14 +318,14 @@ const PortfolioPage = () => {
                             openModal(item, [item.beforeImage, item.afterImage].filter(Boolean))
                           }
                         }}
-                        aria-label={portfolioAltText({ kind: 'standalone', description: item.description })}
+                        aria-label={itemAlt(item, 'standalone')}
                       >
                         <div>
                           <img
                             src={thumbUrl(item.beforeImage)}
-                            alt={portfolioAltText({ kind: 'before', description: item.description })}
-                            width={600}
-                            height={250}
+                            alt={itemAlt(item, 'before')}
+                            width={item.width || 600}
+                            height={item.height || 250}
                             loading="lazy"
                             decoding="async"
                             style={{
@@ -338,9 +348,9 @@ const PortfolioPage = () => {
                         <div>
                           <img
                             src={thumbUrl(item.afterImage)}
-                            alt={portfolioAltText({ kind: 'after', description: item.description })}
-                            width={600}
-                            height={250}
+                            alt={itemAlt(item, 'after')}
+                            width={item.width || 600}
+                            height={item.height || 250}
                             loading="lazy"
                             decoding="async"
                             style={{
@@ -382,10 +392,15 @@ const PortfolioPage = () => {
                             openVideoModal(item)
                           }
                         }}
-                        aria-label={portfolioAltText({ kind: 'video', description: item.description })}
+                        aria-label={itemAlt(item, 'video')}
                       >
                         <video
-                          preload="metadata"
+                          preload="none"
+                          poster={
+                            item.posterUrl ||
+                            cloudinaryVideoPosterUrl(item.cloudinaryUrl || item.filename) ||
+                            undefined
+                          }
                           playsInline
                           muted
                           style={{
@@ -433,13 +448,13 @@ const PortfolioPage = () => {
                             if (url) openModal(item, [url])
                           }
                         }}
-                        aria-label={portfolioAltText({ kind: 'standalone', description: item.description })}
+                        aria-label={itemAlt(item, 'standalone')}
                       >
                         <img
                           src={thumbUrl(getStandaloneUrl(item))}
-                          alt={portfolioAltText({ kind: 'standalone', description: item.description })}
-                          width={800}
-                          height={300}
+                          alt={itemAlt(item, 'standalone')}
+                          width={item.width || 800}
+                          height={item.height || 300}
                           loading="lazy"
                           decoding="async"
                           style={{
@@ -648,9 +663,7 @@ const PortfolioPage = () => {
                   <img
                     key={modalImages[currentImageIndex]}
                     src={lightboxUrl(modalImages[currentImageIndex])}
-                    alt={portfolioAltText({
-                      kind: 'gallery-modal',
-                      description: modalItem?.description,
+                    alt={itemAlt(modalItem, 'gallery-modal', {
                       index: currentImageIndex + 1,
                       total: modalImages.length,
                     })}
@@ -877,9 +890,14 @@ const PortfolioPage = () => {
                   <video
                     controls
                     autoPlay
-                    preload="metadata"
+                    preload="none"
+                    poster={
+                      videoItem?.posterUrl ||
+                      cloudinaryVideoPosterUrl(videoItem?.cloudinaryUrl || videoItem?.filename) ||
+                      undefined
+                    }
                     playsInline
-                    aria-label={portfolioAltText({ kind: 'video', description: videoItem?.description })}
+                    aria-label={itemAlt(videoItem, 'video')}
                     style={{
                       width: '100%',
                       height: '100%',

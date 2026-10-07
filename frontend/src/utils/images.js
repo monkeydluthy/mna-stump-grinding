@@ -44,49 +44,68 @@ export function lightboxUrl(url) {
   return optimizeImageUrl(url, { width: 1200, quality: 'auto:good' })
 }
 
-const LOCATION = 'Tampa, FL'
-
 /**
- * Descriptive alt text for portfolio media: service + location, not generic labels.
- * Prefers the item description when present so each photo has unique alt text.
+ * Descriptive alt text for portfolio media.
+ * Prefers stored altText, then description, then city-aware fallbacks.
  */
-export function portfolioAltText({ kind, description, index, total } = {}) {
+export function portfolioAltText({
+  kind,
+  description,
+  altText,
+  city,
+  index,
+  total,
+} = {}) {
+  const stored = typeof altText === 'string' ? altText.trim() : ''
+  if (stored) {
+    if (kind === 'before') return `Before: ${stored}`
+    if (kind === 'after') return `After: ${stored}`
+    if (kind === 'gallery-modal' && index && total) {
+      return `${stored} (photo ${index} of ${total})`
+    }
+    return stored
+  }
+
+  const location =
+    typeof city === 'string' && city.trim()
+      ? `${city.trim()}, FL`
+      : 'Tampa, FL'
   const detail = typeof description === 'string' ? description.trim() : ''
 
   if (detail) {
     switch (kind) {
       case 'before':
-        return `Before stump grinding in ${LOCATION}: ${detail}`
+        return `Before stump grinding in ${location}: ${detail}`
       case 'after':
-        return `After stump grinding in ${LOCATION}: ${detail}`
+        return `After stump grinding in ${location}: ${detail}`
       case 'gallery-modal': {
         const n = index && total ? ` (photo ${index} of ${total})` : ''
-        return `Stump grinding in ${LOCATION}${n}: ${detail}`
+        return `Stump grinding in ${location}${n}: ${detail}`
       }
       case 'video':
-        return `Stump grinding video in ${LOCATION}: ${detail}`
+        return `Stump grinding video in ${location}: ${detail}`
       case 'gallery':
       case 'standalone':
       default:
-        return `Stump grinding in ${LOCATION}: ${detail}`
+        return `Stump grinding in ${location}: ${detail}`
     }
   }
 
   switch (kind) {
     case 'before':
-      return `Before stump grinding in ${LOCATION}`
+      return `Before stump grinding in ${location}`
     case 'after':
-      return `After stump grinding in ${LOCATION}`
+      return `After stump grinding in ${location}`
     case 'gallery':
-      return `Stump grinding project gallery in ${LOCATION}`
+      return `Stump grinding project gallery in ${location}`
     case 'gallery-modal': {
       const n = index && total ? ` photo ${index} of ${total}` : ''
-      return `Stump grinding${n} in ${LOCATION}`
+      return `Stump grinding${n} in ${location}`
     }
     case 'video':
-      return `Stump grinding video in ${LOCATION}`
+      return `Stump grinding video in ${location}`
     case 'standalone':
     default:
-      return `Stump grinding work in ${LOCATION}`
+      return `Stump grinding work in ${location}`
   }
 }
