@@ -13,9 +13,10 @@ https://www.mnastumpgrinding.com/*  https://mnastumpgrinding.com/:splat  301!
 /api/leads/* /.netlify/functions/leads 200!
 
 # Known SPA routes
+# Location pages are emitted as static HTML under dist/<slug>/index.html
+# (do NOT rewrite them to /index.html — that shadows the crawler shell).
 /              /index.html  200
 /portfolio     /index.html  200
-/stump-grinding-thonotosassa-fl  /index.html  200
 /login         /index.html  200
 /admin         /index.html  200
 /admin/*       /index.html  200

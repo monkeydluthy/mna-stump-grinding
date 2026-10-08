@@ -13,9 +13,14 @@ import { thumbUrl, lightboxUrl } from '../utils/images'
 
 const FAQ_SCRIPT_ID = 'location-faq-jsonld'
 
-const LocationPage = () => {
-  const { citySlug } = useParams()
-  const location = getLocationBySlug(`stump-grinding-${citySlug}`)
+const LocationPage = ({ citySlug: citySlugProp } = {}) => {
+  const params = useParams()
+  const citySlug = citySlugProp || params.citySlug
+  const location = getLocationBySlug(
+    citySlug?.startsWith('stump-grinding-')
+      ? citySlug
+      : `stump-grinding-${citySlug}`
+  )
   const [openFaq, setOpenFaq] = useState(0)
 
   useEffect(() => {

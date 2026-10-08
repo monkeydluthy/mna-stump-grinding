@@ -88,10 +88,8 @@
   to = "/index.html"
   status = 200
 
-[[redirects]]
-  from = "/stump-grinding-thonotosassa-fl"
-  to = "/index.html"
-  status = 200
+# Location pages: served as static dist/<slug>/index.html (see vite locationPagesPlugin).
+# Do not rewrite them to /index.html.
 
 [[redirects]]
   from = "/login"

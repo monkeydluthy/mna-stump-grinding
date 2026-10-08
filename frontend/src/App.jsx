@@ -45,6 +45,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route
+            path="/stump-grinding-thonotosassa-fl"
+            element={<LocationPage citySlug="thonotosassa-fl" />}
+          />
           <Route path="/stump-grinding-:citySlug" element={<LocationPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
