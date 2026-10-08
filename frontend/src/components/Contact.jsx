@@ -1,12 +1,36 @@
+import { useEffect } from 'react'
 import LeadForm from './LeadForm'
 
+function focusLeadFormField() {
+  window.setTimeout(() => {
+    document.getElementById('lead-name')?.focus({ preventScroll: true })
+  }, 450)
+}
+
 const Contact = () => {
+  // Deep-link support: /#lead-form (header CTA from other pages)
+  useEffect(() => {
+    if (window.location.hash !== '#lead-form') return
+    const timer = window.setTimeout(() => {
+      document.getElementById('lead-form')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+      focusLeadFormField()
+    }, 50)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   return (
-    <section style={{
-      background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-      color: 'var(--white)',
-      padding: '80px 0'
-    }}>
+    <section
+      id="lead-form"
+      style={{
+        background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
+        color: 'var(--white)',
+        padding: '80px 0',
+        scrollMarginTop: '100px',
+      }}
+    >
       <style>{`
         @media (max-width: 768px) {
           .contact-grid {

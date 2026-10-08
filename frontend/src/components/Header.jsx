@@ -1,9 +1,22 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { BUSINESS } from '../data/business'
+import { trackEvent } from '../utils/analytics'
+
+function scrollToLeadFormAndFocus() {
+  const section = document.getElementById('lead-form')
+  if (!section) return false
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  window.setTimeout(() => {
+    document.getElementById('lead-name')?.focus({ preventScroll: true })
+  }, 450)
+  return true
+}
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -11,6 +24,22 @@ const Header = () => {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false)
+  }
+
+  const handleQuoteClick = (event) => {
+    event.preventDefault()
+    closeMobileMenu()
+    trackEvent('cta_click', { link_location: 'header' })
+
+    if (location.pathname === '/') {
+      scrollToLeadFormAndFocus()
+      if (window.location.hash !== '#lead-form') {
+        window.history.replaceState(null, '', '/#lead-form')
+      }
+      return
+    }
+
+    navigate('/#lead-form')
   }
 
   return (
@@ -134,6 +163,15 @@ const Header = () => {
                   width: '32px'
                 }}
               />
+            </a>
+            <a
+              href="/#lead-form"
+              data-link-location="header"
+              className="btn btn-primary"
+              style={{ textDecoration: 'none' }}
+              onClick={handleQuoteClick}
+            >
+              Get a Quote
             </a>
             <a 
               href={`tel:${BUSINESS.phoneE164}`}
@@ -389,6 +427,22 @@ const Header = () => {
                 }}
               />
               Instagram
+            </a>
+            <a
+              href="/#lead-form"
+              data-link-location="header"
+              onClick={handleQuoteClick}
+              className="btn btn-primary"
+              style={{
+                textDecoration: 'none',
+                width: '100%',
+                maxWidth: '300px',
+                textAlign: 'center',
+                padding: '20px 40px',
+                fontSize: '1.2rem'
+              }}
+            >
+              Get a Quote
             </a>
             <a 
               href={`tel:${BUSINESS.phoneE164}`}
