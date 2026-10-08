@@ -82,10 +82,10 @@ function locationPagesPlugin() {
             /<link rel="canonical" href="[^"]*"\s*\/>/,
             `<link rel="canonical" href="https://mnastumpgrinding.com${loc.path}" />`
           )
-          // Hide homepage critical hero on location shells
+          // Remove homepage critical hero entirely (don't leave a competing H1 for crawlers)
           .replace(
-            /<div id="critical-hero"/,
-            '<div id="critical-hero" hidden'
+            /<!-- Stable LCP hero:[\s\S]*?<section id="critical-hero"[\s\S]*?<\/section>/,
+            '<!-- critical-hero omitted on location page -->'
           )
           .replace(
             /<div id="root"><\/div>/,
