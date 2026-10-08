@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { createPortal } from 'react-dom'
 import Home from './pages/Home'
 import PortfolioPage from './pages/PortfolioPage'
+import LocationPage from './pages/LocationPage'
 import Login from './pages/Login'
 import Admin from './components/Admin'
 import NotFound from './pages/NotFound'
@@ -44,6 +45,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/stump-grinding-:citySlug" element={<LocationPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />

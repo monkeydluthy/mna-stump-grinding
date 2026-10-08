@@ -15,6 +15,7 @@ https://www.mnastumpgrinding.com/*  https://mnastumpgrinding.com/:splat  301!
 # Known SPA routes
 /              /index.html  200
 /portfolio     /index.html  200
+/stump-grinding-thonotosassa-fl  /index.html  200
 /login         /index.html  200
 /admin         /index.html  200
 /admin/*       /index.html  200

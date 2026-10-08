@@ -4,6 +4,7 @@ import {
   SERVICE_AREA_CITIES,
   SERVICE_AREA_HEADLINE,
 } from '../data/serviceCities'
+import { locationPathForCity } from '../data/locations'
 
 const Footer = () => {
   return (
@@ -98,7 +99,7 @@ const Footer = () => {
                   </span>
                 )}
                 <a
-                  href="/"
+                  href={locationPathForCity(city)}
                   data-link-location="footer-service-area"
                   style={{
                     color: 'inherit',

@@ -2,11 +2,10 @@ import { useEffect } from 'react'
 import { BUSINESS } from '../data/business'
 
 /**
- * Sets document title, meta description, optional robots, and a fixed canonical.
- * Canonical always points at the GBP Website URL (non-www, no query params),
- * including on UTM-tagged loads and client-side navigations.
+ * Sets document title, meta description, optional robots, and canonical.
+ * Default canonical is the GBP homepage URL; pass `canonical` for location pages.
  */
-const SeoHead = ({ title, description, robots }) => {
+const SeoHead = ({ title, description, robots, canonical: canonicalHref }) => {
   useEffect(() => {
     if (title) {
       document.title = title
@@ -40,12 +39,12 @@ const SeoHead = ({ title, description, robots }) => {
       canonical.setAttribute('rel', 'canonical')
       document.head.appendChild(canonical)
     }
-    canonical.setAttribute('href', BUSINESS.canonicalUrl)
+    canonical.setAttribute('href', canonicalHref || BUSINESS.canonicalUrl)
 
     return () => {
       document.querySelector('meta[name="robots"]')?.remove()
     }
-  }, [title, description, robots])
+  }, [title, description, robots, canonicalHref])
 
   return null
 }
