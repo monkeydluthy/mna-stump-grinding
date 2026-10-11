@@ -146,15 +146,18 @@ async function reviewsForParent(token, parent) {
     `https://mybusiness.googleapis.com/v4/${parent}/reviews`,
     {
       headers: { Authorization: `Bearer ${token}` },
-      params: { pageSize: 5, orderBy: 'updateTime desc' },
+      params: { pageSize: 50 },
       timeout: 10000,
     }
   )
   const data = response.data || {}
+  const raw = Array.isArray(data.reviews) ? data.reviews : []
   return {
     rating: typeof data.averageRating === 'number' ? data.averageRating : null,
     totalReviews: typeof data.totalReviewCount === 'number' ? data.totalReviewCount : null,
-    reviews: (data.reviews || []).map(mapReview),
+    reviews: raw.map(mapReview),
+    rawCount: raw.length,
+    responseKeys: Object.keys(data).join(','),
   }
 }
 
@@ -164,11 +167,27 @@ async function fetchBusinessProfileReviews() {
   if (!creds?.refreshToken) return null
   const token = await accessTokenFromRefresh(creds)
   const locations = await listLocations(token)
-  const location = pickLocation(locations)
-  if (!location) {
+  if (!locations.length) {
     throw new Error('No Google Business Profile locations on this account')
   }
-  return reviewsForParent(token, location.parent)
+  const preferred = pickLocation(locations)
+  const queue = []
+  if (preferred) queue.push(preferred)
+  for (const location of locations) {
+    if (!queue.some((item) => item.parent === location.parent)) queue.push(location)
+  }
+  let best = null
+  const notes = []
+  for (const location of queue.slice(0, 8)) {
+    const payload = await reviewsForParent(token, location.parent)
+    notes.push(
+      `${location.title || 'untitled'}:${payload.rawCount}/${payload.totalReviews}:${payload.responseKeys}`
+    )
+    if (!best || payload.reviews.length > best.reviews.length) best = payload
+    if (payload.reviews.length) break
+  }
+  best.profileNotes = notes.join(' | ')
+  return best
 }
 
 module.exports = {
