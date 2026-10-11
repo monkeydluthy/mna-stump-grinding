@@ -102,7 +102,11 @@ async function fetchPlaceBySearch(apiKey) {
     err.code = 'NOT_FOUND'
     throw err
   }
-  return places[0]
+  const found = places[0]
+  if (found.id) {
+    return fetchPlaceById(apiKey, found.id)
+  }
+  return found
 }
 
 function isInvalidPlaceIdError(error) {
