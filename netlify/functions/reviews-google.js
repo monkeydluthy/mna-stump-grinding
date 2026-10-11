@@ -62,41 +62,12 @@ async function fetchPlaceById(apiKey, placeId) {
   const response = await axios.get(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask':
-        'id,displayName,rating,userRatingCount,reviews.rating,reviews.text,reviews.authorAttribution,reviews.relativePublishTimeDescription,reviews.publishTime',
+      'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,reviews',
       'Accept-Language': 'en',
     },
     timeout: 10000,
   })
   return response.data
-}
-
-/** Written reviews when Places API (New) returns a count but an empty reviews list. */
-async function fetchLegacyReviews(apiKey, placeId) {
-  const id = String(placeId).replace(/^places\//, '')
-  const url =
-    'https://maps.googleapis.com/maps/api/place/details/json' +
-    `?place_id=${encodeURIComponent(id)}` +
-    '&fields=reviews&reviews_sort=newest' +
-    `&key=${encodeURIComponent(apiKey)}`
-  const response = await axios.get(url, { timeout: 10000 })
-  const data = response.data || {}
-  const reviews =
-    data.status === 'OK'
-      ? (data.result?.reviews || []).map((review) => ({
-          name: review.author_name || 'Google user',
-          date: review.relative_time_description || '',
-          text: review.text || '',
-          rating: typeof review.rating === 'number' ? review.rating : null,
-          profilePhoto: review.profile_photo_url || null,
-          relativeTime: review.relative_time_description || '',
-        }))
-      : []
-  return {
-    reviews,
-    status: data.status || null,
-    errorMessage: data.error_message || null,
-  }
 }
 
 /**
@@ -211,18 +182,6 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
-    payload.debug = {
-      placeId: placeData.id || null,
-      newApiReviewCount: Array.isArray(placeData.reviews)
-        ? placeData.reviews.length
-        : null,
-    }
-    if (!payload.reviews.length && placeData.id) {
-      const legacy = await fetchLegacyReviews(apiKey, placeData.id)
-      payload.reviews = legacy.reviews
-      payload.debug.legacyStatus = legacy.status
-      payload.debug.legacyError = legacy.errorMessage
-    }
 
     const cacheFor = payload.reviews.length ? CACHE_TTL_MS : 60 * 1000
     cache = {
