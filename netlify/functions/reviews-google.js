@@ -184,7 +184,7 @@ exports.handler = async (event) => {
     } catch (profileError) {
       console.warn(
         'Business Profile reviews unavailable:',
-        profileError.response?.data || profileError.message
+        profileError.profileNotes || profileError.response?.data || profileError.message
       )
     }
 

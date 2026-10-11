@@ -19,7 +19,7 @@ const Reviews = () => {
     const fetchReviews = async () => {
       try {
         setLoading(true)
-        const response = await axios.get('/api/reviews/google')
+        const response = await axios.get('/api/reviews/google?v=2')
         const data = response.data || {}
         const liveReviews = Array.isArray(data.reviews) ? data.reviews : []
         const liveRating = typeof data.rating === 'number' ? data.rating : null

@@ -128,17 +128,16 @@ async function listLocations(token) {
   return found
 }
 
+function isMnaLocation(title) {
+  return /m\s*&\s*a/i.test(title || '') && /stump/i.test(title || '')
+}
+
 function pickLocation(locations) {
   const pinned = process.env.GOOGLE_BUSINESS_PARENT
   if (pinned) {
-    return locations.find((location) => location.parent === pinned) || { parent: pinned, title: '' }
+    return locations.find((location) => location.parent === pinned) || null
   }
-  return (
-    locations.find((location) => /m\s*&\s*a/i.test(location.title) && /stump/i.test(location.title)) ||
-    locations.find((location) => /stump/i.test(location.title)) ||
-    locations[0] ||
-    null
-  )
+  return locations.find((location) => isMnaLocation(location.title)) || null
 }
 
 async function reviewsForParent(token, parent) {
@@ -167,27 +166,16 @@ async function fetchBusinessProfileReviews() {
   if (!creds?.refreshToken) return null
   const token = await accessTokenFromRefresh(creds)
   const locations = await listLocations(token)
-  if (!locations.length) {
-    throw new Error('No Google Business Profile locations on this account')
+  const location = pickLocation(locations)
+  const titles = locations.map((item) => item.title || 'untitled').join(' | ')
+  if (!location) {
+    const err = new Error(`No M&A Stump Grinding location on this account: ${titles}`)
+    err.profileNotes = titles
+    throw err
   }
-  const preferred = pickLocation(locations)
-  const queue = []
-  if (preferred) queue.push(preferred)
-  for (const location of locations) {
-    if (!queue.some((item) => item.parent === location.parent)) queue.push(location)
-  }
-  let best = null
-  const notes = []
-  for (const location of queue.slice(0, 8)) {
-    const payload = await reviewsForParent(token, location.parent)
-    notes.push(
-      `${location.title || 'untitled'}:${payload.rawCount}/${payload.totalReviews}:${payload.responseKeys}`
-    )
-    if (!best || payload.reviews.length > best.reviews.length) best = payload
-    if (payload.reviews.length) break
-  }
-  best.profileNotes = notes.join(' | ')
-  return best
+  const payload = await reviewsForParent(token, location.parent)
+  payload.profileNotes = `${location.title}:${payload.rawCount}/${payload.totalReviews}:${payload.responseKeys}`
+  return payload
 }
 
 module.exports = {
