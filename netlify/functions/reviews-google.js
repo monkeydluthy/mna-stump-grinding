@@ -1,4 +1,5 @@
 const axios = require('axios')
+const { fetchBusinessProfileReviews } = require('./lib/gbp')
 
 /** In-memory cache — persists across warm Netlify function invocations */
 let cache = {
@@ -160,6 +161,28 @@ exports.handler = async (event) => {
   }
 
   try {
+    try {
+      const profile = await fetchBusinessProfileReviews()
+      if (profile) {
+        const hasReviews = profile.reviews.length > 0
+        const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
+        cache = {
+          body: profile,
+          expiresAt: now + cacheFor,
+        }
+        return jsonResponse(200, profile, {
+          'Cache-Control': hasReviews ? CACHE_CONTROL : 'public, s-maxage=60, max-age=0',
+          'X-Reviews-Cache': 'MISS',
+          'X-Reviews-Resolved-Via': 'business_profile',
+        })
+      }
+    } catch (profileError) {
+      console.warn(
+        'Business Profile reviews unavailable:',
+        profileError.response?.data || profileError.message
+      )
+    }
+
     const apiKey = process.env.GOOGLE_PLACES_API_KEY
     const placeId = process.env.GOOGLE_PLACE_ID
 

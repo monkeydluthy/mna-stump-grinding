@@ -36,6 +36,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/google-business/*"
+  to = "/.netlify/functions/google-business"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/portfolio"
   to = "/.netlify/functions/portfolio"
   status = 200
