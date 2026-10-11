@@ -162,17 +162,28 @@ async function findLegacyPlaceId(apiKey) {
   return placeId
 }
 
+/** Public Maps CID for the live listing. Not a Place ID, so it is not the env secret. */
+const MAPS_CID = '11162257834894968949'
+
 async function fetchLegacyReviews(apiKey, placeId) {
   let data = await legacyDetails(apiKey, placeId)
   if (data.status === 'NOT_FOUND' || data.status === 'INVALID_REQUEST') {
-    const freshId = await findLegacyPlaceId(apiKey)
-    data = await legacyDetails(apiKey, freshId)
-    if (data.status !== 'OK') {
-      const err = new Error(data.error_message || data.status || 'legacy unavailable')
-      err.legacyStatus = `details-${data.status || 'UNKNOWN'}`
-      throw err
+    try {
+      const freshId = await findLegacyPlaceId(apiKey)
+      data = await legacyDetails(apiKey, freshId)
+    } catch (searchErr) {
+      data = await legacyGet(
+        apiKey,
+        `details/json?cid=${MAPS_CID}&fields=reviews&reviews_sort=newest`
+      )
+      if (data.status !== 'OK') {
+        const err = new Error(data.error_message || searchErr.message)
+        err.legacyStatus = `${searchErr.legacyStatus || 'search'} cid-${data.status || 'UNKNOWN'}`
+        throw err
+      }
     }
-  } else if (data.status !== 'OK') {
+  }
+  if (data.status !== 'OK') {
     const err = new Error(data.error_message || data.status || 'legacy unavailable')
     err.legacyStatus = `details-${data.status || 'UNKNOWN'}`
     throw err
@@ -277,6 +288,7 @@ exports.handler = async (event) => {
       'X-Reviews-Cache': 'MISS',
       'X-Reviews-Resolved-Via': resolvedVia,
       'X-Reviews-Legacy': legacyStatus,
+      'X-Reviews-Place': placeData.id || '',
     })
   } catch (error) {
     console.error(
