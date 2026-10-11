@@ -8,6 +8,7 @@ let cache = {
 
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000 // 12 hours
 const CACHE_CONTROL = 'public, s-maxage=43200, max-age=300' // CDN 12h, browsers 5m
+const SEARCH_QUERY = 'M&A Stump Grinding Thonotosassa FL'
 
 function jsonResponse(statusCode, payload, extraHeaders = {}) {
   return {
@@ -35,6 +36,65 @@ function mapReview(review) {
     profilePhoto: review.authorAttribution?.photoUri || null,
     relativeTime: review.relativePublishTimeDescription || '',
   }
+}
+
+function payloadFromPlace(placeData) {
+  return {
+    rating: typeof placeData.rating === 'number' ? placeData.rating : null,
+    totalReviews:
+      typeof placeData.userRatingCount === 'number'
+        ? placeData.userRatingCount
+        : null,
+    reviews: (placeData.reviews || []).map(mapReview),
+  }
+}
+
+async function fetchPlaceById(apiKey, placeId) {
+  const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`
+  const response = await axios.get(url, {
+    headers: {
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,reviews',
+    },
+    timeout: 10000,
+  })
+  return response.data
+}
+
+/**
+ * Resolve a fresh place when GOOGLE_PLACE_ID is stale/invalid.
+ * Places API (New) SearchText can return rating/count/reviews in one call.
+ */
+async function fetchPlaceBySearch(apiKey) {
+  const response = await axios.post(
+    'https://places.googleapis.com/v1/places:searchText',
+    { textQuery: SEARCH_QUERY },
+    {
+      headers: {
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask':
+          'places.id,places.displayName,places.rating,places.userRatingCount,places.reviews',
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+    }
+  )
+  const places = response.data?.places || []
+  if (!places.length) {
+    const err = new Error('No places found for search query')
+    err.code = 'NOT_FOUND'
+    throw err
+  }
+  return places[0]
+}
+
+function isInvalidPlaceIdError(error) {
+  const msg =
+    error.response?.data?.error?.message ||
+    error.response?.data?.message ||
+    error.message ||
+    ''
+  return /place id is no longer valid|not found|invalid.*place/i.test(msg)
 }
 
 exports.handler = async (event) => {
@@ -80,28 +140,27 @@ exports.handler = async (event) => {
       })
     }
 
-    // Places API (New) — place resource name must be URL-encoded
-    const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`
+    let placeData
+    let resolvedVia = 'place_id'
 
-    const response = await axios.get(url, {
-      headers: {
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'displayName,rating,userRatingCount,reviews',
-      },
-      timeout: 10000,
-    })
-
-    const placeData = response.data || {}
-    const reviews = (placeData.reviews || []).map(mapReview)
-
-    const payload = {
-      rating: typeof placeData.rating === 'number' ? placeData.rating : null,
-      totalReviews:
-        typeof placeData.userRatingCount === 'number'
-          ? placeData.userRatingCount
-          : null,
-      reviews,
+    try {
+      placeData = await fetchPlaceById(apiKey, placeId)
+    } catch (err) {
+      if (!isInvalidPlaceIdError(err)) throw err
+      console.warn(
+        'GOOGLE_PLACE_ID rejected by Places API (New); falling back to SearchText:',
+        err.response?.data?.error?.message || err.message
+      )
+      placeData = await fetchPlaceBySearch(apiKey)
+      resolvedVia = 'search_text'
+      console.log(
+        'Resolved place via SearchText:',
+        placeData.id || placeData.name,
+        placeData.displayName
+      )
     }
+
+    const payload = payloadFromPlace(placeData)
 
     cache = {
       body: payload,
@@ -111,6 +170,7 @@ exports.handler = async (event) => {
     return jsonResponse(200, payload, {
       'Cache-Control': CACHE_CONTROL,
       'X-Reviews-Cache': 'MISS',
+      'X-Reviews-Resolved-Via': resolvedVia,
     })
   } catch (error) {
     console.error(
@@ -118,7 +178,6 @@ exports.handler = async (event) => {
       error.response?.data || error.message
     )
 
-    // Serve stale cache if Google fails mid-TTL window expired but we still have data
     if (cache.body) {
       return jsonResponse(200, cache.body, {
         'Cache-Control': CACHE_CONTROL,
