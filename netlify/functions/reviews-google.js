@@ -104,102 +104,21 @@ async function fetchPlaceBySearch(apiKey) {
     throw err
   }
   let best = places[0]
-  const notes = []
   for (const found of places.slice(0, 5)) {
     if (!found.id) continue
     try {
       const detailed = await fetchPlaceById(apiKey, found.id)
       const count = Array.isArray(detailed.reviews) ? detailed.reviews.length : 0
-      notes.push(`${detailed.displayName?.text || 'place'}:${count}`)
-      if (!best.id || count > 0) best = detailed
+      best = detailed
       if (count > 0) break
     } catch (err) {
-      notes.push(`err:${err.response?.status || 'fail'}`)
-    }
-  }
-  best.searchNotes = notes.join('|')
-  return best
-}
-
-/**
- * Places API (New) returns rating and userRatingCount on a cheaper SKU and
- * omits written reviews unless Enterprise + Atmosphere is enabled. The legacy
- * Place Details call fills those in when this key is allowed to use Places API.
- */
-function mapLegacyReview(review) {
-  return {
-    name: review.author_name || 'Google user',
-    date: review.relative_time_description || '',
-    text: review.text || '',
-    rating: typeof review.rating === 'number' ? review.rating : null,
-    profilePhoto: review.profile_photo_url || null,
-    relativeTime: review.relative_time_description || '',
-  }
-}
-
-async function legacyGet(apiKey, pathAndQuery) {
-  const response = await axios.get(
-    `https://maps.googleapis.com/maps/api/place/${pathAndQuery}&key=${encodeURIComponent(apiKey)}`,
-    { timeout: 10000 }
-  )
-  return response.data || {}
-}
-
-async function legacyDetails(apiKey, placeId) {
-  const id = String(placeId).replace(/^places\//, '')
-  return legacyGet(
-    apiKey,
-    `details/json?place_id=${encodeURIComponent(id)}&fields=reviews&reviews_sort=newest`
-  )
-}
-
-/** Classic place id for the live listing when the stored id is stale. */
-async function findLegacyPlaceId(apiKey) {
-  const data = await legacyGet(
-    apiKey,
-    'textsearch/json?query=' + encodeURIComponent(SEARCH_QUERY)
-  )
-  if (data.status !== 'OK') {
-    const err = new Error(data.error_message || data.status || 'text search failed')
-    err.legacyStatus = `textsearch-${data.status || 'UNKNOWN'}`
-    throw err
-  }
-  const placeId = data.results?.[0]?.place_id
-  if (!placeId) {
-    const err = new Error('Text Search returned no place id')
-    err.legacyStatus = 'textsearch-ZERO_RESULTS'
-    throw err
-  }
-  return placeId
-}
-
-/** Public Maps CID for the live listing. Not a Place ID, so it is not the env secret. */
-const MAPS_CID = '11162257834894968949'
-
-async function fetchLegacyReviews(apiKey, placeId) {
-  let data = await legacyDetails(apiKey, placeId)
-  if (data.status === 'NOT_FOUND' || data.status === 'INVALID_REQUEST') {
-    try {
-      const freshId = await findLegacyPlaceId(apiKey)
-      data = await legacyDetails(apiKey, freshId)
-    } catch (searchErr) {
-      data = await legacyGet(
-        apiKey,
-        `details/json?cid=${MAPS_CID}&fields=reviews&reviews_sort=newest`
+      console.warn(
+        'Place details failed for a search match:',
+        err.response?.status || err.message
       )
-      if (data.status !== 'OK') {
-        const err = new Error(data.error_message || searchErr.message)
-        err.legacyStatus = `${searchErr.legacyStatus || 'search'} cid-${data.status || 'UNKNOWN'}`
-        throw err
-      }
     }
   }
-  if (data.status !== 'OK') {
-    const err = new Error(data.error_message || data.status || 'legacy unavailable')
-    err.legacyStatus = `details-${data.status || 'UNKNOWN'}`
-    throw err
-  }
-  return (data.result?.reviews || []).map(mapLegacyReview)
+  return best
 }
 
 function isInvalidPlaceIdError(error) {
@@ -274,42 +193,6 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
-    let reviewsProbe = `keys:${Object.keys(placeData || {}).filter((key) => key !== 'searchNotes').join(',')}`
-    if (placeData.searchNotes) reviewsProbe += ` matches:${placeData.searchNotes}`
-    if (!payload.reviews.length && placeData.id) {
-      try {
-        const probe = await axios.get(
-          `https://places.googleapis.com/v1/places/${placeResourcePath(placeData.id)}`,
-          {
-            headers: {
-              'X-Goog-Api-Key': apiKey,
-              'X-Goog-FieldMask': 'reviews',
-              'Accept-Language': 'en',
-            },
-            timeout: 10000,
-          }
-        )
-        const probed = probe.data?.reviews
-        reviewsProbe += ` probe:${probe.status}:n${Array.isArray(probed) ? probed.length : 'absent'}`
-        if (Array.isArray(probed) && probed.length) {
-          payload.reviews = probed.map(mapReview)
-        }
-      } catch (probeErr) {
-        const message =
-          probeErr.response?.data?.error?.message || probeErr.message || ''
-        reviewsProbe += ` probe:${probeErr.response?.status || 'err'}:${message.slice(0, 160)}`
-      }
-    }
-    let legacyStatus = payload.reviews.length ? 'skipped' : 'not-called'
-    if (!payload.reviews.length && placeData.id) {
-      try {
-        payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
-        legacyStatus = payload.reviews.length ? 'OK' : 'OK-empty'
-      } catch (legacyErr) {
-        legacyStatus = legacyErr.legacyStatus || 'ERROR'
-        console.warn('Legacy Places reviews unavailable:', legacyStatus, legacyErr.message)
-      }
-    }
 
     const hasReviews = payload.reviews.length > 0
     const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
@@ -324,9 +207,6 @@ exports.handler = async (event) => {
         : 'public, s-maxage=60, max-age=0',
       'X-Reviews-Cache': 'MISS',
       'X-Reviews-Resolved-Via': resolvedVia,
-      'X-Reviews-Legacy': legacyStatus,
-      'X-Reviews-Place': placeData.id || '',
-      'X-Reviews-Probe': reviewsProbe,
     })
   } catch (error) {
     console.error(
