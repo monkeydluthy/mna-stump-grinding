@@ -164,9 +164,11 @@ exports.handler = async (event) => {
     try {
       const profile = await fetchBusinessProfileReviews()
       if (profile) {
+        const diag = profile.profileNotes
         delete profile.profileNotes
         delete profile.rawCount
         delete profile.responseKeys
+        console.log('Business Profile reviews:', diag)
         const hasReviews = profile.reviews.length > 0
         const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
         cache = {

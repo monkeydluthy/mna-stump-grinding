@@ -135,28 +135,88 @@ function isMnaLocation(title) {
 function pickLocation(locations) {
   const pinned = process.env.GOOGLE_BUSINESS_PARENT
   if (pinned) {
-    return locations.find((location) => location.parent === pinned) || null
+    const match = locations.find((location) => location.parent === pinned)
+    return match && isMnaLocation(match.title) ? match : null
   }
   return locations.find((location) => isMnaLocation(location.title)) || null
 }
 
-async function reviewsForParent(token, parent) {
-  const response = await axios.get(
-    `https://mybusiness.googleapis.com/v4/${parent}/reviews`,
-    {
+const V4 = 'https://mybusiness.googleapis.com/v4'
+
+async function listReviewPages(token, parent, params) {
+  let pageToken
+  let rating = null
+  let totalReviews = null
+  const raw = []
+  const keys = new Set()
+  for (let page = 0; page < 5; page += 1) {
+    const response = await axios.get(`${V4}/${parent}/reviews`, {
       headers: { Authorization: `Bearer ${token}` },
-      params: { pageSize: 5 },
+      params: { ...params, ...(pageToken ? { pageToken } : {}) },
       timeout: 10000,
-    }
+    })
+    const data = response.data || {}
+    Object.keys(data).forEach((key) => keys.add(key))
+    if (typeof data.averageRating === 'number') rating = data.averageRating
+    if (typeof data.totalReviewCount === 'number') totalReviews = data.totalReviewCount
+    if (Array.isArray(data.reviews)) raw.push(...data.reviews)
+    pageToken = data.nextPageToken
+    if (!pageToken || raw.length >= 50) break
+  }
+  return { rating, totalReviews, raw, keys: [...keys].join(',') }
+}
+
+/** Second endpoint for the same data; some listings return only totals from reviews.list. */
+async function batchGetReviews(token, parent) {
+  const account = parent.split('/locations/')[0]
+  const response = await axios.post(
+    `${V4}/${account}/locations:batchGetReviews`,
+    {
+      locationNames: [parent],
+      pageSize: 50,
+      orderBy: 'updateTime desc',
+      ignoreRatingOnlyReviews: false,
+    },
+    { headers: { Authorization: `Bearer ${token}` }, timeout: 10000 }
   )
-  const data = response.data || {}
-  const raw = Array.isArray(data.reviews) ? data.reviews : []
+  const entries = response.data?.locationReviews || []
+  const raw = []
+  for (const entry of entries) {
+    // Only accept rows for the exact location we asked for.
+    if (entry.name !== parent) continue
+    if (entry.review) raw.push(entry.review)
+  }
+  return { raw, keys: Object.keys(response.data || {}).join(',') }
+}
+
+async function reviewsForParent(token, parent) {
+  const attempts = []
+  let result = await listReviewPages(token, parent, { pageSize: 50, orderBy: 'updateTime desc' })
+  attempts.push(`list:${result.raw.length}:${result.keys}`)
+  let raw = result.raw
+
+  if (raw.length === 0 && result.totalReviews > 0) {
+    // Retry without ordering/page size in case those parameters suppress the array.
+    const plain = await listReviewPages(token, parent, {})
+    attempts.push(`list-plain:${plain.raw.length}:${plain.keys}`)
+    raw = plain.raw
+  }
+  if (raw.length === 0 && result.totalReviews > 0) {
+    try {
+      const batch = await batchGetReviews(token, parent)
+      attempts.push(`batch:${batch.raw.length}:${batch.keys}`)
+      raw = batch.raw
+    } catch (error) {
+      attempts.push(`batch-error:${error.response?.status || error.message}`)
+    }
+  }
+
   return {
-    rating: typeof data.averageRating === 'number' ? data.averageRating : null,
-    totalReviews: typeof data.totalReviewCount === 'number' ? data.totalReviewCount : null,
-    reviews: raw.map(mapReview),
+    rating: result.rating,
+    totalReviews: result.totalReviews,
+    reviews: raw.map(mapReview).slice(0, 12),
     rawCount: raw.length,
-    responseKeys: Object.keys(data).join(','),
+    responseKeys: attempts.join(' | '),
   }
 }
 
