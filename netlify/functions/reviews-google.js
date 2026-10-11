@@ -9,6 +9,11 @@ let cache = {
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000 // 12 hours
 const CACHE_CONTROL = 'public, s-maxage=43200, max-age=300' // CDN 12h, browsers 5m
 const SEARCH_QUERY = 'M&A Stump Grinding Thonotosassa FL'
+/**
+ * Feature id from the live Maps listing (…!16s%2Fg%2F11yghl8rp4).
+ * Places API (New) accepts this when the older ChIJ id has been retired.
+ */
+const MAPS_FEATURE_ID = 'g/11yghl8rp4'
 
 function jsonResponse(statusCode, payload, extraHeaders = {}) {
   return {
@@ -49,8 +54,16 @@ function payloadFromPlace(placeData) {
   }
 }
 
+function placeResourcePath(placeId) {
+  return String(placeId)
+    .replace(/^places\//, '')
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/')
+}
+
 async function fetchPlaceById(apiKey, placeId) {
-  const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`
+  const url = `https://places.googleapis.com/v1/places/${placeResourcePath(placeId)}`
   const response = await axios.get(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
@@ -140,24 +153,36 @@ exports.handler = async (event) => {
       })
     }
 
+    const candidates = [placeId]
+    if (placeId !== MAPS_FEATURE_ID) candidates.push(MAPS_FEATURE_ID)
+
     let placeData
     let resolvedVia = 'place_id'
+    let lastInvalid = null
 
-    try {
-      placeData = await fetchPlaceById(apiKey, placeId)
-    } catch (err) {
-      if (!isInvalidPlaceIdError(err)) throw err
+    for (const candidate of candidates) {
+      try {
+        placeData = await fetchPlaceById(apiKey, candidate)
+        resolvedVia = candidate === placeId ? 'place_id' : 'maps_feature_id'
+        break
+      } catch (err) {
+        if (!isInvalidPlaceIdError(err)) throw err
+        lastInvalid = err
+        console.warn(
+          'Place id rejected:',
+          candidate,
+          err.response?.data?.error?.message || err.message
+        )
+      }
+    }
+
+    if (!placeData) {
       console.warn(
-        'GOOGLE_PLACE_ID rejected by Places API (New); falling back to SearchText:',
-        err.response?.data?.error?.message || err.message
+        'Falling back to SearchText after rejected ids:',
+        lastInvalid?.response?.data?.error?.message || lastInvalid?.message
       )
       placeData = await fetchPlaceBySearch(apiKey)
       resolvedVia = 'search_text'
-      console.log(
-        'Resolved place via SearchText:',
-        placeData.id || placeData.name,
-        placeData.displayName
-      )
     }
 
     const payload = payloadFromPlace(placeData)
