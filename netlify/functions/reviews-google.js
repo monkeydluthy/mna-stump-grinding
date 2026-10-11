@@ -110,6 +110,38 @@ async function fetchPlaceBySearch(apiKey) {
   return found
 }
 
+/**
+ * Places API (New) returns rating and userRatingCount on a cheaper SKU and
+ * omits written reviews unless Enterprise + Atmosphere is enabled. The legacy
+ * Place Details call fills those in when this key is allowed to use Places API.
+ */
+async function fetchLegacyReviews(apiKey, placeId) {
+  const id = String(placeId).replace(/^places\//, '')
+  const url =
+    'https://maps.googleapis.com/maps/api/place/details/json' +
+    `?place_id=${encodeURIComponent(id)}` +
+    '&fields=reviews&reviews_sort=newest' +
+    `&key=${encodeURIComponent(apiKey)}`
+  const response = await axios.get(url, { timeout: 10000 })
+  const data = response.data || {}
+  if (data.status !== 'OK') {
+    console.warn(
+      'Legacy Places reviews unavailable:',
+      data.status,
+      data.error_message || ''
+    )
+    return []
+  }
+  return (data.result?.reviews || []).map((review) => ({
+    name: review.author_name || 'Google user',
+    date: review.relative_time_description || '',
+    text: review.text || '',
+    rating: typeof review.rating === 'number' ? review.rating : null,
+    profilePhoto: review.profile_photo_url || null,
+    relativeTime: review.relative_time_description || '',
+  }))
+}
+
 function isInvalidPlaceIdError(error) {
   const status = error.response?.status
   if (status === 400 || status === 404) return true
@@ -182,6 +214,9 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
+    if (!payload.reviews.length && placeData.id) {
+      payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
+    }
 
     const cacheFor = payload.reviews.length ? CACHE_TTL_MS : 60 * 1000
     cache = {
