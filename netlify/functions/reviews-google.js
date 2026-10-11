@@ -263,6 +263,31 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
+    let reviewsProbe = `keys:${Object.keys(placeData || {}).join(',')}`
+    if (!payload.reviews.length && placeData.id) {
+      try {
+        const probe = await axios.get(
+          `https://places.googleapis.com/v1/places/${placeResourcePath(placeData.id)}`,
+          {
+            headers: {
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': 'reviews',
+              'Accept-Language': 'en',
+            },
+            timeout: 10000,
+          }
+        )
+        const probed = probe.data?.reviews
+        reviewsProbe += ` probe:${probe.status}:n${Array.isArray(probed) ? probed.length : 'absent'}`
+        if (Array.isArray(probed) && probed.length) {
+          payload.reviews = probed.map(mapReview)
+        }
+      } catch (probeErr) {
+        const message =
+          probeErr.response?.data?.error?.message || probeErr.message || ''
+        reviewsProbe += ` probe:${probeErr.response?.status || 'err'}:${message.slice(0, 160)}`
+      }
+    }
     let legacyStatus = payload.reviews.length ? 'skipped' : 'not-called'
     if (!payload.reviews.length && placeData.id) {
       try {
@@ -289,6 +314,7 @@ exports.handler = async (event) => {
       'X-Reviews-Resolved-Via': resolvedVia,
       'X-Reviews-Legacy': legacyStatus,
       'X-Reviews-Place': placeData.id || '',
+      'X-Reviews-Probe': reviewsProbe,
     })
   } catch (error) {
     console.error(
