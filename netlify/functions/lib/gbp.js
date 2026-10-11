@@ -145,7 +145,7 @@ async function reviewsForParent(token, parent) {
     `https://mybusiness.googleapis.com/v4/${parent}/reviews`,
     {
       headers: { Authorization: `Bearer ${token}` },
-      params: { pageSize: 50 },
+      params: { pageSize: 5 },
       timeout: 10000,
     }
   )

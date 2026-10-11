@@ -164,7 +164,6 @@ exports.handler = async (event) => {
     try {
       const profile = await fetchBusinessProfileReviews()
       if (profile) {
-        const profileNotes = profile.profileNotes || ''
         delete profile.profileNotes
         delete profile.rawCount
         delete profile.responseKeys
@@ -178,7 +177,6 @@ exports.handler = async (event) => {
           'Cache-Control': hasReviews ? CACHE_CONTROL : 'public, s-maxage=60, max-age=0',
           'X-Reviews-Cache': 'MISS',
           'X-Reviews-Resolved-Via': 'business_profile',
-          'X-Reviews-Profile': profileNotes,
         })
       }
     } catch (profileError) {
