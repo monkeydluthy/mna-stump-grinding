@@ -115,28 +115,67 @@ async function fetchPlaceBySearch(apiKey) {
  * omits written reviews unless Enterprise + Atmosphere is enabled. The legacy
  * Place Details call fills those in when this key is allowed to use Places API.
  */
-async function fetchLegacyReviews(apiKey, placeId) {
-  const id = String(placeId).replace(/^places\//, '')
-  const url =
-    'https://maps.googleapis.com/maps/api/place/details/json' +
-    `?place_id=${encodeURIComponent(id)}` +
-    '&fields=reviews&reviews_sort=newest' +
-    `&key=${encodeURIComponent(apiKey)}`
-  const response = await axios.get(url, { timeout: 10000 })
-  const data = response.data || {}
-  if (data.status !== 'OK') {
-    const err = new Error(data.error_message || data.status || 'legacy unavailable')
-    err.legacyStatus = data.status || 'UNKNOWN'
-    throw err
-  }
-  return (data.result?.reviews || []).map((review) => ({
+function mapLegacyReview(review) {
+  return {
     name: review.author_name || 'Google user',
     date: review.relative_time_description || '',
     text: review.text || '',
     rating: typeof review.rating === 'number' ? review.rating : null,
     profilePhoto: review.profile_photo_url || null,
     relativeTime: review.relative_time_description || '',
-  }))
+  }
+}
+
+async function legacyGet(apiKey, pathAndQuery) {
+  const response = await axios.get(
+    `https://maps.googleapis.com/maps/api/place/${pathAndQuery}&key=${encodeURIComponent(apiKey)}`,
+    { timeout: 10000 }
+  )
+  return response.data || {}
+}
+
+async function legacyDetails(apiKey, placeId) {
+  const id = String(placeId).replace(/^places\//, '')
+  return legacyGet(
+    apiKey,
+    `details/json?place_id=${encodeURIComponent(id)}&fields=reviews&reviews_sort=newest`
+  )
+}
+
+/** Classic place id for the live listing when the stored id is stale. */
+async function findLegacyPlaceId(apiKey) {
+  const data = await legacyGet(
+    apiKey,
+    'findplacefromtext/json?input=' +
+      encodeURIComponent(SEARCH_QUERY) +
+      '&inputtype=textquery&fields=place_id,name'
+  )
+  if (data.status !== 'OK') {
+    const err = new Error(data.error_message || data.status || 'find place failed')
+    err.legacyStatus = data.status || 'UNKNOWN'
+    throw err
+  }
+  const placeId = data.candidates?.[0]?.place_id
+  if (!placeId) {
+    const err = new Error('Find Place returned no place id')
+    err.legacyStatus = 'ZERO_RESULTS'
+    throw err
+  }
+  return placeId
+}
+
+async function fetchLegacyReviews(apiKey, placeId) {
+  let data = await legacyDetails(apiKey, placeId)
+  if (data.status === 'NOT_FOUND' || data.status === 'INVALID_REQUEST') {
+    const freshId = await findLegacyPlaceId(apiKey)
+    data = await legacyDetails(apiKey, freshId)
+  }
+  if (data.status !== 'OK') {
+    const err = new Error(data.error_message || data.status || 'legacy unavailable')
+    err.legacyStatus = data.status || 'UNKNOWN'
+    throw err
+  }
+  return (data.result?.reviews || []).map(mapLegacyReview)
 }
 
 function isInvalidPlaceIdError(error) {
