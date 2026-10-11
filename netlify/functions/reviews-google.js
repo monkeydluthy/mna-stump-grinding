@@ -146,19 +146,17 @@ async function legacyDetails(apiKey, placeId) {
 async function findLegacyPlaceId(apiKey) {
   const data = await legacyGet(
     apiKey,
-    'findplacefromtext/json?input=' +
-      encodeURIComponent(SEARCH_QUERY) +
-      '&inputtype=textquery&fields=place_id,name'
+    'textsearch/json?query=' + encodeURIComponent(SEARCH_QUERY)
   )
   if (data.status !== 'OK') {
-    const err = new Error(data.error_message || data.status || 'find place failed')
-    err.legacyStatus = data.status || 'UNKNOWN'
+    const err = new Error(data.error_message || data.status || 'text search failed')
+    err.legacyStatus = `textsearch-${data.status || 'UNKNOWN'}`
     throw err
   }
-  const placeId = data.candidates?.[0]?.place_id
+  const placeId = data.results?.[0]?.place_id
   if (!placeId) {
-    const err = new Error('Find Place returned no place id')
-    err.legacyStatus = 'ZERO_RESULTS'
+    const err = new Error('Text Search returned no place id')
+    err.legacyStatus = 'textsearch-ZERO_RESULTS'
     throw err
   }
   return placeId
@@ -169,10 +167,14 @@ async function fetchLegacyReviews(apiKey, placeId) {
   if (data.status === 'NOT_FOUND' || data.status === 'INVALID_REQUEST') {
     const freshId = await findLegacyPlaceId(apiKey)
     data = await legacyDetails(apiKey, freshId)
-  }
-  if (data.status !== 'OK') {
+    if (data.status !== 'OK') {
+      const err = new Error(data.error_message || data.status || 'legacy unavailable')
+      err.legacyStatus = `details-${data.status || 'UNKNOWN'}`
+      throw err
+    }
+  } else if (data.status !== 'OK') {
     const err = new Error(data.error_message || data.status || 'legacy unavailable')
-    err.legacyStatus = data.status || 'UNKNOWN'
+    err.legacyStatus = `details-${data.status || 'UNKNOWN'}`
     throw err
   }
   return (data.result?.reviews || []).map(mapLegacyReview)
