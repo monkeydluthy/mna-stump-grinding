@@ -76,7 +76,16 @@ async function fetchPlaceById(apiKey, placeId) {
 async function fetchPlaceBySearch(apiKey) {
   const response = await axios.post(
     'https://places.googleapis.com/v1/places:searchText',
-    { textQuery: SEARCH_QUERY },
+    {
+      textQuery: SEARCH_QUERY,
+      includePureServiceAreaBusinesses: true,
+      locationBias: {
+        circle: {
+          center: { latitude: 28.0047936, longitude: -82.538186 },
+          radius: 50000,
+        },
+      },
+    },
     {
       headers: {
         'X-Goog-Api-Key': apiKey,
