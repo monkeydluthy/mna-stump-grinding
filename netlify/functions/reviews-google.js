@@ -1,135 +1,138 @@
 const axios = require('axios')
 
-// Helper function to format review date
-function formatReviewDate(timestamp) {
-  if (!timestamp) return 'Recently'
-  
-  const date = new Date(timestamp * 1000)
-  const now = new Date()
-  const diffTime = Math.abs(now - date)
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
-  if (diffDays < 7) {
-    return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`
-  } else if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7)
-    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`
-  } else if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30)
-    return `${months} ${months === 1 ? 'month' : 'months'} ago`
-  } else {
-    const years = Math.floor(diffDays / 365)
-    return `${years} ${years === 1 ? 'year' : 'years'} ago`
+/** In-memory cache — persists across warm Netlify function invocations */
+let cache = {
+  body: null,
+  expiresAt: 0,
+}
+
+const CACHE_TTL_MS = 12 * 60 * 60 * 1000 // 12 hours
+const CACHE_CONTROL = 'public, s-maxage=43200, max-age=300' // CDN 12h, browsers 5m
+
+function jsonResponse(statusCode, payload, extraHeaders = {}) {
+  return {
+    statusCode,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      ...extraHeaders,
+    },
+    body: JSON.stringify(payload),
   }
 }
 
-exports.handler = async (event, context) => {
-  // Only allow GET requests
-  if (event.httpMethod !== 'GET') {
+function mapReview(review) {
+  const text =
+    (review.text && typeof review.text === 'object' && review.text.text) ||
+    (typeof review.text === 'string' ? review.text : '') ||
+    ''
+
+  return {
+    name: review.authorAttribution?.displayName || 'Google user',
+    date: review.relativePublishTimeDescription || '',
+    text,
+    rating: typeof review.rating === 'number' ? review.rating : null,
+    profilePhoto: review.authorAttribution?.photoUri || null,
+    relativeTime: review.relativePublishTimeDescription || '',
+  }
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 405,
+      statusCode: 204,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
       },
-      body: JSON.stringify({ error: 'Method not allowed' })
+      body: '',
     }
+  }
+
+  if (event.httpMethod !== 'GET') {
+    return jsonResponse(405, { error: 'Method not allowed' })
+  }
+
+  const now = Date.now()
+  if (cache.body && cache.expiresAt > now) {
+    return jsonResponse(200, cache.body, {
+      'Cache-Control': CACHE_CONTROL,
+      'X-Reviews-Cache': 'HIT',
+    })
   }
 
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY
     const placeId = process.env.GOOGLE_PLACE_ID
-    
-    console.log('Function called - API Key present:', !!apiKey, 'Place ID:', placeId)
 
     if (!apiKey) {
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ 
-          error: 'Google Places API key not configured',
-          message: 'Please set GOOGLE_PLACES_API_KEY environment variable'
-        })
-      }
+      return jsonResponse(500, {
+        error: 'Google Places API key not configured',
+        message: 'Please set GOOGLE_PLACES_API_KEY environment variable',
+      })
     }
 
     if (!placeId || placeId === 'YOUR_PLACE_ID_HERE') {
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ 
-          error: 'Google Place ID not configured',
-          message: 'Please set GOOGLE_PLACE_ID environment variable'
-        })
-      }
-    }
-
-    // Get place details — reviews_sort=newest so we get the 5 most recent (default is most_relevant)
-    const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&reviews_sort=newest&key=${apiKey}`
-    
-    const response = await axios.get(placeDetailsUrl)
-    
-    if (response.data.status !== 'OK') {
-      console.error('Google Places API Error:', response.data.status, response.data.error_message)
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ 
-          error: 'Failed to fetch reviews',
-          message: response.data.error_message || 'Invalid place ID or API key'
-        })
-      }
-    }
-
-    const placeData = response.data.result
-    
-    // Sort by time descending (newest first), then format and filter to 5-star only
-    const rawReviews = (placeData.reviews || []).slice()
-    rawReviews.sort((a, b) => (b.time || 0) - (a.time || 0))
-    const allReviews = rawReviews.map(review => ({
-      name: review.author_name,
-      date: formatReviewDate(review.time),
-      text: review.text,
-      rating: review.rating,
-      profilePhoto: review.profile_photo_url || null,
-      relativeTime: review.relative_time_description || ''
-    }))
-    const reviews = allReviews.filter(r => r.rating === 5)
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        rating: placeData.rating || 0,
-        totalReviews: placeData.user_ratings_total || 0,
-        reviews: reviews
+      return jsonResponse(500, {
+        error: 'Google Place ID not configured',
+        message: 'Please set GOOGLE_PLACE_ID environment variable',
       })
     }
+
+    // Places API (New) — place resource name must be URL-encoded
+    const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`
+
+    const response = await axios.get(url, {
+      headers: {
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'displayName,rating,userRatingCount,reviews',
+      },
+      timeout: 10000,
+    })
+
+    const placeData = response.data || {}
+    const reviews = (placeData.reviews || []).map(mapReview)
+
+    const payload = {
+      rating: typeof placeData.rating === 'number' ? placeData.rating : null,
+      totalReviews:
+        typeof placeData.userRatingCount === 'number'
+          ? placeData.userRatingCount
+          : null,
+      reviews,
+    }
+
+    cache = {
+      body: payload,
+      expiresAt: now + CACHE_TTL_MS,
+    }
+
+    return jsonResponse(200, payload, {
+      'Cache-Control': CACHE_CONTROL,
+      'X-Reviews-Cache': 'MISS',
+    })
   } catch (error) {
-    console.error('Error fetching Google Reviews:', error)
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to fetch reviews',
-        message: error.message 
+    console.error(
+      'Error fetching Google Reviews:',
+      error.response?.data || error.message
+    )
+
+    // Serve stale cache if Google fails mid-TTL window expired but we still have data
+    if (cache.body) {
+      return jsonResponse(200, cache.body, {
+        'Cache-Control': CACHE_CONTROL,
+        'X-Reviews-Cache': 'STALE',
       })
     }
+
+    const status = error.response?.status || 500
+    return jsonResponse(status >= 400 && status < 600 ? status : 500, {
+      error: 'Failed to fetch reviews',
+      message:
+        error.response?.data?.error?.message ||
+        error.message ||
+        'Unknown error',
+    })
   }
 }
-
