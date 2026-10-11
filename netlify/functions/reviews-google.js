@@ -97,12 +97,16 @@ async function fetchPlaceBySearch(apiKey) {
 }
 
 function isInvalidPlaceIdError(error) {
+  const status = error.response?.status
+  if (status === 400 || status === 404) return true
   const msg =
     error.response?.data?.error?.message ||
     error.response?.data?.message ||
     error.message ||
     ''
-  return /place id is no longer valid|not found|invalid.*place/i.test(msg)
+  return /place id is no longer valid|not found|invalid.*place|status code 404/i.test(
+    msg
+  )
 }
 
 exports.handler = async (event) => {
