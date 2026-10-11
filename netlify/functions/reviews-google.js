@@ -62,11 +62,33 @@ async function fetchPlaceById(apiKey, placeId) {
   const response = await axios.get(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'id,displayName,rating,userRatingCount,reviews',
+      'X-Goog-FieldMask':
+        'id,displayName,rating,userRatingCount,reviews.rating,reviews.text,reviews.authorAttribution,reviews.relativePublishTimeDescription,reviews.publishTime',
+      'Accept-Language': 'en',
     },
     timeout: 10000,
   })
   return response.data
+}
+
+/** Written reviews when Places API (New) returns a count but an empty reviews list. */
+async function fetchLegacyReviews(apiKey, placeId) {
+  const id = String(placeId).replace(/^places\//, '')
+  const url =
+    'https://maps.googleapis.com/maps/api/place/details/json' +
+    `?place_id=${encodeURIComponent(id)}` +
+    '&fields=reviews&reviews_sort=newest' +
+    `&key=${encodeURIComponent(apiKey)}`
+  const response = await axios.get(url, { timeout: 10000 })
+  if (response.data?.status !== 'OK') return []
+  return (response.data.result?.reviews || []).map((review) => ({
+    name: review.author_name || 'Google user',
+    date: review.relative_time_description || '',
+    text: review.text || '',
+    rating: typeof review.rating === 'number' ? review.rating : null,
+    profilePhoto: review.profile_photo_url || null,
+    relativeTime: review.relative_time_description || '',
+  }))
 }
 
 /**
@@ -181,10 +203,14 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
+    if (!payload.reviews.length && placeData.id) {
+      payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
+    }
 
+    const cacheFor = payload.reviews.length ? CACHE_TTL_MS : 60 * 1000
     cache = {
       body: payload,
-      expiresAt: now + CACHE_TTL_MS,
+      expiresAt: now + cacheFor,
     }
 
     return jsonResponse(200, payload, {
