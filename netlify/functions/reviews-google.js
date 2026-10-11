@@ -103,11 +103,22 @@ async function fetchPlaceBySearch(apiKey) {
     err.code = 'NOT_FOUND'
     throw err
   }
-  const found = places[0]
-  if (found.id) {
-    return fetchPlaceById(apiKey, found.id)
+  let best = places[0]
+  const notes = []
+  for (const found of places.slice(0, 5)) {
+    if (!found.id) continue
+    try {
+      const detailed = await fetchPlaceById(apiKey, found.id)
+      const count = Array.isArray(detailed.reviews) ? detailed.reviews.length : 0
+      notes.push(`${detailed.displayName?.text || 'place'}:${count}`)
+      if (!best.id || count > 0) best = detailed
+      if (count > 0) break
+    } catch (err) {
+      notes.push(`err:${err.response?.status || 'fail'}`)
+    }
   }
-  return found
+  best.searchNotes = notes.join('|')
+  return best
 }
 
 /**
@@ -263,7 +274,8 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
-    let reviewsProbe = `keys:${Object.keys(placeData || {}).join(',')}`
+    let reviewsProbe = `keys:${Object.keys(placeData || {}).filter((key) => key !== 'searchNotes').join(',')}`
+    if (placeData.searchNotes) reviewsProbe += ` matches:${placeData.searchNotes}`
     if (!payload.reviews.length && placeData.id) {
       try {
         const probe = await axios.get(
