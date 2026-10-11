@@ -80,15 +80,23 @@ async function fetchLegacyReviews(apiKey, placeId) {
     '&fields=reviews&reviews_sort=newest' +
     `&key=${encodeURIComponent(apiKey)}`
   const response = await axios.get(url, { timeout: 10000 })
-  if (response.data?.status !== 'OK') return []
-  return (response.data.result?.reviews || []).map((review) => ({
-    name: review.author_name || 'Google user',
-    date: review.relative_time_description || '',
-    text: review.text || '',
-    rating: typeof review.rating === 'number' ? review.rating : null,
-    profilePhoto: review.profile_photo_url || null,
-    relativeTime: review.relative_time_description || '',
-  }))
+  const data = response.data || {}
+  const reviews =
+    data.status === 'OK'
+      ? (data.result?.reviews || []).map((review) => ({
+          name: review.author_name || 'Google user',
+          date: review.relative_time_description || '',
+          text: review.text || '',
+          rating: typeof review.rating === 'number' ? review.rating : null,
+          profilePhoto: review.profile_photo_url || null,
+          relativeTime: review.relative_time_description || '',
+        }))
+      : []
+  return {
+    reviews,
+    status: data.status || null,
+    errorMessage: data.error_message || null,
+  }
 }
 
 /**
@@ -203,8 +211,17 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
+    payload.debug = {
+      placeId: placeData.id || null,
+      newApiReviewCount: Array.isArray(placeData.reviews)
+        ? placeData.reviews.length
+        : null,
+    }
     if (!payload.reviews.length && placeData.id) {
-      payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
+      const legacy = await fetchLegacyReviews(apiKey, placeData.id)
+      payload.reviews = legacy.reviews
+      payload.debug.legacyStatus = legacy.status
+      payload.debug.legacyError = legacy.errorMessage
     }
 
     const cacheFor = payload.reviews.length ? CACHE_TTL_MS : 60 * 1000
