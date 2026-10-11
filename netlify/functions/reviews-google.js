@@ -125,12 +125,9 @@ async function fetchLegacyReviews(apiKey, placeId) {
   const response = await axios.get(url, { timeout: 10000 })
   const data = response.data || {}
   if (data.status !== 'OK') {
-    console.warn(
-      'Legacy Places reviews unavailable:',
-      data.status,
-      data.error_message || ''
-    )
-    return []
+    const err = new Error(data.error_message || data.status || 'legacy unavailable')
+    err.legacyStatus = data.status || 'UNKNOWN'
+    throw err
   }
   return (data.result?.reviews || []).map((review) => ({
     name: review.author_name || 'Google user',
@@ -214,20 +211,31 @@ exports.handler = async (event) => {
     }
 
     const payload = payloadFromPlace(placeData)
+    let legacyStatus = payload.reviews.length ? 'skipped' : 'not-called'
     if (!payload.reviews.length && placeData.id) {
-      payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
+      try {
+        payload.reviews = await fetchLegacyReviews(apiKey, placeData.id)
+        legacyStatus = payload.reviews.length ? 'OK' : 'OK-empty'
+      } catch (legacyErr) {
+        legacyStatus = legacyErr.legacyStatus || 'ERROR'
+        console.warn('Legacy Places reviews unavailable:', legacyStatus, legacyErr.message)
+      }
     }
 
-    const cacheFor = payload.reviews.length ? CACHE_TTL_MS : 60 * 1000
+    const hasReviews = payload.reviews.length > 0
+    const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
     cache = {
       body: payload,
       expiresAt: now + cacheFor,
     }
 
     return jsonResponse(200, payload, {
-      'Cache-Control': CACHE_CONTROL,
+      'Cache-Control': hasReviews
+        ? CACHE_CONTROL
+        : 'public, s-maxage=60, max-age=0',
       'X-Reviews-Cache': 'MISS',
       'X-Reviews-Resolved-Via': resolvedVia,
+      'X-Reviews-Legacy': legacyStatus,
     })
   } catch (error) {
     console.error(
