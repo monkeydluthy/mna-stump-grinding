@@ -170,6 +170,12 @@ exports.handler = async (event) => {
         delete profile.responseKeys
         console.log('Business Profile reviews:', diag)
         const hasReviews = profile.reviews.length > 0
+        console.log(
+          `[reviews] cache MISS served by source=business_profile reviews=${profile.reviews.length} total=${profile.totalReviews}`
+        )
+        if (!hasReviews) {
+          console.error('[reviews] EMPTY FEED from business_profile; homepage reviews section will be hidden:', diag)
+        }
         const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
         cache = {
           body: profile,
@@ -181,7 +187,11 @@ exports.handler = async (event) => {
           'X-Reviews-Resolved-Via': 'business_profile',
         })
       }
+      console.warn('[reviews] Business Profile not configured (no refresh token); using Places fallback')
     } catch (profileError) {
+      console.warn(
+        '[reviews] Business Profile FAILED; dropping to Places fallback (max 5 reviews)'
+      )
       console.warn(
         'Business Profile reviews unavailable:',
         profileError.profileNotes || profileError.response?.data || profileError.message
@@ -223,6 +233,12 @@ exports.handler = async (event) => {
     const payload = payloadFromPlace(placeData)
 
     const hasReviews = payload.reviews.length > 0
+    console.warn(
+      `[reviews] cache MISS served by source=places_fallback (${resolvedVia}) reviews=${payload.reviews.length} total=${payload.totalReviews}`
+    )
+    if (!hasReviews) {
+      console.error('[reviews] EMPTY FEED from places_fallback; homepage reviews section will be hidden')
+    }
     const cacheFor = hasReviews ? CACHE_TTL_MS : 60 * 1000
     cache = {
       body: payload,
