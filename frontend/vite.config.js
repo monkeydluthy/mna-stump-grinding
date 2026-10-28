@@ -109,8 +109,40 @@ function locationPagesPlugin() {
   }
 }
 
+/**
+ * /portfolio would otherwise be served the homepage shell, whose static
+ * #critical-hero H1 (hidden client-side only) makes two H1s for crawlers.
+ * Emit a portfolio shell without the hero; React renders the page's own H1.
+ */
+function portfolioPagePlugin() {
+  return {
+    name: 'portfolio-page-html',
+    closeBundle() {
+      const distDir = path.resolve(__dirname, 'dist')
+      const indexPath = path.join(distDir, 'index.html')
+      if (!fs.existsSync(indexPath)) return
+
+      const html = fs
+        .readFileSync(indexPath, 'utf8')
+        .replace(
+          /<!-- Stable LCP hero:[\s\S]*?<section id="critical-hero"[\s\S]*?<\/section>/,
+          '<!-- critical-hero omitted on portfolio page -->'
+        )
+        // Homepage FAQPage isn't visible on /portfolio
+        .replace(
+          /<script type="application\/ld\+json">\s*\{(?:(?!<\/script>)[\s\S])*?"@type"\s*:\s*"FAQPage"[\s\S]*?<\/script>\s*/,
+          ''
+        )
+
+      const outDir = path.join(distDir, 'portfolio')
+      fs.mkdirSync(outDir, { recursive: true })
+      fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8')
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), structuredDataJsonLdPlugin(), locationPagesPlugin()],
+  plugins: [react(), structuredDataJsonLdPlugin(), locationPagesPlugin(), portfolioPagePlugin()],
   server: {
     port: 3000,
     proxy: {

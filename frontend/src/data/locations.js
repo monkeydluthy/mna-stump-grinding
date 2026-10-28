@@ -24,7 +24,7 @@ export const LOCATIONS = [
     title: 'Stump Grinding in Thonotosassa, FL | M&A Stump Grinding',
     h1: 'Stump Grinding in Thonotosassa, FL',
     description:
-      'Licensed stump grinding and stump removal in Thonotosassa, FL. Fast scheduling, free quotes, and cleanup included. Call or request a quote today.',
+      'Licensed stump grinding and stump removal in Thonotosassa, FL. Free estimates and cleanup included. Call, text, or request a quote today.',
     intro:
       'M&A Stump Grinding is based in Thonotosassa and serves homeowners and businesses across Hillsborough County. We grind stumps flush or below grade, clean up the site, and get your yard ready for sod, landscaping, or the next project.',
     photos: [
