@@ -61,7 +61,7 @@ function locationPagesPlugin() {
 
       for (const loc of LOCATIONS) {
         const faqJson = JSON.stringify(buildLocationFaqSchema(loc.faqs), null, 2)
-        const faqScript = `<script type="application/ld+json">\n${faqJson}\n    </script>`
+        const faqScript = `<script id="location-faq-jsonld" type="application/ld+json">\n${faqJson}\n    </script>`
         const crawlBlock = `
     <div id="location-crawl-content">
       <h1>${loc.h1}</h1>
