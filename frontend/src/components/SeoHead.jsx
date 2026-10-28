@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { BUSINESS } from '../data/business'
 
 /**
- * Sets document title, meta description, optional robots, and canonical.
+ * Sets document title, meta description, optional robots, canonical, and
+ * og:/twitter: share tags (skipped on noindex pages).
  * Default canonical is the GBP homepage URL; pass `canonical` for location pages.
  */
 const SeoHead = ({ title, description, robots, canonical: canonicalHref }) => {
@@ -39,7 +40,27 @@ const SeoHead = ({ title, description, robots, canonical: canonicalHref }) => {
       canonical.setAttribute('rel', 'canonical')
       document.head.appendChild(canonical)
     }
-    canonical.setAttribute('href', canonicalHref || BUSINESS.canonicalUrl)
+    const pageUrl = canonicalHref || BUSINESS.canonicalUrl
+    canonical.setAttribute('href', pageUrl)
+
+    if (!robots) {
+      const setMeta = (attr, key, value) => {
+        if (!value) return
+        let el = document.querySelector(`meta[${attr}="${key}"]`)
+        if (!el) {
+          el = document.createElement('meta')
+          el.setAttribute(attr, key)
+          document.head.appendChild(el)
+        }
+        el.setAttribute('content', value)
+      }
+      setMeta('property', 'og:title', title)
+      setMeta('property', 'og:description', description)
+      setMeta('property', 'og:url', pageUrl)
+      setMeta('property', 'og:type', 'website')
+      setMeta('property', 'og:image', BUSINESS.ogImage)
+      setMeta('name', 'twitter:card', 'summary_large_image')
+    }
 
     return () => {
       document.querySelector('meta[name="robots"]')?.remove()

@@ -8,6 +8,8 @@ export const BUSINESS = {
   url: 'https://mnastumpgrinding.com',
   /** GBP Website field / preferred host — always non-www, no query string */
   canonicalUrl: 'https://mnastumpgrinding.com/',
+  /** Share-card image: existing hero photo, 1280x640 */
+  ogImage: 'https://mnastumpgrinding.com/stump-header-1280.jpg',
   /** City/region only — service-area business, no public street address */
   addressLocality: 'Thonotosassa',
   addressRegion: 'FL',

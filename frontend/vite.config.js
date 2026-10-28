@@ -4,10 +4,27 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { buildFaqPageSchema } from './src/data/faqs.js'
 import { buildLocalBusinessSchema } from './src/data/localBusinessSchema.js'
+import { PORTFOLIO_SEO } from './src/data/seo.js'
 import {
   LOCATIONS,
   buildLocationFaqSchema,
 } from './src/data/locations.js'
+
+const SITE_URL = 'https://mnastumpgrinding.com'
+
+const escAttr = (v) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+
+/** Point the shell's og: tags at this page (index.html carries the homepage set) */
+function withShareTags(html, { title, description, path: pagePath }) {
+  const setProp = (h, key, value) =>
+    h.replace(
+      new RegExp(`(<meta\\s+property="${key}"\\s+content=")[^"]*(")`),
+      `$1${escAttr(value)}$2`
+    )
+  let next = setProp(html, 'og:title', title)
+  next = setProp(next, 'og:description', description)
+  return setProp(next, 'og:url', `${SITE_URL}${pagePath}`)
+}
 
 /**
  * Injects LocalBusiness + FAQPage JSON-LD into static HTML so crawlers see
@@ -101,9 +118,9 @@ function locationPagesPlugin() {
             `$1    ${faqScript}\n$2`
           )
 
-        const outDir = path.join(distDir, loc.slug)
-        fs.mkdirSync(outDir, { recursive: true })
-        fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8')
+        html = withShareTags(html, loc)
+        // <slug>.html (not <slug>/index.html) so Netlify serves /<slug> without a 301 to /<slug>/
+        fs.writeFileSync(path.join(distDir, `${loc.slug}.html`), html, 'utf8')
       }
     },
   }
@@ -122,8 +139,17 @@ function portfolioPagePlugin() {
       const indexPath = path.join(distDir, 'index.html')
       if (!fs.existsSync(indexPath)) return
 
-      const html = fs
+      let html = fs
         .readFileSync(indexPath, 'utf8')
+        .replace(/<title>[^<]*<\/title>/, `<title>${PORTFOLIO_SEO.title}</title>`)
+        .replace(
+          /<meta\s+name="description"\s+content="[^"]*"\s*\/>/,
+          `<meta name="description" content="${escAttr(PORTFOLIO_SEO.description)}" />`
+        )
+        .replace(
+          /<link rel="canonical" href="[^"]*"\s*\/>/,
+          `<link rel="canonical" href="${SITE_URL}${PORTFOLIO_SEO.path}" />`
+        )
         .replace(
           /<!-- Stable LCP hero:[\s\S]*?<section id="critical-hero"[\s\S]*?<\/section>/,
           '<!-- critical-hero omitted on portfolio page -->'
@@ -134,9 +160,8 @@ function portfolioPagePlugin() {
           ''
         )
 
-      const outDir = path.join(distDir, 'portfolio')
-      fs.mkdirSync(outDir, { recursive: true })
-      fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8')
+      html = withShareTags(html, PORTFOLIO_SEO)
+      fs.writeFileSync(path.join(distDir, 'portfolio.html'), html, 'utf8')
     },
   }
 }

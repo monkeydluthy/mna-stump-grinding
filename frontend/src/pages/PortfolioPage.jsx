@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SeoHead from '../components/SeoHead';
+import { PORTFOLIO_SEO } from '../data/seo';
+import { BUSINESS } from '../data/business';
 import Footer from '../components/Footer';
 import { thumbUrl, lightboxUrl, portfolioAltText } from '../utils/images';
 import { cloudinaryVideoPosterUrl } from '../utils/imageCompress';
@@ -179,8 +181,9 @@ const PortfolioPage = () => {
       `}</style>
       <div>
         <SeoHead
-          title="Portfolio | M&A Stump Grinding in Tampa, FL"
-          description="See professional stump grinding and removal work by M&A Stump Grinding in Tampa, FL. Before-and-after results from residential and commercial jobs."
+          title={PORTFOLIO_SEO.title}
+          description={PORTFOLIO_SEO.description}
+          canonical={`${BUSINESS.url}${PORTFOLIO_SEO.path}`}
         />
         <section
           className="portfolio-section"
