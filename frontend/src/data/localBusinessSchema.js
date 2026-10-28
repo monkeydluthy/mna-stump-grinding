@@ -45,22 +45,6 @@ export function buildLocalBusinessSchema() {
       addressRegion: BUSINESS.addressRegion,
       addressCountry: BUSINESS.addressCountry,
     },
-    openingHoursSpecification: [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ],
-        opens: '00:00',
-        closes: '23:59',
-      },
-    ],
     areaServed: buildAreaServed(),
     sameAs: [BUSINESS.facebookUrl, BUSINESS.instagramUrl],
     description:

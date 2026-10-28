@@ -33,7 +33,7 @@ export const FAQS = [
   {
     question: 'How fast can you come out?',
     answer:
-      'We’re open 24 hours and work to schedule jobs as quickly as possible. Many customers get on the calendar within a few days, and we can often accommodate urgent jobs when a stump is in the way of a project or poses a safety concern. Call or text for the soonest availability.',
+      'We work until dark. Call or text and we’ll get your estimate scheduled as soon as we can.',
   },
   {
     question: 'Can you grind a stump next to a fence, driveway, or structure?',
