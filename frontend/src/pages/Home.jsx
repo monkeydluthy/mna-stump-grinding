@@ -13,8 +13,8 @@ const Home = () => {
   return (
     <div>
       <SeoHead
-        title="M&A Stump Grinding | Stump Removal in Tampa, FL"
-        description="M&A Stump Grinding provides fast, licensed stump removal and grinding in Tampa, FL and the surrounding Tampa Bay area. Free quotes. Call or text today."
+        title="Stump Grinding in Tampa & Hillsborough County | M&A"
+        description="Local stump grinding in Tampa, Thonotosassa and Hillsborough County. 5-star rated on Google, free estimates, cleanup included. Call or text M&A today."
       />
       <Services />
       <Reviews />
