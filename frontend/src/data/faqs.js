@@ -6,9 +6,14 @@ export const FAQS = [
       'M&A Stump Grinding serves Tampa, Thonotosassa, and the greater Tampa Bay area — including Brandon, Wesley Chapel, Lutz, Riverview, and surrounding communities. Not sure if we cover your address? Call or text (813) 325-5306 and we’ll let you know right away.',
   },
   {
+    question: 'How do I get rid of a tree stump?',
+    answer:
+      'Grinding is the most common fix. A stump grinder shreds the stump below ground level, so there’s nothing left to trip over, and the leftover wood chips can be used as mulch or backfill. Full stump removal digs out the entire root ball, which is far more disruptive to your yard. Most homeowners choose grinding.',
+  },
+  {
     question: 'How much does stump grinding cost in Tampa?',
     answer:
-      'Pricing depends on stump size, how many stumps you have, root spread, and how easy it is to reach the job site. Most residential stumps fall in a straightforward range once we see the work in person. We provide free quotes so you know the cost before we start — no surprises.',
+      'It depends on the stump’s diameter, how much root flare there is, how easy the machine can reach it, and how many stumps you have. We give free estimates. Call or send a photo and we’ll quote you.',
   },
   {
     question: 'How deep do you grind stumps?',
