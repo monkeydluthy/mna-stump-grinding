@@ -87,6 +87,11 @@ function locationPagesPlugin() {
             /<!-- Stable LCP hero:[\s\S]*?<section id="critical-hero"[\s\S]*?<\/section>/,
             '<!-- critical-hero omitted on location page -->'
           )
+          // Drop the homepage FAQPage so the shell only carries this page's FAQs
+          .replace(
+            /<script type="application\/ld\+json">\s*\{(?:(?!<\/script>)[\s\S])*?"@type"\s*:\s*"FAQPage"[\s\S]*?<\/script>\s*/,
+            ''
+          )
           .replace(
             /<div id="root"><\/div>/,
             `<div id="root">${crawlBlock}\n    </div>`

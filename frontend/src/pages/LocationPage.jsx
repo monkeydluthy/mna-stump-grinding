@@ -301,7 +301,7 @@ const LocationPage = ({ citySlug: citySlugProp } = {}) => {
               lineHeight: 1.6,
             }}
           >
-            Tell us about your stump and we’ll follow up quickly — or call{' '}
+            Tell us about your stump and we’ll follow up — or call{' '}
             <a
               href={`tel:${BUSINESS.phoneE164}`}
               data-link-location="location-cta"

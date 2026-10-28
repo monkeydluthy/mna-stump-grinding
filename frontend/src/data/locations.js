@@ -6,6 +6,14 @@
  * real Cloudinary portfolio stills chosen manually (residential jobs).
  */
 
+import { FAQS } from './faqs'
+
+const faqByQuestion = (q) => {
+  const faq = FAQS.find((f) => f.question === q)
+  if (!faq) throw new Error(`FAQ not found in faqs.js: ${q}`)
+  return faq
+}
+
 export const LOCATIONS = [
   {
     slug: 'stump-grinding-thonotosassa-fl',
@@ -63,7 +71,53 @@ export const LOCATIONS = [
       },
     ],
     relatedCities: [
-      { name: 'Tampa', path: '/' },
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Brandon', path: '/' },
+      { name: 'Lutz', path: '/' },
+      { name: 'Riverview', path: '/' },
+    ],
+  },
+  {
+    slug: 'stump-grinding-tampa-fl',
+    city: 'Tampa',
+    county: 'Hillsborough',
+    state: 'FL',
+    path: '/stump-grinding-tampa-fl',
+    title: 'Stump Grinding in Tampa, FL | M&A Stump Grinding',
+    h1: 'Stump Grinding in Tampa, FL',
+    description:
+      'Stump grinding and stump removal in Tampa, FL. Licensed and insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+    intro:
+      'M&A Stump Grinding grinds stumps for Tampa homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
+    /** Real Tampa jobs: portfolio_items rows tagged city = 'Tampa'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1788972802/mna-stump-portfolio/portfolio-1788972802471-nt9yvk7xm.jpg',
+        alt: 'Stubborn stump removed and ground level, clearing the way for driveway and yard work to continue.',
+        width: 2048,
+        height: 1365,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1788972818/mna-stump-portfolio/portfolio-1788972818729-t3inq9dpd.jpg',
+        alt: 'Dense, overgrown stump cleared and ground flush — reclaiming usable yard space from years of overgrowth.',
+        width: 2048,
+        height: 1365,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1789573553/mna-stump-portfolio/portfolio-1789573553799-xvyz90y14.jpg',
+        alt: 'Stump and embedded stone base fully ground out and cleared, restoring usable space along the property line.',
+        width: 2048,
+        height: 1536,
+      },
+    ],
+    /** Drawn from the shared homepage FAQ data so wording never drifts */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      faqByQuestion('How much does stump grinding cost in Tampa?'),
+      faqByQuestion('How fast can you come out?'),
+    ],
+    relatedCities: [
+      { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Brandon', path: '/' },
       { name: 'Lutz', path: '/' },
       { name: 'Riverview', path: '/' },
