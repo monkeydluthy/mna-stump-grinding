@@ -33,7 +33,7 @@ export const FAQS = [
   {
     question: 'How fast can you come out?',
     answer:
-      'We work until dark. Call or text and we’ll get your estimate scheduled as soon as we can.',
+      'We’re open 24 hours. Call or text and we’ll get your estimate scheduled as soon as we can.',
   },
   {
     question: 'Can you grind a stump next to a fence, driveway, or structure?',

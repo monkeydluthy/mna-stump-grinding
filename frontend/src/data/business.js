@@ -13,7 +13,7 @@ export const BUSINESS = {
   addressRegion: 'FL',
   addressCountry: 'US',
   /** Visible hours matching GBP */
-  hoursDisplay: 'We work until dark',
+  hoursDisplay: 'Open 24 hours',
   /** Service area for copy / schema */
   serviceArea: 'Tampa, FL and the surrounding Tampa Bay area',
   serviceAreaTagline: 'Proudly serving Tampa Bay',

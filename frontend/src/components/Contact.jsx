@@ -97,7 +97,7 @@ const Contact = () => {
               <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📞</div>
               <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>Call Us</h3>
               <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '5px' }}>(813) 325-5306</p>
-              <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>We work until dark</p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Available 24/7</p>
             </a>
 
             <a 
