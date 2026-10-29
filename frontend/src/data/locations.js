@@ -92,7 +92,7 @@ export const LOCATIONS = [
     relatedCities: [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
       { name: 'Brandon', path: '/' },
-      { name: 'Lutz', path: '/' },
+      { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
       { name: 'Riverview', path: '/' },
     ],
   },
@@ -157,7 +157,71 @@ export const LOCATIONS = [
     relatedCities: [
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Brandon', path: '/' },
-      { name: 'Lutz', path: '/' },
+      { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
+      { name: 'Riverview', path: '/' },
+    ],
+  },
+  {
+    slug: 'stump-grinding-lutz-fl',
+    city: 'Lutz',
+    county: 'Hillsborough',
+    state: 'FL',
+    path: '/stump-grinding-lutz-fl',
+    title: 'Stump Grinding in Lutz, FL | M&A Stump Grinding',
+    h1: 'Stump Grinding in Lutz, FL',
+    description:
+      'Stump grinding and stump removal in Lutz, FL. Fully insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+    intro:
+      'M&A Stump Grinding grinds stumps for Lutz homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
+    /** Real Lutz jobs: portfolio_items rows tagged city = 'Lutz'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1793237139/mna-stump-portfolio/portfolio-1793237139705-jk7chwb3p.webp',
+        alt: 'Stump grinder positioned beside a large tree stump next to a house in Lutz, Florida',
+        width: 739,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1789573538/mna-stump-portfolio/portfolio-1789573537864-w0oqxi24i.jpg',
+        alt: 'Large stump removed and ground below grade, with the area backfilled and leveled for a clean, walkable yard.',
+        width: 2048,
+        height: 1536,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1788972811/mna-stump-portfolio/portfolio-1788972811125-thpr5ewef.jpg',
+        alt: 'Large oak stump ground below grade and cleared — front yard ready for new sod, no trace left behind.',
+        width: 2048,
+        height: 1365,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
+      },
+    ],
+    /** Same shared FAQs as Tampa, with the city swapped in the cost question */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      {
+        ...faqByQuestion('How much does stump grinding cost in Tampa?'),
+        question: 'How much does stump grinding cost in Lutz?',
+      },
+      faqByQuestion('How long does it take to grind a stump?'),
+    ],
+    relatedCities: [
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
+      { name: 'Brandon', path: '/' },
       { name: 'Riverview', path: '/' },
     ],
   },
