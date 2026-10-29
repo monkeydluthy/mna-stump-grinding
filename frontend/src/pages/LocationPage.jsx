@@ -212,6 +212,23 @@ const LocationPage = ({ citySlug: citySlugProp } = {}) => {
         </div>
       </section>
 
+      {location.sections?.length > 0 && (
+        <section style={{ background: 'var(--white)', padding: '64px 0 0' }}>
+          <div className="container" style={{ maxWidth: '720px' }}>
+            {location.sections.map((section) => (
+              <div key={section.heading} style={{ marginBottom: '32px' }}>
+                <h2 style={{ marginBottom: '12px', color: 'var(--primary-color)' }}>
+                  {section.heading}
+                </h2>
+                <p style={{ margin: 0, lineHeight: 1.7, color: 'var(--text-light)' }}>
+                  {section.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section style={{ background: 'var(--white)', padding: '64px 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <h2

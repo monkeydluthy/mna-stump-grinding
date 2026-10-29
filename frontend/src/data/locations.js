@@ -47,6 +47,21 @@ export const LOCATIONS = [
         height: 1200,
       },
     ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
+      },
+    ],
     /** Seeded from homepage FAQ set (3.1a), localized for Thonotosassa */
     faqs: [
       {
@@ -108,6 +123,25 @@ export const LOCATIONS = [
         alt: 'Stump and embedded stone base fully ground out and cleared, restoring usable space along the property line.',
         width: 2048,
         height: 1536,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Stump grinding across Tampa',
+        body: 'We grind stumps throughout Tampa, including Carrollwood, Temple Terrace and Odessa. Most of the stumps we see in the area are oak, with some palm trees and the occasional pine.',
+      },
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
       },
     ],
     /** Drawn from the shared homepage FAQ data so wording never drifts */

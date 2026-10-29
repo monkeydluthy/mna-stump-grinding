@@ -14,6 +14,9 @@ const SITE_URL = 'https://mnastumpgrinding.com'
 
 const escAttr = (v) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
 
+const escHtml = (v) =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
 /** Point the shell's og: tags at this page (index.html carries the homepage set) */
 function withShareTags(html, { title, description, path: pagePath }) {
   const setProp = (h, key, value) =>
@@ -79,10 +82,16 @@ function locationPagesPlugin() {
       for (const loc of LOCATIONS) {
         const faqJson = JSON.stringify(buildLocationFaqSchema(loc.faqs), null, 2)
         const faqScript = `<script id="location-faq-jsonld" type="application/ld+json">\n${faqJson}\n    </script>`
+        const sectionsHtml = (loc.sections || [])
+          .map(
+            (sec) =>
+              `\n      <h2>${escHtml(sec.heading)}</h2>\n      <p>${escHtml(sec.body)}</p>`
+          )
+          .join('')
         const crawlBlock = `
     <div id="location-crawl-content">
       <h1>${loc.h1}</h1>
-      <p>${loc.intro}</p>
+      <p>${loc.intro}</p>${sectionsHtml}
       <p><a href="/">M&amp;A Stump Grinding home</a> · <a href="/portfolio">Portfolio</a></p>
     </div>`
 
