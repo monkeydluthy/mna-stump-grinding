@@ -9,6 +9,7 @@ import {
   buildLocationFaqSchema,
   getLocationBySlug,
 } from '../data/locations'
+import { localDetailIcon } from '../data/localDetailIcons'
 import { thumbUrl, lightboxUrl } from '../utils/images'
 
 const FAQ_SCRIPT_ID = 'location-faq-jsonld'
@@ -213,18 +214,30 @@ const LocationPage = ({ citySlug: citySlugProp } = {}) => {
       </section>
 
       {location.sections?.length > 0 && (
-        <section style={{ background: 'var(--white)', padding: '64px 0 0' }}>
-          <div className="container" style={{ maxWidth: '720px' }}>
-            {location.sections.map((section) => (
-              <div key={section.heading} style={{ marginBottom: '32px' }}>
-                <h2 style={{ marginBottom: '12px', color: 'var(--primary-color)' }}>
-                  {section.heading}
-                </h2>
-                <p style={{ margin: 0, lineHeight: 1.7, color: 'var(--text-light)' }}>
-                  {section.body}
-                </p>
-              </div>
-            ))}
+        <section className="local-detail">
+          <div className="local-detail__inner">
+            <div className="local-detail__grid">
+              {location.sections.map((section, index) => (
+                <div key={section.heading} className="local-detail__card">
+                  <svg
+                    className="local-detail__icon"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    focusable="false"
+                    dangerouslySetInnerHTML={{ __html: localDetailIcon(index) }}
+                  />
+                  <h2>{section.heading}</h2>
+                  <p>{section.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

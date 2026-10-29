@@ -174,3 +174,85 @@ h3 {
   }
 }
 
+
+
+/* Location pages: local-detail cards (LocationPage.jsx + static shell) */
+.local-detail {
+  background: var(--white);
+  padding: 64px 0 8px;
+}
+
+.local-detail__inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.local-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.local-detail__card {
+  background: var(--bg-light);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.local-detail__icon {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--secondary-color);
+}
+
+.local-detail__card h2 {
+  margin: 0 0 10px;
+  padding-top: 12px;
+  position: relative;
+  text-align: left;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--primary-color);
+}
+
+.local-detail__card h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--secondary-color);
+}
+
+.local-detail__card p {
+  margin: 0;
+  max-width: 65ch;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #374151;
+}
+
+@media (min-width: 768px) {
+  .local-detail__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* odd count: let the last card span so there is no orphan */
+  .local-detail__card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .local-detail {
+    padding: 40px 0 0;
+  }
+}

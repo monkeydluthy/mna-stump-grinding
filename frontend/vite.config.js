@@ -4,6 +4,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { buildFaqPageSchema } from './src/data/faqs.js'
 import { buildLocalBusinessSchema } from './src/data/localBusinessSchema.js'
+import {
+  localDetailIcon,
+  LOCAL_DETAIL_SVG_ATTRS,
+} from './src/data/localDetailIcons.js'
 import { PORTFOLIO_SEO } from './src/data/seo.js'
 import {
   LOCATIONS,
@@ -82,12 +86,16 @@ function locationPagesPlugin() {
       for (const loc of LOCATIONS) {
         const faqJson = JSON.stringify(buildLocationFaqSchema(loc.faqs), null, 2)
         const faqScript = `<script id="location-faq-jsonld" type="application/ld+json">\n${faqJson}\n    </script>`
-        const sectionsHtml = (loc.sections || [])
-          .map(
-            (sec) =>
-              `\n      <h2>${escHtml(sec.heading)}</h2>\n      <p>${escHtml(sec.body)}</p>`
-          )
-          .join('')
+        const sectionsHtml = loc.sections?.length
+          ? `\n      <section class="local-detail"><div class="local-detail__inner"><div class="local-detail__grid">` +
+            loc.sections
+              .map(
+                (sec, i) =>
+                  `<div class="local-detail__card"><svg ${LOCAL_DETAIL_SVG_ATTRS}>${localDetailIcon(i)}</svg><h2>${escHtml(sec.heading)}</h2><p>${escHtml(sec.body)}</p></div>`
+              )
+              .join('') +
+            `</div></div></section>`
+          : ''
         const crawlBlock = `
     <div id="location-crawl-content">
       <h1>${loc.h1}</h1>
