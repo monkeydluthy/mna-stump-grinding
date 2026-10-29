@@ -120,7 +120,7 @@ const Footer = () => {
           &copy; {new Date().getFullYear()} {BUSINESS.name}. All rights reserved.
         </p>
         <p style={{ marginTop: '8px', opacity: 0.8 }}>
-          Licensed & Insured | Serving {BUSINESS.serviceArea}
+          Fully Insured | Serving {BUSINESS.serviceArea}
         </p>
         <p style={{ marginTop: '8px', opacity: 0.7, fontSize: '0.9rem' }}>
           Site by{' '}

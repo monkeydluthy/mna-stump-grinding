@@ -41,9 +41,13 @@ export const FAQS = [
       'In most cases, yes. Our grinder is compact enough to reach tight spots near fences, sidewalks, and foundations. We’ll walk the site with you first and explain what we can safely grind so your property stays protected.',
   },
   {
-    question: 'Are you licensed and insured?',
+    question: 'Are you insured?',
     answer:
-      'Yes. M&A Stump Grinding is fully licensed and insured for stump removal and grinding work in Florida. You get professional service and peace of mind on every job.',
+      'Yes. M&A Stump Grinding is fully insured for stump removal and grinding work in Florida. You get professional service and peace of mind on every job.',
+  },
+  {
+    question: 'How long does it take to grind a stump?',
+    answer: 'Most stumps take about 30 minutes to an hour. Larger stumps take longer.',
   },
 ]
 

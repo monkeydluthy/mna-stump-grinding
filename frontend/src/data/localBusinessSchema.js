@@ -64,6 +64,6 @@ export function buildLocalBusinessSchema() {
     areaServed: buildAreaServed(),
     sameAs: [BUSINESS.facebookUrl, BUSINESS.instagramUrl],
     description:
-      'Professional stump grinding and stump removal serving Tampa, FL and the surrounding Tampa Bay area. Licensed and insured.',
+      'Professional stump grinding and stump removal serving Tampa, FL and the surrounding Tampa Bay area. Fully insured.',
   }
 }

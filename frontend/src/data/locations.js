@@ -24,7 +24,7 @@ export const LOCATIONS = [
     title: 'Stump Grinding in Thonotosassa, FL | M&A Stump Grinding',
     h1: 'Stump Grinding in Thonotosassa, FL',
     description:
-      'Licensed stump grinding and stump removal in Thonotosassa, FL. Free estimates and cleanup included. Call, text, or request a quote today.',
+      'Stump grinding and stump removal in Thonotosassa, FL. Free estimates and cleanup included. Call, text, or request a quote today.',
     intro:
       'M&A Stump Grinding is based in Thonotosassa and serves homeowners and businesses across Hillsborough County. We grind stumps flush or below grade, clean up the site, and get your yard ready for sod, landscaping, or the next project.',
     photos: [
@@ -49,6 +49,10 @@ export const LOCATIONS = [
     ],
     /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
     sections: [
+      {
+        heading: 'Stump grinding in Thonotosassa',
+        body: 'M&A is based in Thonotosassa, and the stumps we grind here are a mix of all kinds.',
+      },
       {
         heading: 'Front yard or back yard',
         body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
@@ -80,9 +84,9 @@ export const LOCATIONS = [
           'We typically grind 6 to 12 inches below ground level, which is enough for grass, sod, or most landscaping. If you’re planting a tree or need a deeper grind for a specific project, tell us when you request a quote and we’ll plan accordingly.',
       },
       {
-        question: 'Are you licensed and insured?',
+        question: 'Are you insured?',
         answer:
-          'Yes. M&A Stump Grinding is fully licensed and insured for stump removal and grinding work in Florida. You get professional service and peace of mind on every job in Thonotosassa and across Tampa Bay.',
+          'Yes. M&A Stump Grinding is fully insured for stump removal and grinding work in Florida. You get professional service and peace of mind on every job in Thonotosassa and across Tampa Bay.',
       },
     ],
     relatedCities: [
@@ -101,7 +105,7 @@ export const LOCATIONS = [
     title: 'Stump Grinding in Tampa, FL | M&A Stump Grinding',
     h1: 'Stump Grinding in Tampa, FL',
     description:
-      'Stump grinding and stump removal in Tampa, FL. Licensed and insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+      'Stump grinding and stump removal in Tampa, FL. Fully insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
     intro:
       'M&A Stump Grinding grinds stumps for Tampa homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
     /** Real Tampa jobs: portfolio_items rows tagged city = 'Tampa'; alt text is the stored alt_text */
@@ -148,7 +152,7 @@ export const LOCATIONS = [
     faqs: [
       faqByQuestion('How do I get rid of a tree stump?'),
       faqByQuestion('How much does stump grinding cost in Tampa?'),
-      faqByQuestion('How fast can you come out?'),
+      faqByQuestion('How long does it take to grind a stump?'),
     ],
     relatedCities: [
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },

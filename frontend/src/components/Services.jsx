@@ -27,8 +27,8 @@ const Services = () => {
     },
     {
       icon: '🛡️',
-      title: 'Licensed & Insured',
-      description: 'Fully licensed and insured professionals you can trust with your property.'
+      title: 'Fully Insured',
+      description: 'Fully insured professionals you can trust with your property.'
     }
   ]
 
