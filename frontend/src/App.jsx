@@ -15,6 +15,10 @@ import './index.css'
 const headerRoot =
   typeof document !== 'undefined' ? document.getElementById('site-header-root') : null
 
+// Netlify prerender snapshots already contain a rendered header here; the portal
+// appends rather than replaces, so drop the snapshot copy before React mounts.
+headerRoot?.replaceChildren()
+
 /**
  * Site chrome that sits outside React's #root replacement:
  * - Header portals into #site-header-root (above the stable hero)
