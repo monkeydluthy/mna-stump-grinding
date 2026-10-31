@@ -93,7 +93,7 @@ export const LOCATIONS = [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
       { name: 'Brandon', path: '/' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
-      { name: 'Riverview', path: '/' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
     ],
   },
   {
@@ -158,7 +158,7 @@ export const LOCATIONS = [
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Brandon', path: '/' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
-      { name: 'Riverview', path: '/' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
     ],
   },
   {
@@ -222,7 +222,71 @@ export const LOCATIONS = [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Brandon', path: '/' },
-      { name: 'Riverview', path: '/' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
+    ],
+  },
+  {
+    slug: 'stump-grinding-temple-terrace-fl',
+    city: 'Temple Terrace',
+    county: 'Hillsborough',
+    state: 'FL',
+    path: '/stump-grinding-temple-terrace-fl',
+    title: 'Stump Grinding in Temple Terrace, FL | M&A Stump Grinding',
+    h1: 'Stump Grinding in Temple Terrace, FL',
+    description:
+      'Stump grinding and stump removal in Temple Terrace, FL. Fully insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+    intro:
+      'M&A Stump Grinding grinds stumps for Temple Terrace homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
+    /** Real Temple Terrace jobs: portfolio_items rows tagged city = 'Temple Terrace'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1793411582/mna-stump-portfolio/portfolio-1793411582329-2uu94575d.webp',
+        alt: 'Stump grinder working on a large stump in a narrow side yard between a fence and a house in Temple Terrace, Florida',
+        width: 1197,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1793411556/mna-stump-portfolio/portfolio-1793411556070-p0lkyfalz.webp',
+        alt: 'Before and after of a backyard stump beside a wood fence in Temple Terrace, Florida, with the stump ground out and wood chips spread over the area',
+        width: 1600,
+        height: 1067,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1793411526/mna-stump-portfolio/portfolio-1793411526009-c5qnxia6j.webp',
+        alt: 'Before and after of a stump in a front-yard planting bed in Temple Terrace, Florida, with the stump ground out and bare soil left',
+        width: 1600,
+        height: 1067,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
+      },
+    ],
+    /** Same shared FAQs as Tampa, with the city swapped in the cost question */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      {
+        ...faqByQuestion('How much does stump grinding cost in Tampa?'),
+        question: 'How much does stump grinding cost in Temple Terrace?',
+      },
+      faqByQuestion('How long does it take to grind a stump?'),
+    ],
+    relatedCities: [
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
+      { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
+      { name: 'Brandon', path: '/' },
     ],
   },
 ]
