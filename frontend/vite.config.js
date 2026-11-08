@@ -139,6 +139,29 @@ function locationPagesPlugin() {
         // <slug>.html (not <slug>/index.html) so Netlify serves /<slug> without a 301 to /<slug>/
         fs.writeFileSync(path.join(distDir, `${loc.slug}.html`), html, 'utf8')
       }
+
+      // Slash -> no-slash 301 for every location page, generated from LOCATIONS.
+      // Netlify's prerender layer answers Googlebot's /<slug>/ request with a 200 unless
+      // a forced redirect exists. Inserted above the SPA/catch-all rules (first match wins).
+      const redirectsPath = path.join(distDir, '_redirects')
+      if (fs.existsSync(redirectsPath)) {
+        const marker = '# Known SPA routes'
+        const rules = [
+          '# Location pages: trailing-slash -> canonical no-slash (generated from LOCATIONS)',
+          ...LOCATIONS.map((loc) => `${loc.path}/  ${loc.path}  301!`),
+          '',
+        ].join('\n')
+        const redirects = fs.readFileSync(redirectsPath, 'utf8')
+        const at = redirects.indexOf(marker)
+        if (at === -1) {
+          throw new Error('location redirects: "# Known SPA routes" marker not found in _redirects')
+        }
+        fs.writeFileSync(
+          redirectsPath,
+          redirects.slice(0, at) + rules + '\n' + redirects.slice(at),
+          'utf8'
+        )
+      }
     },
   }
 }
