@@ -156,7 +156,7 @@ export const LOCATIONS = [
     ],
     relatedCities: [
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
-      { name: 'Brandon', path: '/' },
+      { name: 'Riverview', path: '/stump-grinding-riverview-fl' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
       { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
     ],
@@ -287,6 +287,70 @@ export const LOCATIONS = [
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
       { name: 'Brandon', path: '/' },
+    ],
+  },
+  {
+    slug: 'stump-grinding-riverview-fl',
+    city: 'Riverview',
+    county: 'Hillsborough',
+    state: 'FL',
+    path: '/stump-grinding-riverview-fl',
+    title: 'Stump Grinding in Riverview, FL | M&A Stump Grinding',
+    h1: 'Stump Grinding in Riverview, FL',
+    description:
+      'Stump grinding and stump removal in Riverview, FL. Fully insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+    intro:
+      'M&A Stump Grinding grinds stumps for Riverview homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
+    /** Real Riverview jobs: portfolio_items rows tagged city = 'Riverview'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794437508/mna-stump-portfolio/portfolio-1794437507784-jguqia1kx.webp',
+        alt: 'Before and after of a front-yard stump in Riverview, Florida, with a stump grinder behind it and a bare round patch of soil left after grinding',
+        width: 1600,
+        height: 1200,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794437555/mna-stump-portfolio/portfolio-1794437555597-n7adz5416.webp',
+        alt: 'Before and after of a large front-yard stump in Riverview, Florida, with the stump ground out and a mound of ground-up material left in its place.',
+        width: 1600,
+        height: 1200,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794437621/mna-stump-portfolio/portfolio-1794437621676-13y483nxx.webp',
+        alt: 'Before and after of a stump near a utility pole in a Riverview, Florida neighborhood, with the stump ground out and a bare patch of soil left',
+        width: 1600,
+        height: 1200,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
+      },
+    ],
+    /** Same shared FAQs as Tampa, with the city swapped in the cost question */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      {
+        ...faqByQuestion('How much does stump grinding cost in Tampa?'),
+        question: 'How much does stump grinding cost in Riverview?',
+      },
+      faqByQuestion('How long does it take to grind a stump?'),
+    ],
+    relatedCities: [
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
+      { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
+      { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
     ],
   },
 ]
