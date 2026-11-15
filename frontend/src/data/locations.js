@@ -353,6 +353,74 @@ export const LOCATIONS = [
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
     ],
   },
+  {
+    slug: 'stump-grinding-wesley-chapel-fl',
+    city: 'Wesley Chapel',
+    county: 'Pasco',
+    state: 'FL',
+    path: '/stump-grinding-wesley-chapel-fl',
+    title: 'Stump Grinding in Wesley Chapel, FL | M&A Stump Grinding',
+    h1: 'Stump Grinding in Wesley Chapel, FL',
+    description:
+      'Stump grinding and stump removal in Wesley Chapel, FL. Fully insured, free estimates, and cleanup included. Call, text, or request an estimate online.',
+    intro:
+      'M&A Stump Grinding grinds stumps for Wesley Chapel homeowners and businesses. We take the stump below ground level, clean up the site, and leave your yard ready for sod, landscaping, or the next project.',
+    /** Real Wesley Chapel jobs: portfolio_items rows tagged city = 'Wesley Chapel'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794761722/mna-stump-portfolio/portfolio-1794761722231-k8s39kq4y.webp',
+        alt: 'Tree stump ground down to ground level with wood chips and pine cones around it, with a stump grinder behind it in Wesley Chapel, FL',
+        width: 739,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794761672/mna-stump-portfolio/portfolio-1794761671832-pcpsuktaa.webp',
+        alt: 'Stump grinder cutting a tree stump surrounded by wood chips, with a pond and tall pine trees behind it in Wesley Chapel, FL',
+        width: 739,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1794761630/mna-stump-portfolio/portfolio-1794761630038-tucspzao4.webp',
+        alt: 'Yellow stump grinder next to a tree stump in an open yard in Wesley Chapel, FL, with a white truck and trailer behind it',
+        width: 739,
+        height: 1600,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Newer neighborhoods, smaller lots',
+        body: "A lot of Wesley Chapel is built out in the last twenty years: Meadow Pointe, Seven Oaks, Wiregrass Ranch and the communities off State Road 56 and Bruce B. Downs. The yards are tighter than the older parts of Hillsborough, so the stump is often a few feet from a driveway, a sidewalk or the neighbor's fence. We bring the right-sized machine for the space and grind below grade so you can sod or plant over it.",
+      },
+      {
+        heading: 'Builder trees that outgrew the yard',
+        body: 'The most common call here is a tree the builder put in that got too big for the lot: an oak or a pine lifting the sidewalk, crowding the house or dropping on the roof. Once it comes down, the stump and the surface roots are what is left in the way. We grind the stump and chase the roots that are heaving pavers or sod so the spot is usable again.',
+      },
+      {
+        heading: 'HOA and gated communities',
+        body: 'Most of our Wesley Chapel jobs are in HOA neighborhoods, and many are gated. Tell us the gate code or the guard-house arrangement when you book, and if your HOA wants the stump gone by a date, say so and we will work to it. We clean up the chips so the front yard is ready for an inspection the same day.',
+      },
+      {
+        heading: 'Sandy ground and what we leave behind',
+        body: 'Pasco soil is sandy, which makes grinding straightforward but means the hole settles. We fill it with the grindings and tamp it down, and we tell you if it will want a second top-up before sod. If you want the chips hauled instead of used as fill, we can do that too.',
+      },
+    ],
+    /** Same shared FAQs as Tampa, with the city swapped in the cost question */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      {
+        ...faqByQuestion('How much does stump grinding cost in Tampa?'),
+        question: 'How much does stump grinding cost in Wesley Chapel?',
+      },
+      faqByQuestion('How long does it take to grind a stump?'),
+    ],
+    relatedCities: [
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Riverview', path: '/stump-grinding-riverview-fl' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
+      { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
+    ],
+  },
 ]
 
 export function getLocationBySlug(slug) {
