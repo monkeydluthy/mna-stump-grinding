@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { trackEvent } from '../utils/analytics'
 
@@ -35,6 +35,12 @@ const LeadForm = () => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  // Spam signals: honeypot (bots fill every field) and render → submit time
+  const [honeypot, setHoneypot] = useState('')
+  const renderedAtRef = useRef(Date.now())
+  useEffect(() => {
+    if (!success) renderedAtRef.current = Date.now()
+  }, [success])
 
   const updateField = (key) => (event) => {
     setForm((prev) => ({ ...prev, [key]: event.target.value }))
@@ -51,7 +57,7 @@ const LeadForm = () => {
 
     setSubmitting(true)
     try {
-      await axios.post('/api/leads', {
+      const response = await axios.post('/api/leads', {
         name: form.name.trim(),
         phone: form.phone.trim(),
         email: form.email.trim(),
@@ -61,14 +67,19 @@ const LeadForm = () => {
         utmSource: utm.utmSource,
         utmMedium: utm.utmMedium,
         utmCampaign: utm.utmCampaign,
+        website: honeypot,
+        elapsedMs: Date.now() - renderedAtRef.current,
       })
 
-      // No PII in GA4 params — only non-identifying context
-      trackEvent('generate_lead', {
-        lead_source: 'homepage_form',
-        has_service: Boolean(form.serviceNeeded.trim()),
-        has_utm: Boolean(utm.utmSource || utm.utmMedium || utm.utmCampaign),
-      })
+      // Filtered (spam) submissions look normal to the visitor but are not conversions
+      if (!response.data?.filtered) {
+        // No PII in GA4 params — only non-identifying context
+        trackEvent('generate_lead', {
+          lead_source: 'homepage_form',
+          has_service: Boolean(form.serviceNeeded.trim()),
+          has_utm: Boolean(utm.utmSource || utm.utmMedium || utm.utmCampaign),
+        })
+      }
 
       setSuccess(true)
       setForm({
@@ -79,6 +90,7 @@ const LeadForm = () => {
         serviceNeeded: '',
         message: '',
       })
+      setHoneypot('')
     } catch (err) {
       setError(
         err.response?.data?.error ||
@@ -165,6 +177,30 @@ const LeadForm = () => {
       <p style={{ margin: '0 0 20px', opacity: 0.9, lineHeight: 1.5, fontSize: '0.95rem' }}>
         Prefer a callback? Leave your details and we’ll reach out.
       </p>
+
+      {/* Honeypot: hidden from people and assistive tech; bots tend to fill it */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: '-10000px',
+          top: 'auto',
+          width: '1px',
+          height: '1px',
+          overflow: 'hidden',
+        }}
+      >
+        <label htmlFor="lead-website">Website</label>
+        <input
+          id="lead-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(event) => setHoneypot(event.target.value)}
+        />
+      </div>
 
       <div style={{ display: 'grid', gap: '14px' }}>
         <div>
