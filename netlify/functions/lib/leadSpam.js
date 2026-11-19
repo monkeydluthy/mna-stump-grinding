@@ -23,7 +23,7 @@ const SPAM_PHRASES = [
 const MIN_FILL_MS = 3000
 
 /** Name of the hidden honeypot field the form sends */
-const HONEYPOT_FIELD = 'website'
+const HONEYPOT_FIELD = 'contact_pref'
 
 const URL_PATTERN = /(https?:\/\/|\bwww\.)/i
 

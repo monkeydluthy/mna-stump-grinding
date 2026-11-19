@@ -67,7 +67,7 @@ const LeadForm = () => {
         utmSource: utm.utmSource,
         utmMedium: utm.utmMedium,
         utmCampaign: utm.utmCampaign,
-        website: honeypot,
+        contact_pref: honeypot,
         elapsedMs: Date.now() - renderedAtRef.current,
       })
 
@@ -190,10 +190,10 @@ const LeadForm = () => {
           overflow: 'hidden',
         }}
       >
-        <label htmlFor="lead-website">Website</label>
+        <label htmlFor="lead-contact-pref">Contact preference</label>
         <input
-          id="lead-website"
-          name="website"
+          id="lead-contact-pref"
+          name="contact_pref"
           type="text"
           tabIndex={-1}
           autoComplete="off"
