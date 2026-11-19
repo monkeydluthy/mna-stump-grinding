@@ -13,6 +13,8 @@ export const SERVICE_AREA_BY_COUNTY = [
       'Plant City',
       'Sun City Center',
       'Gibsonton',
+      'Apollo Beach',
+      'Seffner',
     ],
   },
   {

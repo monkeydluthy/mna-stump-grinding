@@ -421,6 +421,70 @@ export const LOCATIONS = [
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
     ],
   },
+  {
+    slug: 'stump-grinding-brandon-fl',
+    city: 'Brandon',
+    county: 'Hillsborough',
+    state: 'FL',
+    path: '/stump-grinding-brandon-fl',
+    title: 'Brandon, FL Stump Grinding & Removal | M&A Stump Grinding',
+    h1: 'Stump Grinding and Removal in Brandon, FL',
+    description:
+      'Need a stump gone in Brandon, FL? M&A Stump Grinding grinds it below grade and cleans up after. Fully insured. Free estimates by call, text, or online.',
+    intro:
+      'M&A Stump Grinding works with Brandon homeowners and property managers to clear out leftover tree stumps. We grind the stump down below the surface, take care of the chips the way you prefer, and leave the spot ready for grass, plants, or whatever comes next.',
+    /** Real Brandon jobs: portfolio_items rows tagged city = 'Brandon'; alt text is the stored alt_text */
+    photos: [
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1795029949/mna-stump-portfolio/portfolio-1795029949332-liia4yf4e.webp',
+        alt: 'Stump grinder cutting into a large weathered tree stump on a lawn in Brandon, FL, with wood chips flying',
+        width: 739,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1795029969/mna-stump-portfolio/portfolio-1795029969770-etaotuhhq.webp',
+        alt: 'Stump grinder parked beside a ground-down stump and loose soil on a front lawn in Brandon, FL, with a plywood sheet on the grass',
+        width: 739,
+        height: 1600,
+      },
+      {
+        src: 'https://res.cloudinary.com/dsxjzbf2c/image/upload/v1795029988/mna-stump-portfolio/portfolio-1795029988511-zzi4hh15u.webp',
+        alt: 'Large freshly cut tree stump with a stump grinder behind it in a waterfront backyard in Brandon, FL',
+        width: 739,
+        height: 1600,
+      },
+    ],
+    /** Local detail from Nick; rendered as H2 + paragraph between photos and FAQ */
+    sections: [
+      {
+        heading: 'Front yard or back yard',
+        body: 'Most jobs are front-yard stumps, with some in backyards. Either way, we bring the equipment to get to the stump.',
+      },
+      {
+        heading: 'What happens to the wood chips',
+        body: "When the stump is ground, we spread the chips out neatly and fill the hole with what's left. If you'd rather not keep them, we can pick the chips up completely. We offer both.",
+      },
+      {
+        heading: 'Before we arrive',
+        body: 'Let us know about anything near the stump: rocks, concrete, or concrete or plastic borders. It helps us plan the job.',
+      },
+    ],
+    /** Same shared FAQs as Tampa, with the city swapped in the cost question */
+    faqs: [
+      faqByQuestion('How do I get rid of a tree stump?'),
+      {
+        ...faqByQuestion('How much does stump grinding cost in Tampa?'),
+        question: 'How much does stump grinding cost in Brandon?',
+      },
+      faqByQuestion('How long does it take to grind a stump?'),
+    ],
+    relatedCities: [
+      { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
+      { name: 'Riverview', path: '/stump-grinding-riverview-fl' },
+      { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
+      { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
+    ],
+  },
 ]
 
 export function getLocationBySlug(slug) {
