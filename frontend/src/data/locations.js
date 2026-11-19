@@ -91,7 +91,7 @@ export const LOCATIONS = [
     ],
     relatedCities: [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
-      { name: 'Brandon', path: '/' },
+      { name: 'Brandon', path: '/stump-grinding-brandon-fl' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
       { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
     ],
@@ -221,7 +221,7 @@ export const LOCATIONS = [
     relatedCities: [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
-      { name: 'Brandon', path: '/' },
+      { name: 'Brandon', path: '/stump-grinding-brandon-fl' },
       { name: 'Temple Terrace', path: '/stump-grinding-temple-terrace-fl' },
     ],
   },
@@ -286,7 +286,7 @@ export const LOCATIONS = [
       { name: 'Tampa', path: '/stump-grinding-tampa-fl' },
       { name: 'Thonotosassa', path: '/stump-grinding-thonotosassa-fl' },
       { name: 'Lutz', path: '/stump-grinding-lutz-fl' },
-      { name: 'Brandon', path: '/' },
+      { name: 'Brandon', path: '/stump-grinding-brandon-fl' },
     ],
   },
   {
@@ -432,7 +432,7 @@ export const LOCATIONS = [
     description:
       'Need a stump gone in Brandon, FL? M&A Stump Grinding grinds it below grade and cleans up after. Fully insured. Free estimates by call, text, or online.',
     intro:
-      'M&A Stump Grinding works with Brandon homeowners and property managers to clear out leftover tree stumps. We grind the stump down below the surface, take care of the chips the way you prefer, and leave the spot ready for grass, plants, or whatever comes next.',
+      'M&A Stump Grinding works with Brandon homeowners and businesses to clear out leftover tree stumps. We grind the stump down below the surface, take care of the chips the way you prefer, and leave the spot ready for grass, plants, or whatever comes next.',
     /** Real Brandon jobs: portfolio_items rows tagged city = 'Brandon'; alt text is the stored alt_text */
     photos: [
       {
