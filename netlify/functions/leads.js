@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js')
 const jwt = require('jsonwebtoken')
 const { Resend } = require('resend')
+const { classifyLead } = require('./lib/leadSpam')
 
 function getSupabase() {
   const supabaseUrl = process.env.SUPABASE_URL
@@ -154,6 +155,8 @@ exports.handler = async (event) => {
         }
       }
 
+      const { spam, reasons } = classifyLead(body)
+
       const newLead = {
         id: `lead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         name,
@@ -165,7 +168,7 @@ exports.handler = async (event) => {
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
-        status: 'new',
+        status: spam ? 'spam' : 'new',
       }
 
       const { data, error } = await supabase
@@ -186,6 +189,22 @@ exports.handler = async (event) => {
         }
       }
 
+      // Spam: row is kept (status 'spam', visible under Admin → Leads → Filtered),
+      // no notification email, and the client gets a normal success plus filtered: true
+      // so it can skip the generate_lead event.
+      if (spam) {
+        console.log(`Lead ${data.id} filtered as spam: ${reasons.join(', ')}`)
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            message: 'Lead submitted successfully',
+            filtered: true,
+          }),
+        }
+      }
+
       const emailResult = await sendLeadEmail(data)
 
       return {
@@ -194,6 +213,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           success: true,
           message: 'Lead submitted successfully',
+          filtered: false,
           lead: transformLead(data),
           emailSent: emailResult.sent,
         }),
