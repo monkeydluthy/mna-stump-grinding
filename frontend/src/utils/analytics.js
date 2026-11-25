@@ -2,6 +2,52 @@ export const GA_MEASUREMENT_ID = 'G-47EDHHMP3S'
 
 let gaScriptScheduled = false
 
+// Internal-traffic flag. GA4's "Internal Traffic" rule matches the traffic_type
+// parameter, so flagged devices send traffic_type: 'internal' and the GA4 data
+// filter excludes them. A device is flagged by visiting any page with
+// ?internal=1 (remove with ?internal=0) or by logging in to /login.
+const INTERNAL_FLAG_KEY = 'mna_internal_traffic'
+export const INTERNAL_TRAFFIC_TYPE = 'internal'
+
+function readFlag() {
+  try {
+    return window.localStorage.getItem(INTERNAL_FLAG_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function hasAdminToken() {
+  try {
+    return Boolean(window.localStorage.getItem('authToken'))
+  } catch {
+    return false
+  }
+}
+
+export function markInternalTraffic() {
+  try {
+    window.localStorage.setItem(INTERNAL_FLAG_KEY, '1')
+  } catch {
+    // storage blocked: the flag still applies through a logged-in token
+  }
+}
+
+function applyInternalQueryParam() {
+  try {
+    const value = new URLSearchParams(window.location.search).get('internal')
+    if (value === '1') window.localStorage.setItem(INTERNAL_FLAG_KEY, '1')
+    else if (value === '0') window.localStorage.removeItem(INTERNAL_FLAG_KEY)
+  } catch {
+    // ignore: no storage or unparsable query string
+  }
+}
+
+export function isInternalTraffic() {
+  if (typeof window === 'undefined') return false
+  return readFlag() || hasAdminToken()
+}
+
 export function isPublicPath(pathname) {
   return pathname !== '/admin' && pathname !== '/login' && !pathname.startsWith('/admin/')
 }
@@ -14,7 +60,18 @@ function installGtagStub() {
     window.dataLayer.push(arguments)
   }
   window.gtag('js', new Date())
-  window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false })
+  const config = { send_page_view: false }
+  if (isInternalTraffic()) config.traffic_type = INTERNAL_TRAFFIC_TYPE
+  window.gtag('config', GA_MEASUREMENT_ID, config)
+}
+
+// Covers a login or ?internal=1 that happens after the config call, in the
+// same page load (single-page navigation).
+let internalApplied = false
+function syncInternalTraffic() {
+  if (internalApplied || !isInternalTraffic()) return
+  internalApplied = true
+  window.gtag('set', { traffic_type: INTERNAL_TRAFFIC_TYPE })
 }
 
 function injectGtagScript() {
@@ -56,7 +113,9 @@ export function ensureGaLoaded() {
   if (typeof window === 'undefined') return
   if (!isPublicPath(window.location.pathname)) return
 
+  applyInternalQueryParam()
   installGtagStub()
+  syncInternalTraffic()
   scheduleGtagScript()
 }
 

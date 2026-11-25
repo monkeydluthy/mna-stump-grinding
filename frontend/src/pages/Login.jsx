@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import SeoHead from '../components/SeoHead'
+import { markInternalTraffic } from '../utils/analytics'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -46,6 +47,7 @@ const Login = () => {
       if (response.data.success && response.data.token) {
         // Store JWT token
         localStorage.setItem('authToken', response.data.token)
+        markInternalTraffic()
         navigate('/admin')
       }
     } catch (error) {

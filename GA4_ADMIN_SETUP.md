@@ -63,3 +63,12 @@ Log in to `/admin` → **Analytics**. You should see last-30-day totals and top 
 
 If you see **UNAUTHENTICATED**, the private key or client email is wrong/malformed — re-paste from the JSON as above.  
 If you see **PERMISSION_DENIED**, the service account is missing Viewer on the GA4 property, or the Property ID is wrong.
+
+## Internal traffic filter (flag your own devices)
+
+The site tags flagged devices with `traffic_type: internal` before the GA4 config call.
+
+1. A device becomes internal by opening any page with `?internal=1` (undo with `?internal=0`), or by logging in at `/login`. The flag lives in localStorage (`mna_internal_traffic`), and a logged-in token also counts.
+2. In GA4: Admin > Data streams > the web stream > Configure tag settings > Define internal traffic. Create a rule with `traffic_type` value `internal` and no IP conditions (the default parameter name is `traffic_type`).
+3. Admin > Data filters > Internal Traffic: set the filter state to Testing first, check it in Reports, then set it to Active. Active filters are permanent for the data collected afterward.
+4. Visit from each device with `?internal=1` once. Clearing browser data removes the flag.
