@@ -69,6 +69,6 @@ If you see **PERMISSION_DENIED**, the service account is missing Viewer on the G
 The site tags flagged devices with `traffic_type: internal` before the GA4 config call.
 
 1. A device becomes internal by opening any page with `?internal=1` (undo with `?internal=0`), or by logging in at `/login`. The flag lives in localStorage (`mna_internal_traffic`), and a logged-in token also counts.
-2. In GA4: Admin > Data streams > the web stream > Configure tag settings > Define internal traffic. Create a rule with `traffic_type` value `internal` and no IP conditions (the default parameter name is `traffic_type`).
+2. In GA4: Admin > Data streams > the web stream > Configure tag settings > Define internal traffic. Create a rule named `Internal` with `traffic_type` value `internal`. GA4 requires at least one IP row to save the rule, so enter a placeholder that matches nobody: match type "IP address is in range (CIDR notation)", value `192.0.2.1/32` (a documentation-only address). The site sets the flag itself, so the IP row is not what identifies your devices.
 3. Admin > Data filters > Internal Traffic: set the filter state to Testing first, check it in Reports, then set it to Active. Active filters are permanent for the data collected afterward.
 4. Visit from each device with `?internal=1` once. Clearing browser data removes the flag.
