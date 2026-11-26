@@ -183,8 +183,55 @@ function portfolioPagePlugin() {
   }
 }
 
+/**
+ * Applies src/data/titles.json (the DDS SEO pod's title/description overrides, one
+ * entry per page path) to the emitted shells, last: "/" -> index.html, "/portfolio" ->
+ * portfolio.html, "/stump-grinding-<city>-fl" -> <slug>.html. Only the title, the meta
+ * description and the og share tags change; canonical and JSON-LD stay as emitted. A path
+ * with no shell is reported and skipped, never created. SeoHead applies the same file at
+ * runtime so the rendered page agrees with the served HTML. {} = no-op.
+ */
+function titleOverridesPlugin() {
+  return {
+    name: 'title-overrides-html',
+    closeBundle() {
+      const distDir = path.resolve(__dirname, 'dist')
+      const file = path.resolve(__dirname, 'src/data/titles.json')
+      if (!fs.existsSync(file)) return
+      const overrides = JSON.parse(fs.readFileSync(file, 'utf8'))
+      if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) {
+        throw new Error('src/data/titles.json must be an object keyed by page path')
+      }
+      for (const [pagePath, meta] of Object.entries(overrides)) {
+        if (!meta || typeof meta.title !== 'string' || typeof meta.description !== 'string') {
+          throw new Error(`titles.json: ${pagePath} needs string title and description`)
+        }
+        if (meta.title.length > 70 || meta.description.length > 180) {
+          throw new Error(`titles.json: ${pagePath} title/description too long`)
+        }
+        const slug = pagePath.replace(/^\/+|\/+$/g, '')
+        const target = path.join(distDir, slug ? `${slug}.html` : 'index.html')
+        if (!fs.existsSync(target)) {
+          console.warn(`title override skipped (no shell for ${pagePath})`)
+          continue
+        }
+        let html = fs
+          .readFileSync(target, 'utf8')
+          .replace(/<title>[^<]*<\/title>/, `<title>${escHtml(meta.title)}</title>`)
+          .replace(
+            /<meta\s+name="description"\s+content="[^"]*"\s*\/>/,
+            `<meta name="description" content="${escAttr(meta.description)}" />`
+          )
+        html = withShareTags(html, { title: meta.title, description: meta.description, path: slug ? `/${slug}` : '/' })
+        fs.writeFileSync(target, html, 'utf8')
+        console.log(`title override applied: ${pagePath}`)
+      }
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), structuredDataJsonLdPlugin(), locationPagesPlugin(), portfolioPagePlugin()],
+  plugins: [react(), structuredDataJsonLdPlugin(), locationPagesPlugin(), portfolioPagePlugin(), titleOverridesPlugin()],
   server: {
     port: 3000,
     proxy: {
