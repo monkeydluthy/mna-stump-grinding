@@ -1,12 +1,18 @@
 import { useEffect } from 'react'
 import { BUSINESS } from '../data/business'
+import { titleOverride } from '../data/titleOverrides'
 
 /**
  * Sets document title, meta description, optional robots, canonical, and
  * og:/twitter: share tags (skipped on noindex pages).
  * Default canonical is the GBP homepage URL; pass `canonical` for location pages.
  */
-const SeoHead = ({ title, description, robots, canonical: canonicalHref }) => {
+const SeoHead = ({ title: ownTitle, description: ownDescription, robots, canonical: canonicalHref }) => {
+  // The SEO pod's override for this page (src/data/titles.json) wins on indexable pages,
+  // so the rendered title matches the static shell the build already rewrote.
+  const override = !robots && typeof window !== 'undefined' ? titleOverride(window.location.pathname) : null
+  const title = override?.title ?? ownTitle
+  const description = override?.description ?? ownDescription
   useEffect(() => {
     if (title) {
       document.title = title
