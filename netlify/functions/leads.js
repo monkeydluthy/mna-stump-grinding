@@ -30,9 +30,9 @@ function verifyToken(authHeader) {
 
   try {
     const token = authHeader.substring(7)
-    const JWT_SECRET =
-      process.env.JWT_SECRET ||
-      'mna-stump-grinding-secret-key-change-in-production'
+    // No fallback secret: without JWT_SECRET nothing verifies (fails closed).
+    const JWT_SECRET = process.env.JWT_SECRET
+    if (!JWT_SECRET) return null
     return jwt.verify(token, JWT_SECRET)
   } catch (error) {
     return null
